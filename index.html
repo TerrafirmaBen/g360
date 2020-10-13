@@ -1,13 +1,57 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>New project</title>
-</head>
-<body>
-    <p class="example_class">Hello world!</p>
+  <head>
+    <title>G360</title>
+    <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
+    <script src="https://unpkg.com/elm-pep"></script>
+    <style>
+      .map {
+        width: 100%;
+        height:400px;
+      }
+    </style>
+  </head>
+  <link rel="icon" 
+      type="image/png" 
+      href="https://icons.iconarchive.com/icons/goodstuff-no-nonsense/free-space/1024/earth-icon.png">
+  <body>
     <div id="map" class="map"></div>
-</body>
+    <form class="form-inline">
+      <div class="col-md-3">
+        <label>Base map:</label>
+        <select id="base-layer">
+          <option value="osm">OSM (EPSG:3857)</option>
+          <option value="wms4326">WMS (EPSG:4326)</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label>Overlay map:</label>
+        <select id="overlay-layer">
+          <option value="bng">British National Grid (EPSG:27700)</option>
+          <option value="wms21781">Swisstopo WMS (EPSG:21781)</option>
+          <option value="wmts3413">NASA Arctic WMTS (EPSG:3413)</option>
+          <option value="states">United States (EPSG:3857)</option>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <label>View projection:</label>
+        <select id="view-projection">
+            <option value="EPSG:27700">British National Grid (EPSG:27700)</option>
+          <option value="EPSG:3857">Spherical Mercator (EPSG:3857)</option>
+          <option value="EPSG:4326">WGS 84 (EPSG:4326)</option>
+          <option value="ESRI:54009">Mollweide (ESRI:54009)</option>
+          <option value="EPSG:23032">ED50 / UTM zone 32N (EPSG:23032)</option>
+          <option value="EPSG:2163">US National Atlas Equal Area (EPSG:2163)</option>
+          <option value="EPSG:3413">NSIDC Polar Stereographic North (EPSG:3413)</option>
+          <option value="EPSG:5479">RSRGD2000 / MSLC2000 (EPSG:5479)</option>
+        </select>
+      </div>
+      <label>
+        Render reprojection edges
+        <input type="checkbox" id="render-edges">
+      </label>
+    </form>
     <link rel="stylesheet" href="./build/bundle.css">
     <script src="./build/bundle.js"></script>
+  </body>
 </html>
