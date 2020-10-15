@@ -10,6 +10,9 @@ import {OSM, TileImage, TileWMS} from 'ol/source';
 import {getCenter, getWidth} from 'ol/extent';
 import {get as getProjection} from 'ol/proj';
 import {register} from 'ol/proj/proj4';
+import MousePosition from 'ol/control/MousePosition';
+import {createStringXY} from 'ol/coordinate';
+import {defaults as defaultControls} from 'ol/control';
 
 proj4.defs(
   'EPSG:27700',
@@ -168,7 +171,18 @@ layers['states'] = new TileLayer({
   }),
 });
 
+var mousePositionControl = new MousePosition({
+  coordinateFormat: createStringXY(2),
+  projection: 'EPSG:27700',
+  // comment the following two lines to have the mouse position
+  // be placed within the map.
+  className: 'custom-mouse-position',
+  target: document.getElementById('mouse-position'),
+  undefinedHTML: '&nbsp;',
+});
+
 var map = new Map({
+  controls: defaultControls().extend([mousePositionControl]),
   layers: [layers['osm'], layers['bng']],
   target: 'map',
   view: new View({
@@ -208,12 +222,16 @@ function updateViewProjection() {
  */
 viewProjSelect.onchange = function () {
   updateViewProjection();
+  mousePositionControl.setProjection(getProjection(viewProjSelect.value));
 };
 
 updateViewProjection();  // update on startup
 
-var minZoom = 0;
-var maxZoom = 8;
+
+
+
+var minZoom = 2.5;
+var maxZoom = 10.5;
 
 map.getView().setMinZoom(minZoom);
 map.getView().setMaxZoom(maxZoom);
@@ -269,3 +287,6 @@ renderEdgesCheckbox.onchange = function () {
     updateRenderEdgesOnLayer(layer);
   });
 };
+
+
+

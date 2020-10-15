@@ -4034,6 +4034,85 @@
         return coordinate;
     }
     /**
+     * Returns a {@link module:ol/coordinate~CoordinateFormat} function that can be
+     * used to format
+     * a {Coordinate} to a string.
+     *
+     * Example without specifying the fractional digits:
+     *
+     *     import {createStringXY} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var stringifyFunc = createStringXY();
+     *     var out = stringifyFunc(coord);
+     *     // out is now '8, 48'
+     *
+     * Example with explicitly specifying 2 fractional digits:
+     *
+     *     import {createStringXY} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var stringifyFunc = createStringXY(2);
+     *     var out = stringifyFunc(coord);
+     *     // out is now '7.85, 47.98'
+     *
+     * @param {number=} opt_fractionDigits The number of digits to include
+     *    after the decimal point. Default is `0`.
+     * @return {CoordinateFormat} Coordinate format.
+     * @api
+     */
+    function createStringXY(opt_fractionDigits) {
+        return (
+        /**
+         * @param {Coordinate} coordinate Coordinate.
+         * @return {string} String XY.
+         */
+        function (coordinate) {
+            return toStringXY(coordinate, opt_fractionDigits);
+        });
+    }
+    /**
+     * Transforms the given {@link module:ol/coordinate~Coordinate} to a string
+     * using the given string template. The strings `{x}` and `{y}` in the template
+     * will be replaced with the first and second coordinate values respectively.
+     *
+     * Example without specifying the fractional digits:
+     *
+     *     import {format} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var template = 'Coordinate is ({x}|{y}).';
+     *     var out = format(coord, template);
+     *     // out is now 'Coordinate is (8|48).'
+     *
+     * Example explicitly specifying the fractional digits:
+     *
+     *     import {format} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var template = 'Coordinate is ({x}|{y}).';
+     *     var out = format(coord, template, 2);
+     *     // out is now 'Coordinate is (7.85|47.98).'
+     *
+     * @param {Coordinate} coordinate Coordinate.
+     * @param {string} template A template string with `{x}` and `{y}` placeholders
+     *     that will be replaced by first and second coordinate values.
+     * @param {number=} opt_fractionDigits The number of digits to include
+     *    after the decimal point. Default is `0`.
+     * @return {string} Formatted coordinate.
+     * @api
+     */
+    function format(coordinate, template, opt_fractionDigits) {
+        if (coordinate) {
+            return template
+                .replace('{x}', coordinate[0].toFixed(opt_fractionDigits))
+                .replace('{y}', coordinate[1].toFixed(opt_fractionDigits));
+        }
+        else {
+            return '';
+        }
+    }
+    /**
      * @param {Coordinate} coordinate1 First coordinate.
      * @param {Coordinate} coordinate2 Second coordinate.
      * @return {boolean} The two coordinates are equal.
@@ -4096,6 +4175,34 @@
         coordinate[0] *= scale;
         coordinate[1] *= scale;
         return coordinate;
+    }
+    /**
+     * Format a coordinate as a comma delimited string.
+     *
+     * Example without specifying fractional digits:
+     *
+     *     import {toStringXY} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var out = toStringXY(coord);
+     *     // out is now '8, 48'
+     *
+     * Example explicitly specifying 1 fractional digit:
+     *
+     *     import {toStringXY} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var out = toStringXY(coord, 1);
+     *     // out is now '7.8, 48.0'
+     *
+     * @param {Coordinate} coordinate Coordinate.
+     * @param {number=} opt_fractionDigits The number of digits to include
+     *    after the decimal point. Default is `0`.
+     * @return {string} XY.
+     * @api
+     */
+    function toStringXY(coordinate, opt_fractionDigits) {
+        return format(coordinate, '{x}, {y}', opt_fractionDigits);
     }
     /**
      * Modifies the provided coordinate in-place to be within the real world
@@ -12692,6 +12799,247 @@
     }(Control));
 
     /**
+     * @module ol/control/MousePosition
+     */
+    var __extends$s = (undefined && undefined.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    /**
+     * @type {string}
+     */
+    var PROJECTION = 'projection';
+    /**
+     * @type {string}
+     */
+    var COORDINATE_FORMAT = 'coordinateFormat';
+    /**
+     * @typedef {Object} Options
+     * @property {string} [className='ol-mouse-position'] CSS class name.
+     * @property {import("../coordinate.js").CoordinateFormat} [coordinateFormat] Coordinate format.
+     * @property {import("../proj.js").ProjectionLike} [projection] Projection. Default is the view projection.
+     * @property {function(import("../MapEvent.js").default):void} [render] Function called when the
+     * control should be re-rendered. This is called in a `requestAnimationFrame`
+     * callback.
+     * @property {HTMLElement|string} [target] Specify a target if you want the
+     * control to be rendered outside of the map's viewport.
+     * @property {string} [undefinedHTML='&#160;'] Markup to show when coordinates are not
+     * available (e.g. when the pointer leaves the map viewport).  By default, the last position
+     * will be replaced with `'&#160;'` (`&nbsp;`) when the pointer leaves the viewport.  To
+     * retain the last rendered position, set this option to something falsey (like an empty
+     * string `''`).
+     */
+    /**
+     * @classdesc
+     * A control to show the 2D coordinates of the mouse cursor. By default, these
+     * are in the view projection, but can be in any supported projection.
+     * By default the control is shown in the top right corner of the map, but this
+     * can be changed by using the css selector `.ol-mouse-position`.
+     *
+     * On touch devices, which usually do not have a mouse cursor, the coordinates
+     * of the currently touched position are shown.
+     *
+     * @api
+     */
+    var MousePosition = /** @class */ (function (_super) {
+        __extends$s(MousePosition, _super);
+        /**
+         * @param {Options=} opt_options Mouse position options.
+         */
+        function MousePosition(opt_options) {
+            var _this = this;
+            var options = opt_options ? opt_options : {};
+            var element = document.createElement('div');
+            element.className =
+                options.className !== undefined ? options.className : 'ol-mouse-position';
+            _this = _super.call(this, {
+                element: element,
+                render: options.render,
+                target: options.target,
+            }) || this;
+            _this.addEventListener(getChangeEventType(PROJECTION), _this.handleProjectionChanged_);
+            if (options.coordinateFormat) {
+                _this.setCoordinateFormat(options.coordinateFormat);
+            }
+            if (options.projection) {
+                _this.setProjection(options.projection);
+            }
+            /**
+             * @private
+             * @type {string}
+             */
+            _this.undefinedHTML_ =
+                options.undefinedHTML !== undefined ? options.undefinedHTML : '&#160;';
+            /**
+             * @private
+             * @type {boolean}
+             */
+            _this.renderOnMouseOut_ = !!_this.undefinedHTML_;
+            /**
+             * @private
+             * @type {string}
+             */
+            _this.renderedHTML_ = element.innerHTML;
+            /**
+             * @private
+             * @type {?import("../proj/Projection.js").default}
+             */
+            _this.mapProjection_ = null;
+            /**
+             * @private
+             * @type {?import("../proj.js").TransformFunction}
+             */
+            _this.transform_ = null;
+            return _this;
+        }
+        /**
+         * @private
+         */
+        MousePosition.prototype.handleProjectionChanged_ = function () {
+            this.transform_ = null;
+        };
+        /**
+         * Return the coordinate format type used to render the current position or
+         * undefined.
+         * @return {import("../coordinate.js").CoordinateFormat|undefined} The format to render the current
+         *     position in.
+         * @observable
+         * @api
+         */
+        MousePosition.prototype.getCoordinateFormat = function () {
+            return /** @type {import("../coordinate.js").CoordinateFormat|undefined} */ (this.get(COORDINATE_FORMAT));
+        };
+        /**
+         * Return the projection that is used to report the mouse position.
+         * @return {import("../proj/Projection.js").default|undefined} The projection to report mouse
+         *     position in.
+         * @observable
+         * @api
+         */
+        MousePosition.prototype.getProjection = function () {
+            return /** @type {import("../proj/Projection.js").default|undefined} */ (this.get(PROJECTION));
+        };
+        /**
+         * @param {MouseEvent} event Browser event.
+         * @protected
+         */
+        MousePosition.prototype.handleMouseMove = function (event) {
+            var map = this.getMap();
+            this.updateHTML_(map.getEventPixel(event));
+        };
+        /**
+         * @param {Event} event Browser event.
+         * @protected
+         */
+        MousePosition.prototype.handleMouseOut = function (event) {
+            this.updateHTML_(null);
+        };
+        /**
+         * Remove the control from its current map and attach it to the new map.
+         * Subclasses may set up event handlers to get notified about changes to
+         * the map here.
+         * @param {import("../PluggableMap.js").default} map Map.
+         * @api
+         */
+        MousePosition.prototype.setMap = function (map) {
+            _super.prototype.setMap.call(this, map);
+            if (map) {
+                var viewport = map.getViewport();
+                this.listenerKeys.push(listen(viewport, PointerEventType.POINTERMOVE, this.handleMouseMove, this));
+                if (this.renderOnMouseOut_) {
+                    this.listenerKeys.push(listen(viewport, PointerEventType.POINTEROUT, this.handleMouseOut, this));
+                }
+            }
+        };
+        /**
+         * Set the coordinate format type used to render the current position.
+         * @param {import("../coordinate.js").CoordinateFormat} format The format to render the current
+         *     position in.
+         * @observable
+         * @api
+         */
+        MousePosition.prototype.setCoordinateFormat = function (format) {
+            this.set(COORDINATE_FORMAT, format);
+        };
+        /**
+         * Set the projection that is used to report the mouse position.
+         * @param {import("../proj.js").ProjectionLike} projection The projection to report mouse
+         *     position in.
+         * @observable
+         * @api
+         */
+        MousePosition.prototype.setProjection = function (projection) {
+            this.set(PROJECTION, get$2(projection));
+        };
+        /**
+         * @param {?import("../pixel.js").Pixel} pixel Pixel.
+         * @private
+         */
+        MousePosition.prototype.updateHTML_ = function (pixel) {
+            var html = this.undefinedHTML_;
+            if (pixel && this.mapProjection_) {
+                if (!this.transform_) {
+                    var projection = this.getProjection();
+                    if (projection) {
+                        this.transform_ = getTransformFromProjections(this.mapProjection_, projection);
+                    }
+                    else {
+                        this.transform_ = identityTransform;
+                    }
+                }
+                var map = this.getMap();
+                var coordinate = map.getCoordinateFromPixelInternal(pixel);
+                if (coordinate) {
+                    var userProjection = getUserProjection();
+                    if (userProjection) {
+                        this.transform_ = getTransformFromProjections(this.mapProjection_, userProjection);
+                    }
+                    this.transform_(coordinate, coordinate);
+                    var coordinateFormat = this.getCoordinateFormat();
+                    if (coordinateFormat) {
+                        html = coordinateFormat(coordinate);
+                    }
+                    else {
+                        html = coordinate.toString();
+                    }
+                }
+            }
+            if (!this.renderedHTML_ || html !== this.renderedHTML_) {
+                this.element.innerHTML = html;
+                this.renderedHTML_ = html;
+            }
+        };
+        /**
+         * Update the projection. Rendering of the coordinates is done in
+         * `handleMouseMove` and `handleMouseUp`.
+         * @param {import("../MapEvent.js").default} mapEvent Map event.
+         * @override
+         */
+        MousePosition.prototype.render = function (mapEvent) {
+            var frameState = mapEvent.frameState;
+            if (!frameState) {
+                this.mapProjection_ = null;
+            }
+            else {
+                if (this.mapProjection_ != frameState.viewState.projection) {
+                    this.mapProjection_ = frameState.viewState.projection;
+                    this.transform_ = null;
+                }
+            }
+        };
+        return MousePosition;
+    }(Control));
+
+    /**
      * @module ol/control
      */
     /**
@@ -12751,7 +13099,7 @@
         ACTIVE: 'active',
     };
 
-    var __extends$s = (undefined && undefined.__extends) || (function () {
+    var __extends$t = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -12788,7 +13136,7 @@
      * @api
      */
     var Interaction = /** @class */ (function (_super) {
-        __extends$s(Interaction, _super);
+        __extends$t(Interaction, _super);
         /**
          * @param {InteractionOptions=} opt_options Options.
          */
@@ -12891,7 +13239,7 @@
         });
     }
 
-    var __extends$t = (undefined && undefined.__extends) || (function () {
+    var __extends$u = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -12915,7 +13263,7 @@
      * @api
      */
     var DoubleClickZoom = /** @class */ (function (_super) {
-        __extends$t(DoubleClickZoom, _super);
+        __extends$u(DoubleClickZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -12957,7 +13305,7 @@
         return DoubleClickZoom;
     }(Interaction));
 
-    var __extends$u = (undefined && undefined.__extends) || (function () {
+    var __extends$v = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -13008,7 +13356,7 @@
      * @api
      */
     var PointerInteraction = /** @class */ (function (_super) {
-        __extends$u(PointerInteraction, _super);
+        __extends$v(PointerInteraction, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -13343,7 +13691,7 @@
         return pointerEvent.isPrimary && pointerEvent.button === 0;
     };
 
-    var __extends$v = (undefined && undefined.__extends) || (function () {
+    var __extends$w = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -13371,7 +13719,7 @@
      * @api
      */
     var DragPan = /** @class */ (function (_super) {
-        __extends$v(DragPan, _super);
+        __extends$w(DragPan, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -13519,7 +13867,7 @@
         return DragPan;
     }(PointerInteraction));
 
-    var __extends$w = (undefined && undefined.__extends) || (function () {
+    var __extends$x = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -13550,7 +13898,7 @@
      * @api
      */
     var DragRotate = /** @class */ (function (_super) {
-        __extends$w(DragRotate, _super);
+        __extends$x(DragRotate, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -13639,7 +13987,7 @@
     /**
      * @module ol/render/Box
      */
-    var __extends$x = (undefined && undefined.__extends) || (function () {
+    var __extends$y = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -13653,7 +14001,7 @@
         };
     })();
     var RenderBox = /** @class */ (function (_super) {
-        __extends$x(RenderBox, _super);
+        __extends$y(RenderBox, _super);
         /**
          * @param {string} className CSS class name.
          */
@@ -13766,7 +14114,7 @@
         return RenderBox;
     }(Disposable));
 
-    var __extends$y = (undefined && undefined.__extends) || (function () {
+    var __extends$z = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -13828,7 +14176,7 @@
      * this type.
      */
     var DragBoxEvent = /** @class */ (function (_super) {
-        __extends$y(DragBoxEvent, _super);
+        __extends$z(DragBoxEvent, _super);
         /**
          * @param {string} type The event type.
          * @param {import("../coordinate.js").Coordinate} coordinate The event coordinate.
@@ -13866,7 +14214,7 @@
      * @api
      */
     var DragBox = /** @class */ (function (_super) {
-        __extends$y(DragBox, _super);
+        __extends$z(DragBox, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -13973,7 +14321,7 @@
         return DragBox;
     }(PointerInteraction));
 
-    var __extends$z = (undefined && undefined.__extends) || (function () {
+    var __extends$A = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14010,7 +14358,7 @@
      * @api
      */
     var DragZoom = /** @class */ (function (_super) {
-        __extends$z(DragZoom, _super);
+        __extends$A(DragZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -14080,7 +14428,7 @@
         DOWN: 40,
     };
 
-    var __extends$A = (undefined && undefined.__extends) || (function () {
+    var __extends$B = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14118,7 +14466,7 @@
      * @api
      */
     var KeyboardPan = /** @class */ (function (_super) {
-        __extends$A(KeyboardPan, _super);
+        __extends$B(KeyboardPan, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -14200,7 +14548,7 @@
         return KeyboardPan;
     }(Interaction));
 
-    var __extends$B = (undefined && undefined.__extends) || (function () {
+    var __extends$C = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14236,7 +14584,7 @@
      * @api
      */
     var KeyboardZoom = /** @class */ (function (_super) {
-        __extends$B(KeyboardZoom, _super);
+        __extends$C(KeyboardZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -14401,7 +14749,7 @@
         return Kinetic;
     }());
 
-    var __extends$C = (undefined && undefined.__extends) || (function () {
+    var __extends$D = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14445,7 +14793,7 @@
      * @api
      */
     var MouseWheelZoom = /** @class */ (function (_super) {
-        __extends$C(MouseWheelZoom, _super);
+        __extends$D(MouseWheelZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -14651,7 +14999,7 @@
         return MouseWheelZoom;
     }(Interaction));
 
-    var __extends$D = (undefined && undefined.__extends) || (function () {
+    var __extends$E = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14677,7 +15025,7 @@
      * @api
      */
     var PinchRotate = /** @class */ (function (_super) {
-        __extends$D(PinchRotate, _super);
+        __extends$E(PinchRotate, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -14799,7 +15147,7 @@
         return PinchRotate;
     }(PointerInteraction));
 
-    var __extends$E = (undefined && undefined.__extends) || (function () {
+    var __extends$F = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14823,7 +15171,7 @@
      * @api
      */
     var PinchZoom = /** @class */ (function (_super) {
-        __extends$E(PinchZoom, _super);
+        __extends$F(PinchZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -14928,7 +15276,7 @@
         return PinchZoom;
     }(PointerInteraction));
 
-    var __extends$F = (undefined && undefined.__extends) || (function () {
+    var __extends$G = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -14945,7 +15293,7 @@
      * @template {import("../layer/Layer.js").default} LayerType
      */
     var LayerRenderer = /** @class */ (function (_super) {
-        __extends$F(LayerRenderer, _super);
+        __extends$G(LayerRenderer, _super);
         /**
          * @param {LayerType} layer Layer.
          */
@@ -15098,7 +15446,7 @@
         return LayerRenderer;
     }(Observable));
 
-    var __extends$G = (undefined && undefined.__extends) || (function () {
+    var __extends$H = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15116,7 +15464,7 @@
      * @template {import("../../layer/Layer.js").default} LayerType
      */
     var CanvasLayerRenderer = /** @class */ (function (_super) {
-        __extends$G(CanvasLayerRenderer, _super);
+        __extends$H(CanvasLayerRenderer, _super);
         /**
          * @param {LayerType} layer Layer.
          */
@@ -15357,7 +15705,7 @@
         return CanvasLayerRenderer;
     }(LayerRenderer));
 
-    var __extends$H = (undefined && undefined.__extends) || (function () {
+    var __extends$I = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15374,7 +15722,7 @@
      * @abstract
      */
     var ImageBase = /** @class */ (function (_super) {
-        __extends$H(ImageBase, _super);
+        __extends$I(ImageBase, _super);
         /**
          * @param {import("./extent.js").Extent} extent Extent.
          * @param {number|undefined} resolution Resolution.
@@ -15452,7 +15800,7 @@
         return ImageBase;
     }(Target));
 
-    var __extends$I = (undefined && undefined.__extends) || (function () {
+    var __extends$J = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15483,7 +15831,7 @@
      * @api
      */
     var ImageWrapper = /** @class */ (function (_super) {
-        __extends$I(ImageWrapper, _super);
+        __extends$J(ImageWrapper, _super);
         /**
          * @param {import("./extent.js").Extent} extent Extent.
          * @param {number|undefined} resolution Resolution.
@@ -15631,7 +15979,7 @@
         };
     }
 
-    var __extends$J = (undefined && undefined.__extends) || (function () {
+    var __extends$K = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15679,7 +16027,7 @@
      * @api
      */
     var Source = /** @class */ (function (_super) {
-        __extends$J(Source, _super);
+        __extends$K(Source, _super);
         /**
          * @param {Options} options Source options.
          */
@@ -15927,7 +16275,7 @@
         return interactions;
     }
 
-    var __extends$K = (undefined && undefined.__extends) || (function () {
+    var __extends$L = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15988,7 +16336,7 @@
      * @api
      */
     var Map = /** @class */ (function (_super) {
-        __extends$K(Map, _super);
+        __extends$L(Map, _super);
         /**
          * @param {import("./PluggableMap.js").MapOptions} options Map options.
          */
@@ -16739,7 +17087,7 @@
         USE_INTERIM_TILES_ON_ERROR: 'useInterimTilesOnError',
     };
 
-    var __extends$L = (undefined && undefined.__extends) || (function () {
+    var __extends$M = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16792,7 +17140,7 @@
      * @api
      */
     var BaseTileLayer = /** @class */ (function (_super) {
-        __extends$L(BaseTileLayer, _super);
+        __extends$M(BaseTileLayer, _super);
         /**
          * @param {Options=} opt_options Tile layer options.
          */
@@ -16848,7 +17196,7 @@
         return BaseTileLayer;
     }(Layer));
 
-    var __extends$M = (undefined && undefined.__extends) || (function () {
+    var __extends$N = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16867,7 +17215,7 @@
      * @api
      */
     var CanvasTileLayerRenderer = /** @class */ (function (_super) {
-        __extends$M(CanvasTileLayerRenderer, _super);
+        __extends$N(CanvasTileLayerRenderer, _super);
         /**
          * @param {import("../../layer/Tile.js").default|import("../../layer/VectorTile.js").default} tileLayer Tile layer.
          */
@@ -17337,7 +17685,7 @@
      */
     CanvasTileLayerRenderer.prototype.getLayer;
 
-    var __extends$N = (undefined && undefined.__extends) || (function () {
+    var __extends$O = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17361,7 +17709,7 @@
      * @api
      */
     var TileLayer = /** @class */ (function (_super) {
-        __extends$N(TileLayer, _super);
+        __extends$O(TileLayer, _super);
         /**
          * @param {import("./BaseTile.js").Options=} opt_options Tile layer options.
          */
@@ -17379,7 +17727,7 @@
         return TileLayer;
     }(BaseTileLayer));
 
-    var __extends$O = (undefined && undefined.__extends) || (function () {
+    var __extends$P = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17455,7 +17803,7 @@
      * @abstract
      */
     var Tile = /** @class */ (function (_super) {
-        __extends$O(Tile, _super);
+        __extends$P(Tile, _super);
         /**
          * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
          * @param {import("./TileState.js").default} state State.
@@ -17674,7 +18022,7 @@
         return Tile;
     }(Target));
 
-    var __extends$P = (undefined && undefined.__extends) || (function () {
+    var __extends$Q = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17688,7 +18036,7 @@
         };
     })();
     var ImageTile = /** @class */ (function (_super) {
-        __extends$P(ImageTile, _super);
+        __extends$Q(ImageTile, _super);
         /**
          * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
          * @param {import("./TileState.js").default} state State.
@@ -18490,7 +18838,7 @@
         return context.canvas;
     }
 
-    var __extends$Q = (undefined && undefined.__extends) || (function () {
+    var __extends$R = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -18513,7 +18861,7 @@
      *
      */
     var ReprojTile = /** @class */ (function (_super) {
-        __extends$Q(ReprojTile, _super);
+        __extends$R(ReprojTile, _super);
         /**
          * @param {import("../proj/Projection.js").default} sourceProj Source projection.
          * @param {import("../tilegrid/TileGrid.js").default} sourceTileGrid Source tile grid.
@@ -18989,7 +19337,7 @@
         return LRUCache;
     }());
 
-    var __extends$R = (undefined && undefined.__extends) || (function () {
+    var __extends$S = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -19003,7 +19351,7 @@
         };
     })();
     var TileCache = /** @class */ (function (_super) {
-        __extends$R(TileCache, _super);
+        __extends$S(TileCache, _super);
         function TileCache() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
@@ -19206,7 +19554,7 @@
         return extent;
     }
 
-    var __extends$S = (undefined && undefined.__extends) || (function () {
+    var __extends$T = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -19243,7 +19591,7 @@
      * @api
      */
     var TileSource = /** @class */ (function (_super) {
-        __extends$S(TileSource, _super);
+        __extends$T(TileSource, _super);
         /**
          * @param {Options} options SourceTile source options.
          */
@@ -19524,7 +19872,7 @@
      * type.
      */
     var TileSourceEvent = /** @class */ (function (_super) {
-        __extends$S(TileSourceEvent, _super);
+        __extends$T(TileSourceEvent, _super);
         /**
          * @param {string} type Type.
          * @param {import("../Tile.js").default} tile The tile.
@@ -19650,7 +19998,7 @@
         return urls;
     }
 
-    var __extends$T = (undefined && undefined.__extends) || (function () {
+    var __extends$U = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -19689,7 +20037,7 @@
      * @fires import("./Tile.js").TileSourceEvent
      */
     var UrlTile = /** @class */ (function (_super) {
-        __extends$T(UrlTile, _super);
+        __extends$U(UrlTile, _super);
         /**
          * @param {Options} options Image tile options.
          */
@@ -19868,7 +20216,7 @@
         return UrlTile;
     }(TileSource));
 
-    var __extends$U = (undefined && undefined.__extends) || (function () {
+    var __extends$V = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -19933,7 +20281,7 @@
      * @api
      */
     var TileImage = /** @class */ (function (_super) {
-        __extends$U(TileImage, _super);
+        __extends$V(TileImage, _super);
         /**
          * @param {!Options} options Image tile options.
          */
@@ -20310,7 +20658,7 @@
     /**
      * @module ol/tilegrid/WMTS
      */
-    var __extends$V = (undefined && undefined.__extends) || (function () {
+    var __extends$W = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -20360,7 +20708,7 @@
      * @api
      */
     var WMTSTileGrid = /** @class */ (function (_super) {
-        __extends$V(WMTSTileGrid, _super);
+        __extends$W(WMTSTileGrid, _super);
         /**
          * @param {Options} options WMTS options.
          */
@@ -20490,7 +20838,7 @@
     /**
      * @module ol/source/WMTS
      */
-    var __extends$W = (undefined && undefined.__extends) || (function () {
+    var __extends$X = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -20551,7 +20899,7 @@
      * @api
      */
     var WMTS = /** @class */ (function (_super) {
-        __extends$W(WMTS, _super);
+        __extends$X(WMTS, _super);
         /**
          * @param {Options} options WMTS options.
          */
@@ -21302,7 +21650,7 @@
         return getAllTextContent(node, false).trim();
     }
 
-    var __extends$X = (undefined && undefined.__extends) || (function () {
+    var __extends$Y = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -21331,7 +21679,7 @@
         'OperationsMetadata': makeObjectPropertySetter(readOperationsMetadata),
     });
     var OWS = /** @class */ (function (_super) {
-        __extends$X(OWS, _super);
+        __extends$Y(OWS, _super);
         function OWS() {
             return _super.call(this) || this;
         }
@@ -21593,7 +21941,7 @@
         return readString(node);
     }
 
-    var __extends$Y = (undefined && undefined.__extends) || (function () {
+    var __extends$Z = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -21631,7 +21979,7 @@
      * @api
      */
     var WMTSCapabilities = /** @class */ (function (_super) {
-        __extends$Y(WMTSCapabilities, _super);
+        __extends$Z(WMTSCapabilities, _super);
         function WMTSCapabilities() {
             var _this = _super.call(this) || this;
             /**
@@ -28493,7 +28841,7 @@
     /**
      * @module ol/source/XYZ
      */
-    var __extends$Z = (undefined && undefined.__extends) || (function () {
+    var __extends$_ = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -28569,7 +28917,7 @@
      * @api
      */
     var XYZ = /** @class */ (function (_super) {
-        __extends$Z(XYZ, _super);
+        __extends$_(XYZ, _super);
         /**
          * @param {Options=} opt_options XYZ options.
          */
@@ -28645,7 +28993,7 @@
     /**
      * @module ol/source/OSM
      */
-    var __extends$_ = (undefined && undefined.__extends) || (function () {
+    var __extends$$ = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -28696,7 +29044,7 @@
      * @api
      */
     var OSM = /** @class */ (function (_super) {
-        __extends$_(OSM, _super);
+        __extends$$(OSM, _super);
         /**
          * @param {Options=} [opt_options] Open Street Map options.
          */
@@ -28735,7 +29083,7 @@
     /**
      * @module ol/source/TileWMS
      */
-    var __extends$$ = (undefined && undefined.__extends) || (function () {
+    var __extends$10 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -28806,7 +29154,7 @@
      * @api
      */
     var TileWMS = /** @class */ (function (_super) {
-        __extends$$(TileWMS, _super);
+        __extends$10(TileWMS, _super);
         /**
          * @param {Options=} [opt_options] Tile WMS options.
          */
@@ -29277,7 +29625,17 @@
         projection: 'EPSG:3857'
       })
     });
+    var mousePositionControl = new MousePosition({
+      coordinateFormat: createStringXY(2),
+      projection: 'EPSG:27700',
+      // comment the following two lines to have the mouse position
+      // be placed within the map.
+      className: 'custom-mouse-position',
+      target: document.getElementById('mouse-position'),
+      undefinedHTML: '&nbsp;'
+    });
     var map = new Map({
+      controls: defaults().extend([mousePositionControl]),
       layers: [layers['osm'], layers['bng']],
       target: 'map',
       view: new View({
@@ -29316,12 +29674,18 @@
 
     viewProjSelect.onchange = function () {
       updateViewProjection();
-    };
+      mousePositionControl.setProjection(get$2(viewProjSelect.value));
+    }; // var precisionInput = document.getElementById('precision');
+    // precisionInput.addEventListener('change', function (event) {
+    //   var format = createStringXY(event.target.valueAsNumber);
+    //   mousePositionControl.setCoordinateFormat(format);
+    // });
+
 
     updateViewProjection(); // update on startup
 
-    var minZoom = 0;
-    var maxZoom = 8;
+    var minZoom = 2.5;
+    var maxZoom = 10.5;
     map.getView().setMinZoom(minZoom);
     map.getView().setMaxZoom(maxZoom);
     var currZoom = map.getView().getZoom();
