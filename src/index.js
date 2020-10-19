@@ -13,6 +13,16 @@ import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
 import {createStringXY} from 'ol/coordinate';
 import {defaults as defaultControls} from 'ol/control';
+//import Client from 'pg';
+
+// const { Client } = require('pg')
+// const client = new Client()
+// client.connect()
+// client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
+//   console.log(err ? err.stack : res.rows[0].message) // Hello World!
+//   client.end()
+// })
+
 
 
 proj4.defs(
@@ -196,7 +206,7 @@ layers['tf'] = new TileLayer({
 
 var mousePositionControl = new MousePosition({
   coordinateFormat: createStringXY(2),
-  projection: 'EPSG:27700',
+  projection: document.getElementById('view-projection').value,
   // comment the following two lines to have the mouse position
   // be placed within the map.
   className: 'custom-mouse-position',
@@ -206,7 +216,7 @@ var mousePositionControl = new MousePosition({
 
 var map = new Map({
   controls: defaultControls().extend([mousePositionControl]),
-  layers: [layers['osm'], layers['bng']],
+  layers: [layers['osm']],  // Start with just initial OSM basemap
   target: 'map',
   view: new View({
     projection: 'EPSG:27700',
@@ -217,6 +227,8 @@ var map = new Map({
 
 var baseLayerSelect = document.getElementById('base-layer');
 var overlayLayerSelect = document.getElementById('overlay-layer');
+var renderOverlayCheckbox = document.getElementById('render-overlay');
+var renderOverlay = false;
 var viewProjSelect = document.getElementById('view-projection');
 var renderEdgesCheckbox = document.getElementById('render-edges');
 var renderEdges = false;
@@ -301,6 +313,16 @@ overlayLayerSelect.onchange = function () {
   }
 };
 
+renderOverlayCheckbox.onchange = function () {
+  renderOverlay = renderOverlayCheckbox.checked;
+  if (renderOverlay) {
+    var layer = layers[overlayLayerSelect.value]
+    map.getLayers().setAt(1, layer)
+  } else {
+    map.getLayers().removeAt(1);
+  }
+};
+
 /**
  * Handle change event.
  */
@@ -310,6 +332,5 @@ renderEdgesCheckbox.onchange = function () {
     updateRenderEdgesOnLayer(layer);
   });
 };
-
 
 

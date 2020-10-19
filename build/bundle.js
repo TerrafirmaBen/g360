@@ -29655,7 +29655,7 @@
     });
     var mousePositionControl = new MousePosition({
       coordinateFormat: createStringXY(2),
-      projection: 'EPSG:27700',
+      projection: document.getElementById('view-projection').value,
       // comment the following two lines to have the mouse position
       // be placed within the map.
       className: 'custom-mouse-position',
@@ -29664,7 +29664,8 @@
     });
     var map = new Map({
       controls: defaults().extend([mousePositionControl]),
-      layers: [layers['osm'], layers['bng']],
+      layers: [layers['osm']],
+      // Start with just initial OSM basemap
       target: 'map',
       view: new View({
         projection: 'EPSG:27700',
@@ -29674,6 +29675,8 @@
     });
     var baseLayerSelect = document.getElementById('base-layer');
     var overlayLayerSelect = document.getElementById('overlay-layer');
+    var renderOverlayCheckbox = document.getElementById('render-overlay');
+    var renderOverlay = false;
     var viewProjSelect = document.getElementById('view-projection');
     var renderEdgesCheckbox = document.getElementById('render-edges');
     var renderEdges = false;
@@ -29758,6 +29761,20 @@
         map.getLayers().setAt(1, layer);
       }
     };
+
+    renderOverlayCheckbox.onchange = function () {
+      renderOverlay = renderOverlayCheckbox.checked;
+
+      if (renderOverlay) {
+        console.log(map.getLayers());
+        var layer = layers[overlayLayerSelect.value];
+        map.getLayers().setAt(1, layer);
+        console.log(map.getLayers());
+      } else {
+        map.getLayers().removeAt(1);
+        console.log(map.getLayers());
+      }
+    };
     /**
      * Handle change event.
      */
@@ -29769,5 +29786,7 @@
         updateRenderEdgesOnLayer(layer);
       });
     };
+
+    console.log(map.getLayers());
 
 })));

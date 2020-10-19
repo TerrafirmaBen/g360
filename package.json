@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c",
-    "start": "parcel index.html"
+    "start": "parcel index.html",
+    "buildstart": "rollup -c && parcel index.html"
   },
   "repository": {
     "type": "git",
