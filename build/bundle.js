@@ -29522,14 +29522,6 @@
         }
     }
 
-    // const { Client } = require('pg')
-    // const client = new Client()
-    // client.connect()
-    // client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
-    //   console.log(err ? err.stack : res.rows[0].message) // Hello World!
-    //   client.end()
-    // })
-
     proj4.defs('EPSG:27700', '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' + '+x_0=400000 +y_0=-100000 +ellps=airy ' + '+towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 ' + '+units=m +no_defs');
     proj4.defs('EPSG:23032', '+proj=utm +zone=32 +ellps=intl ' + '+towgs84=-87,-98,-121,0,0,0,0 +units=m +no_defs');
     proj4.defs('EPSG:5479', '+proj=lcc +lat_1=-76.66666666666667 +lat_2=' + '-79.33333333333333 +lat_0=-78 +lon_0=163 +x_0=7000000 +y_0=5000000 ' + '+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
@@ -29677,6 +29669,9 @@
     var overlayLayerSelect = document.getElementById('overlay-layer');
     var renderOverlayCheckbox = document.getElementById('render-overlay');
     var renderOverlay = false;
+    var opacitySlider = document.getElementById("opacitySliderElement");
+    var opacityDisplay = document.getElementById("opacityDisplayValue");
+    var opacityValue = 1;
     var viewProjSelect = document.getElementById('view-projection');
     var renderEdgesCheckbox = document.getElementById('render-edges');
     var renderEdges = false;
@@ -29756,7 +29751,7 @@
       var layer = layers[overlayLayerSelect.value];
 
       if (layer) {
-        layer.setOpacity(0.7);
+        layer.setOpacity(opacityValue);
         updateRenderEdgesOnLayer(layer);
         map.getLayers().setAt(1, layer);
       }
@@ -29766,13 +29761,22 @@
       renderOverlay = renderOverlayCheckbox.checked;
 
       if (renderOverlay) {
-        console.log(map.getLayers());
         var layer = layers[overlayLayerSelect.value];
         map.getLayers().setAt(1, layer);
-        console.log(map.getLayers());
       } else {
         map.getLayers().removeAt(1);
-        console.log(map.getLayers());
+      }
+    };
+
+    opacityDisplay.innerHTML = "Opacity: 1"; // Display the default slider value
+    // Update the current slider value (each time you drag the slider handle)
+
+    opacitySlider.oninput = function () {
+      opacityValue = this.value / 100;
+      opacityDisplay.innerHTML = "Opacity: " + opacityValue;
+
+      if (renderOverlay) {
+        layers[overlayLayerSelect.value].setOpacity(opacityValue);
       }
     };
     /**
@@ -29786,7 +29790,5 @@
         updateRenderEdgesOnLayer(layer);
       });
     };
-
-    console.log(map.getLayers());
 
 })));

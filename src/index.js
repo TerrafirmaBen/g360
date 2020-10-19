@@ -13,17 +13,6 @@ import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
 import {createStringXY} from 'ol/coordinate';
 import {defaults as defaultControls} from 'ol/control';
-//import Client from 'pg';
-
-// const { Client } = require('pg')
-// const client = new Client()
-// client.connect()
-// client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
-//   console.log(err ? err.stack : res.rows[0].message) // Hello World!
-//   client.end()
-// })
-
-
 
 proj4.defs(
   'EPSG:27700',
@@ -229,9 +218,13 @@ var baseLayerSelect = document.getElementById('base-layer');
 var overlayLayerSelect = document.getElementById('overlay-layer');
 var renderOverlayCheckbox = document.getElementById('render-overlay');
 var renderOverlay = false;
+var opacitySlider = document.getElementById("opacitySliderElement");
+var opacityDisplay = document.getElementById("opacityDisplayValue");
+var opacityValue = 1;
 var viewProjSelect = document.getElementById('view-projection');
 var renderEdgesCheckbox = document.getElementById('render-edges');
 var renderEdges = false;
+
 
 function updateViewProjection() {
   var newProj = getProjection(viewProjSelect.value);
@@ -307,7 +300,7 @@ baseLayerSelect.onchange = function () {
 overlayLayerSelect.onchange = function () {
   var layer = layers[overlayLayerSelect.value];
   if (layer) {
-    layer.setOpacity(0.7);
+    layer.setOpacity(opacityValue);
     updateRenderEdgesOnLayer(layer);
     map.getLayers().setAt(1, layer);
   }
@@ -322,6 +315,18 @@ renderOverlayCheckbox.onchange = function () {
     map.getLayers().removeAt(1);
   }
 };
+
+
+opacityDisplay.innerHTML = "Opacity: 1"; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+opacitySlider.oninput = function() {
+  opacityValue = this.value / 100;
+  opacityDisplay.innerHTML = "Opacity: " + opacityValue;
+  if (renderOverlay) {
+    layers[overlayLayerSelect.value].setOpacity(opacityValue);
+  }
+} 
 
 /**
  * Handle change event.
