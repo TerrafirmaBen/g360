@@ -14,6 +14,7 @@ import MousePosition from 'ol/control/MousePosition';
 import {createStringXY} from 'ol/coordinate';
 import {defaults as defaultControls} from 'ol/control';
 
+
 proj4.defs(
   'EPSG:27700',
   '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
@@ -171,6 +172,28 @@ layers['states'] = new TileLayer({
   }),
 });
 
+layers['tf'] = new TileLayer({
+  source: new TileWMS({
+    url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+    attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+    params: {
+      'FORMAT': 'image/png',
+      'VERSION': '1.3.0',
+      'LAYERS': 'terrafirma:tf_lr_haz',
+      'exceptions': 'application/vnd.ogc.se_inimage',
+      tiled: true,
+      tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+    },
+    serverType: 'geoserver',
+    projection: 'EPSG:27700',
+  }),
+  title: 'LR Haz NGRM ol tile set',
+
+  //visible: false,
+  //opacity: 0.5,
+  minZoom: 9.5
+});
+
 var mousePositionControl = new MousePosition({
   coordinateFormat: createStringXY(2),
   projection: 'EPSG:27700',
@@ -231,7 +254,7 @@ updateViewProjection();  // update on startup
 
 
 var minZoom = 2.5;
-var maxZoom = 10.5;
+var maxZoom = 18.5;
 
 map.getView().setMinZoom(minZoom);
 map.getView().setMaxZoom(maxZoom);

@@ -29522,6 +29522,14 @@
         }
     }
 
+    // const { Client } = require('pg')
+    // const client = new Client()
+    // client.connect()
+    // client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
+    //   console.log(err ? err.stack : res.rows[0].message) // Hello World!
+    //   client.end()
+    // })
+
     proj4.defs('EPSG:27700', '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' + '+x_0=400000 +y_0=-100000 +ellps=airy ' + '+towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 ' + '+units=m +no_defs');
     proj4.defs('EPSG:23032', '+proj=utm +zone=32 +ellps=intl ' + '+towgs84=-87,-98,-121,0,0,0,0 +units=m +no_defs');
     proj4.defs('EPSG:5479', '+proj=lcc +lat_1=-76.66666666666667 +lat_2=' + '-79.33333333333333 +lat_0=-78 +lon_0=163 +x_0=7000000 +y_0=5000000 ' + '+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
@@ -29625,6 +29633,26 @@
         projection: 'EPSG:3857'
       })
     });
+    layers['tf'] = new TileLayer({
+      source: new TileWMS({
+        url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+        attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+        params: {
+          'FORMAT': 'image/png',
+          'VERSION': '1.3.0',
+          'LAYERS': 'terrafirma:tf_lr_haz',
+          'exceptions': 'application/vnd.ogc.se_inimage',
+          tiled: true,
+          tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+        },
+        serverType: 'geoserver',
+        projection: 'EPSG:27700'
+      }),
+      title: 'LR Haz NGRM ol tile set',
+      //visible: false,
+      //opacity: 0.5,
+      minZoom: 9.5
+    });
     var mousePositionControl = new MousePosition({
       coordinateFormat: createStringXY(2),
       projection: 'EPSG:27700',
@@ -29675,17 +29703,12 @@
     viewProjSelect.onchange = function () {
       updateViewProjection();
       mousePositionControl.setProjection(get$2(viewProjSelect.value));
-    }; // var precisionInput = document.getElementById('precision');
-    // precisionInput.addEventListener('change', function (event) {
-    //   var format = createStringXY(event.target.valueAsNumber);
-    //   mousePositionControl.setCoordinateFormat(format);
-    // });
-
+    };
 
     updateViewProjection(); // update on startup
 
     var minZoom = 2.5;
-    var maxZoom = 10.5;
+    var maxZoom = 18.5;
     map.getView().setMinZoom(minZoom);
     map.getView().setMaxZoom(maxZoom);
     var currZoom = map.getView().getZoom();
