@@ -13,6 +13,17 @@ import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
 import {createStringXY} from 'ol/coordinate';
 import {defaults as defaultControls} from 'ol/control';
+import {Fill, Stroke, Circle} from 'ol/style';
+import {VectorImage, Vector as VectorLayer} from 'ol/layer';
+import {Vector as VectorSource} from 'ol/source';
+import {GeoJSON, TopoJSON} from 'ol/format';
+import {Style} from 'ol/style';
+//import {VectorImageLayer} from 'ol/layer/VectorImage';
+//import VectorSource from 'ol/source/Vector';
+
+var opacityValue = 1;
+
+
 
 proj4.defs(
   'EPSG:27700',
@@ -193,6 +204,65 @@ layers['tf'] = new TileLayer({
   minZoom: 9.5
 });
 
+var fillStyle = new Fill({
+  color: [255, 0, 0, 0.1]
+});
+var lineStyle = new Stroke({
+  color: [0, 0, 0, 1],
+  width: 1.5,
+  lineDash: [10, 5]
+});
+var pointStyle = new Circle({
+  fill: new Fill({
+    color: [0, 102, 0, 0.5]
+  }),
+  stroke: new Stroke({
+    color: [155, 0, 0, 1],
+    width: 2
+  }),
+  radius: 5
+});
+
+layers['eer'] = new VectorLayer({
+  source: new VectorSource({
+    url: 'https://martinjc.github.io/UK-GeoJSON/json/eng/topo_eer.json',
+    format: new TopoJSON(),
+    //projection: document.getElementById('view-projection').value
+  }),
+  //visible: false,
+  title: 'eer',
+  style: new Style({
+    fill: fillStyle,
+    stroke: lineStyle,
+    image: pointStyle
+  })
+});
+
+var style = new Style({
+  fill: new Fill({
+    color: 'rgba(255, 255, 255, 0.6)',
+  }),
+  stroke: new Stroke({
+    color: '#319FD3',
+    width: 1,
+  }),
+  text: new Text(),
+});
+
+layers['countries'] = new VectorLayer({
+  imageRatio: 2,
+  source: new VectorSource({
+    format: new GeoJSON(),
+    url: 'https://openlayers.org/en/v4.6.5/examples/data/geojson/countries.geojson',
+    
+  }),
+  // style: function (feature) {
+  //   style.getText().setText(feature.get('name'));
+  //   return style;
+  // },
+})
+
+
 var mousePositionControl = new MousePosition({
   coordinateFormat: createStringXY(2),
   projection: document.getElementById('view-projection').value,
@@ -220,7 +290,6 @@ var renderOverlayCheckbox = document.getElementById('render-overlay');
 var renderOverlay = false;
 var opacitySlider = document.getElementById("opacitySliderElement");
 var opacityDisplay = document.getElementById("opacityDisplayValue");
-var opacityValue = 1;
 var viewProjSelect = document.getElementById('view-projection');
 var renderEdgesCheckbox = document.getElementById('render-edges');
 var renderEdges = false;
@@ -299,7 +368,7 @@ baseLayerSelect.onchange = function () {
  */
 overlayLayerSelect.onchange = function () {
   var layer = layers[overlayLayerSelect.value];
-  if (layer) {
+  if (layer && renderOverlay) {
     layer.setOpacity(opacityValue);
     updateRenderEdgesOnLayer(layer);
     map.getLayers().setAt(1, layer);
@@ -311,6 +380,7 @@ renderOverlayCheckbox.onchange = function () {
   if (renderOverlay) {
     var layer = layers[overlayLayerSelect.value]
     map.getLayers().setAt(1, layer)
+    layer.setOpacity(opacityValue);
   } else {
     map.getLayers().removeAt(1);
   }
