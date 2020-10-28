@@ -1,4 +1,5 @@
 import 'ol/ol.css';
+import './styles/example.css';
 import Map from 'ol/Map';
 import TileGrid from 'ol/tilegrid/TileGrid';
 import TileLayer from 'ol/layer/Tile';
@@ -8,16 +9,18 @@ import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 import proj4 from 'proj4';
 import {OSM, TileImage, TileWMS} from 'ol/source';
 import {getCenter, getWidth} from 'ol/extent';
-import {get as getProjection} from 'ol/proj';
+import {get as getProjection, toLonLat} from 'ol/proj';
 import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
-import {createStringXY} from 'ol/coordinate';
+import {createStringXY, toStringHDMS} from 'ol/coordinate';
 import {defaults as defaultControls} from 'ol/control';
 import {Fill, Stroke, Circle} from 'ol/style';
-import {VectorImage, Vector as VectorLayer} from 'ol/layer';
+import {Vector as VectorLayer} from 'ol/layer';
 import {Vector as VectorSource} from 'ol/source';
 import {GeoJSON, TopoJSON} from 'ol/format';
 import {Style} from 'ol/style';
+import {Select} from 'ol/interaction';
+import Overlay from 'ol/Overlay';
 //import {VectorImageLayer} from 'ol/layer/VectorImage';
 //import VectorSource from 'ol/source/Vector';
 
@@ -273,9 +276,23 @@ var mousePositionControl = new MousePosition({
   undefinedHTML: '&nbsp;',
 });
 
+var container = document.getElementById('popup');
+var content = document.getElementById('popup-content');
+var closer = document.getElementById('popup-closer');
+
+var overlay = new Overlay({
+  element: container,
+  autoPan: true,
+  autoPanAnimation: {
+    duration: 250,
+  },
+});
+
+
 var map = new Map({
   controls: defaultControls().extend([mousePositionControl]),
   layers: [layers['osm']],  // Start with just initial OSM basemap
+  overlays: [overlay],
   target: 'map',
   view: new View({
     projection: 'EPSG:27700',
@@ -409,3 +426,43 @@ renderEdgesCheckbox.onchange = function () {
 };
 
 
+var select = new Select();
+map.addInteraction(select);
+var selectedFeatures = select.getFeatures();
+
+var infoBox = document.getElementById('info');
+
+selectedFeatures.on(['add', 'remove'], function () {
+  var names = selectedFeatures.getArray().map(function (feature) {
+    return feature.get('EER13NM');
+  });
+  if (names.length > 0) {
+    infoBox.innerHTML = names.join(', ');
+  } else {
+    infoBox.innerHTML = 'No electoral region selected';
+  }
+});
+
+
+closer.onclick = function () {
+  overlay.setPosition(undefined);
+  closer.blur();
+  return false;
+};
+
+
+map.on('singleclick', function (evt) {
+  var coordinate = evt.coordinate;
+  var hdms = toStringHDMS(toLonLat(coordinate));
+  var region = selectedFeatures.getArray().map(function (feature) {
+    return feature.get('EER13NM');
+  });
+  var regiontext = 'No electoral region selected';
+  if (region.length > 0) {
+    regiontext = region.join(', ');
+  }
+
+  content.innerHTML = '<p>You clicked here:</p><code>' + hdms + 
+  '</code><p>Region:</p><code>' + regiontext + '</code>';
+  overlay.setPosition(coordinate);
+});

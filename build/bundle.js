@@ -3520,6 +3520,32 @@
         return /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
     }
     /**
+     * Get the current computed width for the given element including margin,
+     * padding and border.
+     * Equivalent to jQuery's `$(el).outerWidth(true)`.
+     * @param {!HTMLElement} element Element.
+     * @return {number} The width.
+     */
+    function outerWidth(element) {
+        var width = element.offsetWidth;
+        var style = getComputedStyle(element);
+        width += parseInt(style.marginLeft, 10) + parseInt(style.marginRight, 10);
+        return width;
+    }
+    /**
+     * Get the current computed height for the given element including margin,
+     * padding and border.
+     * Equivalent to jQuery's `$(el).outerHeight(true)`.
+     * @param {!HTMLElement} element Element.
+     * @return {number} The height.
+     */
+    function outerHeight(element) {
+        var height = element.offsetHeight;
+        var style = getComputedStyle(element);
+        height += parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
+        return height;
+    }
+    /**
      * @param {Node} newNode Node to replace old node
      * @param {Node} oldNode The node to be replaced
      */
@@ -3601,6 +3627,13 @@
      * @type {string}
      */
     var CLASS_HIDDEN = 'ol-hidden';
+    /**
+     * The CSS class that we'll give the DOM elements to have them selectable.
+     *
+     * @const
+     * @type {string}
+     */
+    var CLASS_SELECTABLE = 'ol-selectable';
     /**
      * The CSS class that we'll give the DOM elements to have them unselectable.
      *
@@ -4814,6 +4847,20 @@
      * @module ol/string
      */
     /**
+     * @param {number} number Number to be formatted
+     * @param {number} width The desired width
+     * @param {number=} opt_precision Precision of the output string (i.e. number of decimal places)
+     * @returns {string} Formatted string
+     */
+    function padNumber(number, width, opt_precision) {
+        var numberString = opt_precision !== undefined ? number.toFixed(opt_precision) : '' + number;
+        var decimal = numberString.indexOf('.');
+        decimal = decimal === -1 ? numberString.length : decimal;
+        return decimal > width
+            ? numberString
+            : new Array(1 + width - decimal).join('0') + numberString;
+    }
+    /**
      * Adapted from https://github.com/omichelsen/compare-versions/blob/master/index.js
      * @param {string|number} v1 First version
      * @param {string|number} v2 Second version
@@ -4910,6 +4957,40 @@
         function (coordinate) {
             return toStringXY(coordinate, opt_fractionDigits);
         });
+    }
+    /**
+     * @param {string} hemispheres Hemispheres.
+     * @param {number} degrees Degrees.
+     * @param {number=} opt_fractionDigits The number of digits to include
+     *    after the decimal point. Default is `0`.
+     * @return {string} String.
+     */
+    function degreesToStringHDMS(hemispheres, degrees, opt_fractionDigits) {
+        var normalizedDegrees = modulo(degrees + 180, 360) - 180;
+        var x = Math.abs(3600 * normalizedDegrees);
+        var dflPrecision = opt_fractionDigits || 0;
+        var precision = Math.pow(10, dflPrecision);
+        var deg = Math.floor(x / 3600);
+        var min = Math.floor((x - deg * 3600) / 60);
+        var sec = x - deg * 3600 - min * 60;
+        sec = Math.ceil(sec * precision) / precision;
+        if (sec >= 60) {
+            sec = 0;
+            min += 1;
+        }
+        if (min >= 60) {
+            min = 0;
+            deg += 1;
+        }
+        return (deg +
+            '\u00b0 ' +
+            padNumber(min, 2) +
+            '\u2032 ' +
+            padNumber(sec, 2, dflPrecision) +
+            '\u2033' +
+            (normalizedDegrees == 0
+                ? ''
+                : ' ' + hemispheres.charAt(normalizedDegrees < 0 ? 1 : 0)));
     }
     /**
      * Transforms the given {@link module:ol/coordinate~Coordinate} to a string
@@ -5015,6 +5096,42 @@
         coordinate[0] *= scale;
         coordinate[1] *= scale;
         return coordinate;
+    }
+    /**
+     * Format a geographic coordinate with the hemisphere, degrees, minutes, and
+     * seconds.
+     *
+     * Example without specifying fractional digits:
+     *
+     *     import {toStringHDMS} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var out = toStringHDMS(coord);
+     *     // out is now '47° 58′ 60″ N 7° 50′ 60″ E'
+     *
+     * Example explicitly specifying 1 fractional digit:
+     *
+     *     import {toStringHDMS} from 'ol/coordinate';
+     *
+     *     var coord = [7.85, 47.983333];
+     *     var out = toStringHDMS(coord, 1);
+     *     // out is now '47° 58′ 60.0″ N 7° 50′ 60.0″ E'
+     *
+     * @param {Coordinate} coordinate Coordinate.
+     * @param {number=} opt_fractionDigits The number of digits to include
+     *    after the decimal point. Default is `0`.
+     * @return {string} Hemisphere, degrees, minutes and seconds.
+     * @api
+     */
+    function toStringHDMS(coordinate, opt_fractionDigits) {
+        if (coordinate) {
+            return (degreesToStringHDMS('NS', coordinate[1], opt_fractionDigits) +
+                ' ' +
+                degreesToStringHDMS('EW', coordinate[0], opt_fractionDigits));
+        }
+        else {
+            return '';
+        }
     }
     /**
      * Format a coordinate as a comma delimited string.
@@ -5325,6 +5442,23 @@
         var destProj = get$2(destination);
         add$1(sourceProj, destProj, createTransformFromCoordinateTransform(forward));
         add$1(destProj, sourceProj, createTransformFromCoordinateTransform(inverse));
+    }
+    /**
+     * Transforms a coordinate to longitude/latitude.
+     * @param {import("./coordinate.js").Coordinate} coordinate Projected coordinate.
+     * @param {ProjectionLike=} opt_projection Projection of the coordinate.
+     *     The default is Web Mercator, i.e. 'EPSG:3857'.
+     * @return {import("./coordinate.js").Coordinate} Coordinate as longitude and latitude, i.e. an array
+     *     with longitude as 1st and latitude as 2nd element.
+     * @api
+     */
+    function toLonLat(coordinate, opt_projection) {
+        var lonLat = transform(coordinate, opt_projection !== undefined ? opt_projection : 'EPSG:3857', 'EPSG:4326');
+        var lon = lonLat[0];
+        if (lon < -180 || lon > 180) {
+            lonLat[0] = modulo(lon + 180, 360) - 180;
+        }
+        return lonLat;
     }
     /**
      * Checks if two projections are the same, that is every coordinate in one
@@ -15390,6 +15524,535 @@
     }(Control));
 
     /**
+     * @module ol/OverlayPositioning
+     */
+    /**
+     * Overlay position: `'bottom-left'`, `'bottom-center'`,  `'bottom-right'`,
+     * `'center-left'`, `'center-center'`, `'center-right'`, `'top-left'`,
+     * `'top-center'`, `'top-right'`
+     * @enum {string}
+     */
+    var OverlayPositioning = {
+        BOTTOM_LEFT: 'bottom-left',
+        BOTTOM_CENTER: 'bottom-center',
+        BOTTOM_RIGHT: 'bottom-right',
+        CENTER_LEFT: 'center-left',
+        CENTER_CENTER: 'center-center',
+        CENTER_RIGHT: 'center-right',
+        TOP_LEFT: 'top-left',
+        TOP_CENTER: 'top-center',
+        TOP_RIGHT: 'top-right',
+    };
+
+    var __extends$u = (undefined && undefined.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    /**
+     * @typedef {Object} Options
+     * @property {number|string} [id] Set the overlay id. The overlay id can be used
+     * with the {@link module:ol/Map~Map#getOverlayById} method.
+     * @property {HTMLElement} [element] The overlay element.
+     * @property {Array<number>} [offset=[0, 0]] Offsets in pixels used when positioning
+     * the overlay. The first element in the
+     * array is the horizontal offset. A positive value shifts the overlay right.
+     * The second element in the array is the vertical offset. A positive value
+     * shifts the overlay down.
+     * @property {import("./coordinate.js").Coordinate} [position] The overlay position
+     * in map projection.
+     * @property {import("./OverlayPositioning.js").default} [positioning='top-left'] Defines how
+     * the overlay is actually positioned with respect to its `position` property.
+     * Possible values are `'bottom-left'`, `'bottom-center'`, `'bottom-right'`,
+     * `'center-left'`, `'center-center'`, `'center-right'`, `'top-left'`,
+     * `'top-center'`, and `'top-right'`.
+     * @property {boolean} [stopEvent=true] Whether event propagation to the map
+     * viewport should be stopped. If `true` the overlay is placed in the same
+     * container as that of the controls (CSS class name
+     * `ol-overlaycontainer-stopevent`); if `false` it is placed in the container
+     * with CSS class name specified by the `className` property.
+     * @property {boolean} [insertFirst=true] Whether the overlay is inserted first
+     * in the overlay container, or appended. If the overlay is placed in the same
+     * container as that of the controls (see the `stopEvent` option) you will
+     * probably set `insertFirst` to `true` so the overlay is displayed below the
+     * controls.
+     * @property {PanIntoViewOptions|boolean} [autoPan=false] Pan the map when calling
+     * `setPosition`, so that the overlay is entirely visible in the current viewport?
+     * If `true` (deprecated), then `autoPanAnimation` and `autoPanMargin` will be
+     * used to determine the panning parameters; if an object is supplied then other
+     * parameters are ignored.
+     * @property {PanOptions} [autoPanAnimation] The animation options used to pan
+     * the overlay into view. This animation is only used when `autoPan` is enabled.
+     * A `duration` and `easing` may be provided to customize the animation.
+     * Deprecated and ignored if `autoPan` is supplied as an object.
+     * @property {number} [autoPanMargin=20] The margin (in pixels) between the
+     * overlay and the borders of the map when autopanning. Deprecated and ignored
+     * if `autoPan` is supplied as an object.
+     * @property {PanIntoViewOptions} [autoPanOptions] The options to use for the
+     * autoPan. This is only used when `autoPan` is enabled and has preference over
+     * the individual `autoPanMargin` and `autoPanOptions`.
+     * @property {string} [className='ol-overlay-container ol-selectable'] CSS class
+     * name.
+     */
+    /**
+     * @typedef {Object} PanOptions
+     * @property {number} [duration=1000] The duration of the animation in
+     * milliseconds.
+     * @property {function(number):number} [easing] The easing function to use. Can
+     * be one from {@link module:ol/easing} or a custom function.
+     * Default is {@link module:ol/easing~inAndOut}.
+     */
+    /**
+     * @typedef {Object} PanIntoViewOptions
+     * @property {PanOptions} [animation={}] The animation parameters for the pan
+     * @property {number} [margin=20] The margin (in pixels) between the
+     * overlay and the borders of the map when panning into view.
+     */
+    /**
+     * @enum {string}
+     * @protected
+     */
+    var Property$2 = {
+        ELEMENT: 'element',
+        MAP: 'map',
+        OFFSET: 'offset',
+        POSITION: 'position',
+        POSITIONING: 'positioning',
+    };
+    /**
+     * @classdesc
+     * An element to be displayed over the map and attached to a single map
+     * location.  Like {@link module:ol/control/Control~Control}, Overlays are
+     * visible widgets. Unlike Controls, they are not in a fixed position on the
+     * screen, but are tied to a geographical coordinate, so panning the map will
+     * move an Overlay but not a Control.
+     *
+     * Example:
+     *
+     *     import Overlay from 'ol/Overlay';
+     *
+     *     var popup = new Overlay({
+     *       element: document.getElementById('popup')
+     *     });
+     *     popup.setPosition(coordinate);
+     *     map.addOverlay(popup);
+     *
+     * @api
+     */
+    var Overlay = /** @class */ (function (_super) {
+        __extends$u(Overlay, _super);
+        /**
+         * @param {Options} options Overlay options.
+         */
+        function Overlay(options) {
+            var _this = _super.call(this) || this;
+            /**
+             * @protected
+             * @type {Options}
+             */
+            _this.options = options;
+            /**
+             * @protected
+             * @type {number|string|undefined}
+             */
+            _this.id = options.id;
+            /**
+             * @protected
+             * @type {boolean}
+             */
+            _this.insertFirst =
+                options.insertFirst !== undefined ? options.insertFirst : true;
+            /**
+             * @protected
+             * @type {boolean}
+             */
+            _this.stopEvent = options.stopEvent !== undefined ? options.stopEvent : true;
+            /**
+             * @protected
+             * @type {HTMLElement}
+             */
+            _this.element = document.createElement('div');
+            _this.element.className =
+                options.className !== undefined
+                    ? options.className
+                    : 'ol-overlay-container ' + CLASS_SELECTABLE;
+            _this.element.style.position = 'absolute';
+            _this.element.style.pointerEvents = 'auto';
+            var autoPan = options.autoPan;
+            if (autoPan && 'object' !== typeof autoPan) {
+                autoPan = {
+                    animation: options.autoPanAnimation,
+                    margin: options.autoPanMargin,
+                };
+            }
+            /**
+             * @protected
+             * @type {PanIntoViewOptions|false}
+             */
+            _this.autoPan = /** @type {PanIntoViewOptions} */ (autoPan) || false;
+            /**
+             * @protected
+             * @type {{transform_: string,
+             *         visible: boolean}}
+             */
+            _this.rendered = {
+                transform_: '',
+                visible: true,
+            };
+            /**
+             * @protected
+             * @type {?import("./events.js").EventsKey}
+             */
+            _this.mapPostrenderListenerKey = null;
+            _this.addEventListener(getChangeEventType(Property$2.ELEMENT), _this.handleElementChanged);
+            _this.addEventListener(getChangeEventType(Property$2.MAP), _this.handleMapChanged);
+            _this.addEventListener(getChangeEventType(Property$2.OFFSET), _this.handleOffsetChanged);
+            _this.addEventListener(getChangeEventType(Property$2.POSITION), _this.handlePositionChanged);
+            _this.addEventListener(getChangeEventType(Property$2.POSITIONING), _this.handlePositioningChanged);
+            if (options.element !== undefined) {
+                _this.setElement(options.element);
+            }
+            _this.setOffset(options.offset !== undefined ? options.offset : [0, 0]);
+            _this.setPositioning(options.positioning !== undefined
+                ? /** @type {import("./OverlayPositioning.js").default} */ (options.positioning)
+                : OverlayPositioning.TOP_LEFT);
+            if (options.position !== undefined) {
+                _this.setPosition(options.position);
+            }
+            return _this;
+        }
+        /**
+         * Get the DOM element of this overlay.
+         * @return {HTMLElement|undefined} The Element containing the overlay.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.getElement = function () {
+            return /** @type {HTMLElement|undefined} */ (this.get(Property$2.ELEMENT));
+        };
+        /**
+         * Get the overlay identifier which is set on constructor.
+         * @return {number|string|undefined} Id.
+         * @api
+         */
+        Overlay.prototype.getId = function () {
+            return this.id;
+        };
+        /**
+         * Get the map associated with this overlay.
+         * @return {import("./PluggableMap.js").default|undefined} The map that the
+         * overlay is part of.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.getMap = function () {
+            return /** @type {import("./PluggableMap.js").default|undefined} */ (this.get(Property$2.MAP));
+        };
+        /**
+         * Get the offset of this overlay.
+         * @return {Array<number>} The offset.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.getOffset = function () {
+            return /** @type {Array<number>} */ (this.get(Property$2.OFFSET));
+        };
+        /**
+         * Get the current position of this overlay.
+         * @return {import("./coordinate.js").Coordinate|undefined} The spatial point that the overlay is
+         *     anchored at.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.getPosition = function () {
+            return /** @type {import("./coordinate.js").Coordinate|undefined} */ (this.get(Property$2.POSITION));
+        };
+        /**
+         * Get the current positioning of this overlay.
+         * @return {import("./OverlayPositioning.js").default} How the overlay is positioned
+         *     relative to its point on the map.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.getPositioning = function () {
+            return /** @type {import("./OverlayPositioning.js").default} */ (this.get(Property$2.POSITIONING));
+        };
+        /**
+         * @protected
+         */
+        Overlay.prototype.handleElementChanged = function () {
+            removeChildren(this.element);
+            var element = this.getElement();
+            if (element) {
+                this.element.appendChild(element);
+            }
+        };
+        /**
+         * @protected
+         */
+        Overlay.prototype.handleMapChanged = function () {
+            if (this.mapPostrenderListenerKey) {
+                removeNode(this.element);
+                unlistenByKey(this.mapPostrenderListenerKey);
+                this.mapPostrenderListenerKey = null;
+            }
+            var map = this.getMap();
+            if (map) {
+                this.mapPostrenderListenerKey = listen(map, MapEventType.POSTRENDER, this.render, this);
+                this.updatePixelPosition();
+                var container = this.stopEvent
+                    ? map.getOverlayContainerStopEvent()
+                    : map.getOverlayContainer();
+                if (this.insertFirst) {
+                    container.insertBefore(this.element, container.childNodes[0] || null);
+                }
+                else {
+                    container.appendChild(this.element);
+                }
+                this.performAutoPan();
+            }
+        };
+        /**
+         * @protected
+         */
+        Overlay.prototype.render = function () {
+            this.updatePixelPosition();
+        };
+        /**
+         * @protected
+         */
+        Overlay.prototype.handleOffsetChanged = function () {
+            this.updatePixelPosition();
+        };
+        /**
+         * @protected
+         */
+        Overlay.prototype.handlePositionChanged = function () {
+            this.updatePixelPosition();
+            this.performAutoPan();
+        };
+        /**
+         * @protected
+         */
+        Overlay.prototype.handlePositioningChanged = function () {
+            this.updatePixelPosition();
+        };
+        /**
+         * Set the DOM element to be associated with this overlay.
+         * @param {HTMLElement|undefined} element The Element containing the overlay.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.setElement = function (element) {
+            this.set(Property$2.ELEMENT, element);
+        };
+        /**
+         * Set the map to be associated with this overlay.
+         * @param {import("./PluggableMap.js").default|undefined} map The map that the
+         * overlay is part of.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.setMap = function (map) {
+            this.set(Property$2.MAP, map);
+        };
+        /**
+         * Set the offset for this overlay.
+         * @param {Array<number>} offset Offset.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.setOffset = function (offset) {
+            this.set(Property$2.OFFSET, offset);
+        };
+        /**
+         * Set the position for this overlay. If the position is `undefined` the
+         * overlay is hidden.
+         * @param {import("./coordinate.js").Coordinate|undefined} position The spatial point that the overlay
+         *     is anchored at.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.setPosition = function (position) {
+            this.set(Property$2.POSITION, position);
+        };
+        /**
+         * Pan the map so that the overlay is entirely visisble in the current viewport
+         * (if necessary) using the configured autoPan parameters
+         * @protected
+         */
+        Overlay.prototype.performAutoPan = function () {
+            if (this.autoPan) {
+                this.panIntoView(this.autoPan);
+            }
+        };
+        /**
+         * Pan the map so that the overlay is entirely visible in the current viewport
+         * (if necessary).
+         * @param {PanIntoViewOptions=} opt_panIntoViewOptions Options for the pan action
+         * @api
+         */
+        Overlay.prototype.panIntoView = function (opt_panIntoViewOptions) {
+            var map = this.getMap();
+            if (!map || !map.getTargetElement() || !this.get(Property$2.POSITION)) {
+                return;
+            }
+            var mapRect = this.getRect(map.getTargetElement(), map.getSize());
+            var element = this.getElement();
+            var overlayRect = this.getRect(element, [
+                outerWidth(element),
+                outerHeight(element),
+            ]);
+            var panIntoViewOptions = opt_panIntoViewOptions || {};
+            var myMargin = panIntoViewOptions.margin === undefined ? 20 : panIntoViewOptions.margin;
+            if (!containsExtent(mapRect, overlayRect)) {
+                // the overlay is not completely inside the viewport, so pan the map
+                var offsetLeft = overlayRect[0] - mapRect[0];
+                var offsetRight = mapRect[2] - overlayRect[2];
+                var offsetTop = overlayRect[1] - mapRect[1];
+                var offsetBottom = mapRect[3] - overlayRect[3];
+                var delta = [0, 0];
+                if (offsetLeft < 0) {
+                    // move map to the left
+                    delta[0] = offsetLeft - myMargin;
+                }
+                else if (offsetRight < 0) {
+                    // move map to the right
+                    delta[0] = Math.abs(offsetRight) + myMargin;
+                }
+                if (offsetTop < 0) {
+                    // move map up
+                    delta[1] = offsetTop - myMargin;
+                }
+                else if (offsetBottom < 0) {
+                    // move map down
+                    delta[1] = Math.abs(offsetBottom) + myMargin;
+                }
+                if (delta[0] !== 0 || delta[1] !== 0) {
+                    var center = /** @type {import("./coordinate.js").Coordinate} */ (map
+                        .getView()
+                        .getCenterInternal());
+                    var centerPx = map.getPixelFromCoordinateInternal(center);
+                    var newCenterPx = [centerPx[0] + delta[0], centerPx[1] + delta[1]];
+                    var panOptions = panIntoViewOptions.animation || {};
+                    map.getView().animateInternal({
+                        center: map.getCoordinateFromPixelInternal(newCenterPx),
+                        duration: panOptions.duration,
+                        easing: panOptions.easing,
+                    });
+                }
+            }
+        };
+        /**
+         * Get the extent of an element relative to the document
+         * @param {HTMLElement} element The element.
+         * @param {import("./size.js").Size} size The size of the element.
+         * @return {import("./extent.js").Extent} The extent.
+         * @protected
+         */
+        Overlay.prototype.getRect = function (element, size) {
+            var box = element.getBoundingClientRect();
+            var offsetX = box.left + window.pageXOffset;
+            var offsetY = box.top + window.pageYOffset;
+            return [offsetX, offsetY, offsetX + size[0], offsetY + size[1]];
+        };
+        /**
+         * Set the positioning for this overlay.
+         * @param {import("./OverlayPositioning.js").default} positioning how the overlay is
+         *     positioned relative to its point on the map.
+         * @observable
+         * @api
+         */
+        Overlay.prototype.setPositioning = function (positioning) {
+            this.set(Property$2.POSITIONING, positioning);
+        };
+        /**
+         * Modify the visibility of the element.
+         * @param {boolean} visible Element visibility.
+         * @protected
+         */
+        Overlay.prototype.setVisible = function (visible) {
+            if (this.rendered.visible !== visible) {
+                this.element.style.display = visible ? '' : 'none';
+                this.rendered.visible = visible;
+            }
+        };
+        /**
+         * Update pixel position.
+         * @protected
+         */
+        Overlay.prototype.updatePixelPosition = function () {
+            var map = this.getMap();
+            var position = this.getPosition();
+            if (!map || !map.isRendered() || !position) {
+                this.setVisible(false);
+                return;
+            }
+            var pixel = map.getPixelFromCoordinate(position);
+            var mapSize = map.getSize();
+            this.updateRenderedPosition(pixel, mapSize);
+        };
+        /**
+         * @param {import("./pixel.js").Pixel} pixel The pixel location.
+         * @param {import("./size.js").Size|undefined} mapSize The map size.
+         * @protected
+         */
+        Overlay.prototype.updateRenderedPosition = function (pixel, mapSize) {
+            var style = this.element.style;
+            var offset = this.getOffset();
+            var positioning = this.getPositioning();
+            this.setVisible(true);
+            var x = Math.round(pixel[0] + offset[0]) + 'px';
+            var y = Math.round(pixel[1] + offset[1]) + 'px';
+            var posX = '0%';
+            var posY = '0%';
+            if (positioning == OverlayPositioning.BOTTOM_RIGHT ||
+                positioning == OverlayPositioning.CENTER_RIGHT ||
+                positioning == OverlayPositioning.TOP_RIGHT) {
+                posX = '-100%';
+            }
+            else if (positioning == OverlayPositioning.BOTTOM_CENTER ||
+                positioning == OverlayPositioning.CENTER_CENTER ||
+                positioning == OverlayPositioning.TOP_CENTER) {
+                posX = '-50%';
+            }
+            if (positioning == OverlayPositioning.BOTTOM_LEFT ||
+                positioning == OverlayPositioning.BOTTOM_CENTER ||
+                positioning == OverlayPositioning.BOTTOM_RIGHT) {
+                posY = '-100%';
+            }
+            else if (positioning == OverlayPositioning.CENTER_LEFT ||
+                positioning == OverlayPositioning.CENTER_CENTER ||
+                positioning == OverlayPositioning.CENTER_RIGHT) {
+                posY = '-50%';
+            }
+            var transform = "translate(" + posX + ", " + posY + ") translate(" + x + ", " + y + ")";
+            if (this.rendered.transform_ != transform) {
+                this.rendered.transform_ = transform;
+                style.transform = transform;
+                // @ts-ignore IE9
+                style.msTransform = transform;
+            }
+        };
+        /**
+         * returns the options this Overlay has been created with
+         * @return {Options} overlay options
+         */
+        Overlay.prototype.getOptions = function () {
+            return this.options;
+        };
+        return Overlay;
+    }(BaseObject));
+
+    /**
      * @module ol/control
      */
     /**
@@ -15449,7 +16112,7 @@
         ACTIVE: 'active',
     };
 
-    var __extends$u = (undefined && undefined.__extends) || (function () {
+    var __extends$v = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15486,7 +16149,7 @@
      * @api
      */
     var Interaction = /** @class */ (function (_super) {
-        __extends$u(Interaction, _super);
+        __extends$v(Interaction, _super);
         /**
          * @param {InteractionOptions=} opt_options Options.
          */
@@ -15589,7 +16252,7 @@
         });
     }
 
-    var __extends$v = (undefined && undefined.__extends) || (function () {
+    var __extends$w = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15613,7 +16276,7 @@
      * @api
      */
     var DoubleClickZoom = /** @class */ (function (_super) {
-        __extends$v(DoubleClickZoom, _super);
+        __extends$w(DoubleClickZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -15655,7 +16318,7 @@
         return DoubleClickZoom;
     }(Interaction));
 
-    var __extends$w = (undefined && undefined.__extends) || (function () {
+    var __extends$x = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -15706,7 +16369,7 @@
      * @api
      */
     var PointerInteraction = /** @class */ (function (_super) {
-        __extends$w(PointerInteraction, _super);
+        __extends$x(PointerInteraction, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -15971,6 +16634,24 @@
         return originalEvent.button == 0 && !(WEBKIT && MAC && originalEvent.ctrlKey);
     };
     /**
+     * Return always false.
+     *
+     * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Map browser event.
+     * @return {boolean} False.
+     * @api
+     */
+    var never = FALSE;
+    /**
+     * Return `true` if the event is a map `singleclick` event, `false` otherwise.
+     *
+     * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Map browser event.
+     * @return {boolean} True if the event is a map `singleclick` event.
+     * @api
+     */
+    var singleClick = function (mapBrowserEvent) {
+        return mapBrowserEvent.type == MapBrowserEventType.SINGLECLICK;
+    };
+    /**
      * Return `true` if no modifier key (alt-, shift- or platform-modifier-key) is
      * pressed.
      *
@@ -16041,7 +16722,7 @@
         return pointerEvent.isPrimary && pointerEvent.button === 0;
     };
 
-    var __extends$x = (undefined && undefined.__extends) || (function () {
+    var __extends$y = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16069,7 +16750,7 @@
      * @api
      */
     var DragPan = /** @class */ (function (_super) {
-        __extends$x(DragPan, _super);
+        __extends$y(DragPan, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -16217,7 +16898,7 @@
         return DragPan;
     }(PointerInteraction));
 
-    var __extends$y = (undefined && undefined.__extends) || (function () {
+    var __extends$z = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16248,7 +16929,7 @@
      * @api
      */
     var DragRotate = /** @class */ (function (_super) {
-        __extends$y(DragRotate, _super);
+        __extends$z(DragRotate, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -16337,7 +17018,7 @@
     /**
      * @module ol/render/Box
      */
-    var __extends$z = (undefined && undefined.__extends) || (function () {
+    var __extends$A = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16351,7 +17032,7 @@
         };
     })();
     var RenderBox = /** @class */ (function (_super) {
-        __extends$z(RenderBox, _super);
+        __extends$A(RenderBox, _super);
         /**
          * @param {string} className CSS class name.
          */
@@ -16464,7 +17145,7 @@
         return RenderBox;
     }(Disposable));
 
-    var __extends$A = (undefined && undefined.__extends) || (function () {
+    var __extends$B = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16526,7 +17207,7 @@
      * this type.
      */
     var DragBoxEvent = /** @class */ (function (_super) {
-        __extends$A(DragBoxEvent, _super);
+        __extends$B(DragBoxEvent, _super);
         /**
          * @param {string} type The event type.
          * @param {import("../coordinate.js").Coordinate} coordinate The event coordinate.
@@ -16564,7 +17245,7 @@
      * @api
      */
     var DragBox = /** @class */ (function (_super) {
-        __extends$A(DragBox, _super);
+        __extends$B(DragBox, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -16671,7 +17352,7 @@
         return DragBox;
     }(PointerInteraction));
 
-    var __extends$B = (undefined && undefined.__extends) || (function () {
+    var __extends$C = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16708,7 +17389,7 @@
      * @api
      */
     var DragZoom = /** @class */ (function (_super) {
-        __extends$B(DragZoom, _super);
+        __extends$C(DragZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -16778,7 +17459,7 @@
         DOWN: 40,
     };
 
-    var __extends$C = (undefined && undefined.__extends) || (function () {
+    var __extends$D = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16816,7 +17497,7 @@
      * @api
      */
     var KeyboardPan = /** @class */ (function (_super) {
-        __extends$C(KeyboardPan, _super);
+        __extends$D(KeyboardPan, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -16898,7 +17579,7 @@
         return KeyboardPan;
     }(Interaction));
 
-    var __extends$D = (undefined && undefined.__extends) || (function () {
+    var __extends$E = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16934,7 +17615,7 @@
      * @api
      */
     var KeyboardZoom = /** @class */ (function (_super) {
-        __extends$D(KeyboardZoom, _super);
+        __extends$E(KeyboardZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -17099,7 +17780,7 @@
         return Kinetic;
     }());
 
-    var __extends$E = (undefined && undefined.__extends) || (function () {
+    var __extends$F = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17143,7 +17824,7 @@
      * @api
      */
     var MouseWheelZoom = /** @class */ (function (_super) {
-        __extends$E(MouseWheelZoom, _super);
+        __extends$F(MouseWheelZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -17349,7 +18030,7 @@
         return MouseWheelZoom;
     }(Interaction));
 
-    var __extends$F = (undefined && undefined.__extends) || (function () {
+    var __extends$G = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17375,7 +18056,7 @@
      * @api
      */
     var PinchRotate = /** @class */ (function (_super) {
-        __extends$F(PinchRotate, _super);
+        __extends$G(PinchRotate, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -17497,7 +18178,7 @@
         return PinchRotate;
     }(PointerInteraction));
 
-    var __extends$G = (undefined && undefined.__extends) || (function () {
+    var __extends$H = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17521,7 +18202,7 @@
      * @api
      */
     var PinchZoom = /** @class */ (function (_super) {
-        __extends$G(PinchZoom, _super);
+        __extends$H(PinchZoom, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -17626,7 +18307,7 @@
         return PinchZoom;
     }(PointerInteraction));
 
-    var __extends$H = (undefined && undefined.__extends) || (function () {
+    var __extends$I = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17691,7 +18372,7 @@
      * @template {import("./geom/Geometry.js").default} Geometry
      */
     var Feature = /** @class */ (function (_super) {
-        __extends$H(Feature, _super);
+        __extends$I(Feature, _super);
         /**
          * @param {Geometry|Object<string, *>=} opt_geometryOrProperties
          *     You may pass a Geometry object directly, or an object literal containing
@@ -18111,7 +18792,7 @@
         return length;
     }
 
-    var __extends$I = (undefined && undefined.__extends) || (function () {
+    var __extends$J = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -18131,7 +18812,7 @@
      * @api
      */
     var LineString = /** @class */ (function (_super) {
-        __extends$I(LineString, _super);
+        __extends$J(LineString, _super);
         /**
          * @param {Array<import("../coordinate.js").Coordinate>|Array<number>} coordinates Coordinates.
          *     For internal use, flat coordinates in combination with `opt_layout` are also accepted.
@@ -18327,7 +19008,7 @@
         return LineString;
     }(SimpleGeometry));
 
-    var __extends$J = (undefined && undefined.__extends) || (function () {
+    var __extends$K = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -18347,7 +19028,7 @@
      * @api
      */
     var MultiLineString = /** @class */ (function (_super) {
-        __extends$J(MultiLineString, _super);
+        __extends$K(MultiLineString, _super);
         /**
          * @param {Array<Array<import("../coordinate.js").Coordinate>|LineString>|Array<number>} coordinates
          *     Coordinates or LineString geometries. (For internal use, flat coordinates in
@@ -18580,7 +19261,7 @@
         return MultiLineString;
     }(SimpleGeometry));
 
-    var __extends$K = (undefined && undefined.__extends) || (function () {
+    var __extends$L = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -18600,7 +19281,7 @@
      * @api
      */
     var MultiPoint = /** @class */ (function (_super) {
-        __extends$K(MultiPoint, _super);
+        __extends$L(MultiPoint, _super);
         /**
          * @param {Array<import("../coordinate.js").Coordinate>|Array<number>} coordinates Coordinates.
          *     For internal use, flat coordinates in combination with `opt_layout` are also accepted.
@@ -18771,7 +19452,7 @@
         return flatCenters;
     }
 
-    var __extends$L = (undefined && undefined.__extends) || (function () {
+    var __extends$M = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -18791,7 +19472,7 @@
      * @api
      */
     var MultiPolygon = /** @class */ (function (_super) {
-        __extends$L(MultiPolygon, _super);
+        __extends$M(MultiPolygon, _super);
         /**
          * @param {Array<Array<Array<import("../coordinate.js").Coordinate>>|Polygon>|Array<number>} coordinates Coordinates.
          *     For internal use, flat coordinates in combination with `opt_layout` and `opt_endss` are also accepted.
@@ -19360,7 +20041,7 @@
     /**
      * @module ol/style/RegularShape
      */
-    var __extends$M = (undefined && undefined.__extends) || (function () {
+    var __extends$N = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -19407,7 +20088,7 @@
      * @api
      */
     var RegularShape = /** @class */ (function (_super) {
-        __extends$M(RegularShape, _super);
+        __extends$N(RegularShape, _super);
         /**
          * @param {Options} options Options.
          */
@@ -19842,7 +20523,7 @@
     /**
      * @module ol/style/Circle
      */
-    var __extends$N = (undefined && undefined.__extends) || (function () {
+    var __extends$O = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -19868,7 +20549,7 @@
      * @api
      */
     var CircleStyle = /** @class */ (function (_super) {
-        __extends$N(CircleStyle, _super);
+        __extends$O(CircleStyle, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -20603,6 +21284,59 @@
         return defaultStyles;
     }
     /**
+     * Default styles for editing features.
+     * @return {Object<import("../geom/GeometryType.js").default, Array<Style>>} Styles
+     */
+    function createEditingStyle() {
+        /** @type {Object<import("../geom/GeometryType.js").default, Array<Style>>} */
+        var styles = {};
+        var white = [255, 255, 255, 1];
+        var blue = [0, 153, 255, 1];
+        var width = 3;
+        styles[GeometryType.POLYGON] = [
+            new Style({
+                fill: new Fill({
+                    color: [255, 255, 255, 0.5],
+                }),
+            }),
+        ];
+        styles[GeometryType.MULTI_POLYGON] = styles[GeometryType.POLYGON];
+        styles[GeometryType.LINE_STRING] = [
+            new Style({
+                stroke: new Stroke({
+                    color: white,
+                    width: width + 2,
+                }),
+            }),
+            new Style({
+                stroke: new Stroke({
+                    color: blue,
+                    width: width,
+                }),
+            }),
+        ];
+        styles[GeometryType.MULTI_LINE_STRING] = styles[GeometryType.LINE_STRING];
+        styles[GeometryType.CIRCLE] = styles[GeometryType.POLYGON].concat(styles[GeometryType.LINE_STRING]);
+        styles[GeometryType.POINT] = [
+            new Style({
+                image: new CircleStyle({
+                    radius: width * 2,
+                    fill: new Fill({
+                        color: blue,
+                    }),
+                    stroke: new Stroke({
+                        color: white,
+                        width: width / 2,
+                    }),
+                }),
+                zIndex: Infinity,
+            }),
+        ];
+        styles[GeometryType.MULTI_POINT] = styles[GeometryType.POINT];
+        styles[GeometryType.GEOMETRY_COLLECTION] = styles[GeometryType.POLYGON].concat(styles[GeometryType.LINE_STRING], styles[GeometryType.POINT]);
+        return styles;
+    }
+    /**
      * Function that is called with a feature and returns its default geometry.
      * @param {import("../Feature.js").FeatureLike} feature Feature to get the geometry for.
      * @return {import("../geom/Geometry.js").default|import("../render/Feature.js").default|undefined} Geometry to render.
@@ -20611,7 +21345,7 @@
         return feature.getGeometry();
     }
 
-    var __extends$O = (undefined && undefined.__extends) || (function () {
+    var __extends$P = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -20673,7 +21407,7 @@
      * @enum {string}
      * @private
      */
-    var Property$2 = {
+    var Property$3 = {
         RENDER_ORDER: 'renderOrder',
     };
     /**
@@ -20688,7 +21422,7 @@
      * @api
      */
     var BaseVectorLayer = /** @class */ (function (_super) {
-        __extends$O(BaseVectorLayer, _super);
+        __extends$P(BaseVectorLayer, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -20778,7 +21512,7 @@
          *     order.
          */
         BaseVectorLayer.prototype.getRenderOrder = function () {
-            return /** @type {import("../render.js").OrderFunction|null|undefined} */ (this.get(Property$2.RENDER_ORDER));
+            return /** @type {import("../render.js").OrderFunction|null|undefined} */ (this.get(Property$3.RENDER_ORDER));
         };
         /**
          * Get the style for features.  This returns whatever was passed to the `style`
@@ -20816,7 +21550,7 @@
          *     Render order.
          */
         BaseVectorLayer.prototype.setRenderOrder = function (renderOrder) {
-            this.set(Property$2.RENDER_ORDER, renderOrder);
+            this.set(Property$3.RENDER_ORDER, renderOrder);
         };
         /**
          * Set the style for features.  This can be a single style object, an array
@@ -20875,7 +21609,7 @@
      */
     var closePathInstruction = [Instruction.CLOSE_PATH];
 
-    var __extends$P = (undefined && undefined.__extends) || (function () {
+    var __extends$Q = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -20898,7 +21632,7 @@
      * @property {!Object<string, import("../canvas.js").StrokeState>} [strokeStates] The stroke states (decluttering).
      */
     var CanvasBuilder = /** @class */ (function (_super) {
-        __extends$P(CanvasBuilder, _super);
+        __extends$Q(CanvasBuilder, _super);
         /**
          * @param {number} tolerance Tolerance.
          * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
@@ -21362,7 +22096,7 @@
         return CanvasBuilder;
     }(VectorContext));
 
-    var __extends$Q = (undefined && undefined.__extends) || (function () {
+    var __extends$R = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -21376,7 +22110,7 @@
         };
     })();
     var CanvasImageBuilder = /** @class */ (function (_super) {
-        __extends$Q(CanvasImageBuilder, _super);
+        __extends$R(CanvasImageBuilder, _super);
         /**
          * @param {number} tolerance Tolerance.
          * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
@@ -21625,7 +22359,7 @@
         return CanvasImageBuilder;
     }(CanvasBuilder));
 
-    var __extends$R = (undefined && undefined.__extends) || (function () {
+    var __extends$S = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -21639,7 +22373,7 @@
         };
     })();
     var CanvasLineStringBuilder = /** @class */ (function (_super) {
-        __extends$R(CanvasLineStringBuilder, _super);
+        __extends$S(CanvasLineStringBuilder, _super);
         /**
          * @param {number} tolerance Tolerance.
          * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
@@ -21761,7 +22495,7 @@
         return CanvasLineStringBuilder;
     }(CanvasBuilder));
 
-    var __extends$S = (undefined && undefined.__extends) || (function () {
+    var __extends$T = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -21775,7 +22509,7 @@
         };
     })();
     var CanvasPolygonBuilder = /** @class */ (function (_super) {
-        __extends$S(CanvasPolygonBuilder, _super);
+        __extends$T(CanvasPolygonBuilder, _super);
         /**
          * @param {number} tolerance Tolerance.
          * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
@@ -22055,7 +22789,7 @@
         return m > chunkM ? [start, i] : [chunkStart, chunkEnd];
     }
 
-    var __extends$T = (undefined && undefined.__extends) || (function () {
+    var __extends$U = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -22086,7 +22820,7 @@
         'bottom': 1,
     };
     var CanvasTextBuilder = /** @class */ (function (_super) {
-        __extends$T(CanvasTextBuilder, _super);
+        __extends$U(CanvasTextBuilder, _super);
         /**
          * @param {number} tolerance Tolerance.
          * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
@@ -22710,7 +23444,7 @@
         return BuilderGroup;
     }());
 
-    var __extends$U = (undefined && undefined.__extends) || (function () {
+    var __extends$V = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -22727,7 +23461,7 @@
      * @template {import("../layer/Layer.js").default} LayerType
      */
     var LayerRenderer = /** @class */ (function (_super) {
-        __extends$U(LayerRenderer, _super);
+        __extends$V(LayerRenderer, _super);
         /**
          * @param {LayerType} layer Layer.
          */
@@ -22880,7 +23614,7 @@
         return LayerRenderer;
     }(Observable));
 
-    var __extends$V = (undefined && undefined.__extends) || (function () {
+    var __extends$W = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -22898,7 +23632,7 @@
      * @template {import("../../layer/Layer.js").default} LayerType
      */
     var CanvasLayerRenderer = /** @class */ (function (_super) {
-        __extends$V(CanvasLayerRenderer, _super);
+        __extends$W(CanvasLayerRenderer, _super);
         /**
          * @param {LayerType} layer Layer.
          */
@@ -25130,7 +25864,7 @@
         TOP_RIGHT: 'top-right',
     };
 
-    var __extends$W = (undefined && undefined.__extends) || (function () {
+    var __extends$X = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -25147,7 +25881,7 @@
      * @abstract
      */
     var ImageBase = /** @class */ (function (_super) {
-        __extends$W(ImageBase, _super);
+        __extends$X(ImageBase, _super);
         /**
          * @param {import("./extent.js").Extent} extent Extent.
          * @param {number|undefined} resolution Resolution.
@@ -25225,7 +25959,7 @@
         return ImageBase;
     }(Target));
 
-    var __extends$X = (undefined && undefined.__extends) || (function () {
+    var __extends$Y = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -25256,7 +25990,7 @@
      * @api
      */
     var ImageWrapper = /** @class */ (function (_super) {
-        __extends$X(ImageWrapper, _super);
+        __extends$Y(ImageWrapper, _super);
         /**
          * @param {import("./extent.js").Extent} extent Extent.
          * @param {number|undefined} resolution Resolution.
@@ -25407,7 +26141,7 @@
     /**
      * @module ol/style/IconImage
      */
-    var __extends$Y = (undefined && undefined.__extends) || (function () {
+    var __extends$Z = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -25425,7 +26159,7 @@
      */
     var taintedTestContext = null;
     var IconImage = /** @class */ (function (_super) {
-        __extends$Y(IconImage, _super);
+        __extends$Z(IconImage, _super);
         /**
          * @param {HTMLImageElement|HTMLCanvasElement} image Image.
          * @param {string|undefined} src Src.
@@ -25678,7 +26412,7 @@
         return iconImage;
     }
 
-    var __extends$Z = (undefined && undefined.__extends) || (function () {
+    var __extends$_ = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -25731,7 +26465,7 @@
      * @api
      */
     var Icon = /** @class */ (function (_super) {
-        __extends$Z(Icon, _super);
+        __extends$_(Icon, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -26209,7 +26943,7 @@
         return resultFeatures;
     }
 
-    var __extends$_ = (undefined && undefined.__extends) || (function () {
+    var __extends$$ = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -26228,7 +26962,7 @@
      * @api
      */
     var CanvasVectorLayerRenderer = /** @class */ (function (_super) {
-        __extends$_(CanvasVectorLayerRenderer, _super);
+        __extends$$(CanvasVectorLayerRenderer, _super);
         /**
          * @param {import("../../layer/Vector.js").default} vectorLayer Vector layer.
          */
@@ -26675,7 +27409,7 @@
         return CanvasVectorLayerRenderer;
     }(CanvasLayerRenderer));
 
-    var __extends$$ = (undefined && undefined.__extends) || (function () {
+    var __extends$10 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -26699,7 +27433,7 @@
      * @api
      */
     var VectorLayer = /** @class */ (function (_super) {
-        __extends$$(VectorLayer, _super);
+        __extends$10(VectorLayer, _super);
         /**
          * @param {import("./BaseVector.js").Options=} opt_options Options.
          */
@@ -26913,7 +27647,7 @@
         return RBush;
     }());
 
-    var __extends$10 = (undefined && undefined.__extends) || (function () {
+    var __extends$11 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -26961,7 +27695,7 @@
      * @api
      */
     var Source = /** @class */ (function (_super) {
-        __extends$10(Source, _super);
+        __extends$11(Source, _super);
         /**
          * @param {Options} options Source options.
          */
@@ -27299,7 +28033,7 @@
     /**
      * @module ol/source/Vector
      */
-    var __extends$11 = (undefined && undefined.__extends) || (function () {
+    var __extends$12 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -27327,7 +28061,7 @@
      * @template {import("../geom/Geometry.js").default} Geometry
      */
     var VectorSourceEvent = /** @class */ (function (_super) {
-        __extends$11(VectorSourceEvent, _super);
+        __extends$12(VectorSourceEvent, _super);
         /**
          * @param {string} type Type.
          * @param {import("../Feature.js").default<Geometry>=} opt_feature Feature.
@@ -27443,7 +28177,7 @@
      * @template {import("../geom/Geometry.js").default} Geometry
      */
     var VectorSource = /** @class */ (function (_super) {
-        __extends$11(VectorSource, _super);
+        __extends$12(VectorSource, _super);
         /**
          * @param {Options=} opt_options Vector source options.
          */
@@ -28233,6 +28967,490 @@
         return VectorSource;
     }(Source));
 
+    var __extends$13 = (undefined && undefined.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    /**
+     * @enum {string}
+     */
+    var SelectEventType = {
+        /**
+         * Triggered when feature(s) has been (de)selected.
+         * @event SelectEvent#select
+         * @api
+         */
+        SELECT: 'select',
+    };
+    /**
+     * A function that takes an {@link module:ol/Feature} or
+     * {@link module:ol/render/Feature} and an
+     * {@link module:ol/layer/Layer} and returns `true` if the feature may be
+     * selected or `false` otherwise.
+     * @typedef {function(import("../Feature.js").FeatureLike, import("../layer/Layer.js").default):boolean} FilterFunction
+     */
+    /**
+     * @typedef {Object} Options
+     * @property {import("../events/condition.js").Condition} [addCondition] A function
+     * that takes an {@link module:ol/MapBrowserEvent~MapBrowserEvent} and returns a
+     * boolean to indicate whether that event should be handled.
+     * By default, this is {@link module:ol/events/condition~never}. Use this if you
+     * want to use different events for add and remove instead of `toggle`.
+     * @property {import("../events/condition.js").Condition} [condition] A function that
+     * takes an {@link module:ol/MapBrowserEvent~MapBrowserEvent} and returns a
+     * boolean to indicate whether that event should be handled. This is the event
+     * for the selected features as a whole. By default, this is
+     * {@link module:ol/events/condition~singleClick}. Clicking on a feature selects that
+     * feature and removes any that were in the selection. Clicking outside any
+     * feature removes all from the selection.
+     * See `toggle`, `add`, `remove` options for adding/removing extra features to/
+     * from the selection.
+     * @property {Array<import("../layer/Layer.js").default>|function(import("../layer/Layer.js").default): boolean} [layers]
+     * A list of layers from which features should be selected. Alternatively, a
+     * filter function can be provided. The function will be called for each layer
+     * in the map and should return `true` for layers that you want to be
+     * selectable. If the option is absent, all visible layers will be considered
+     * selectable.
+     * @property {import("../style/Style.js").StyleLike|null} [style]
+     * Style for the selected features. By default the default edit style is used
+     * (see {@link module:ol/style}). Set to `null` if this interaction should not apply
+     * any style changes for selected features.
+     * If set to a falsey value, the selected feature's style will not change.
+     * @property {import("../events/condition.js").Condition} [removeCondition] A function
+     * that takes an {@link module:ol/MapBrowserEvent~MapBrowserEvent} and returns a
+     * boolean to indicate whether that event should be handled.
+     * By default, this is {@link module:ol/events/condition~never}. Use this if you
+     * want to use different events for add and remove instead of `toggle`.
+     * @property {import("../events/condition.js").Condition} [toggleCondition] A function
+     * that takes an {@link module:ol/MapBrowserEvent~MapBrowserEvent} and returns a
+     * boolean to indicate whether that event should be handled. This is in addition
+     * to the `condition` event. By default,
+     * {@link module:ol/events/condition~shiftKeyOnly}, i.e. pressing `shift` as
+     * well as the `condition` event, adds that feature to the current selection if
+     * it is not currently selected, and removes it if it is. See `add` and `remove`
+     * if you want to use different events instead of a toggle.
+     * @property {boolean} [multi=false] A boolean that determines if the default
+     * behaviour should select only single features or all (overlapping) features at
+     * the clicked map position. The default of `false` means single select.
+     * @property {import("../Collection.js").default<import("../Feature.js").default>} [features]
+     * Collection where the interaction will place selected features. Optional. If
+     * not set the interaction will create a collection. In any case the collection
+     * used by the interaction is returned by
+     * {@link module:ol/interaction/Select~Select#getFeatures}.
+     * @property {FilterFunction} [filter] A function
+     * that takes an {@link module:ol/Feature} and an
+     * {@link module:ol/layer/Layer} and returns `true` if the feature may be
+     * selected or `false` otherwise.
+     * @property {number} [hitTolerance=0] Hit-detection tolerance. Pixels inside
+     * the radius around the given position will be checked for features.
+     */
+    /**
+     * @classdesc
+     * Events emitted by {@link module:ol/interaction/Select~Select} instances are instances of
+     * this type.
+     */
+    var SelectEvent = /** @class */ (function (_super) {
+        __extends$13(SelectEvent, _super);
+        /**
+         * @param {SelectEventType} type The event type.
+         * @param {Array<import("../Feature.js").default>} selected Selected features.
+         * @param {Array<import("../Feature.js").default>} deselected Deselected features.
+         * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Associated
+         *     {@link module:ol/MapBrowserEvent}.
+         */
+        function SelectEvent(type, selected, deselected, mapBrowserEvent) {
+            var _this = _super.call(this, type) || this;
+            /**
+             * Selected features array.
+             * @type {Array<import("../Feature.js").default>}
+             * @api
+             */
+            _this.selected = selected;
+            /**
+             * Deselected features array.
+             * @type {Array<import("../Feature.js").default>}
+             * @api
+             */
+            _this.deselected = deselected;
+            /**
+             * Associated {@link module:ol/MapBrowserEvent}.
+             * @type {import("../MapBrowserEvent.js").default}
+             * @api
+             */
+            _this.mapBrowserEvent = mapBrowserEvent;
+            return _this;
+        }
+        return SelectEvent;
+    }(BaseEvent));
+    /**
+     * Original feature styles to reset to when features are no longer selected.
+     * @type {Object.<number, import("../style/Style.js").default|Array.<import("../style/Style.js").default>|import("../style/Style.js").StyleFunction>}
+     */
+    var originalFeatureStyles = {};
+    /**
+     * @classdesc
+     * Interaction for selecting vector features. By default, selected features are
+     * styled differently, so this interaction can be used for visual highlighting,
+     * as well as selecting features for other actions, such as modification or
+     * output. There are three ways of controlling which features are selected:
+     * using the browser event as defined by the `condition` and optionally the
+     * `toggle`, `add`/`remove`, and `multi` options; a `layers` filter; and a
+     * further feature filter using the `filter` option.
+     *
+     * Selected features are added to an internal unmanaged layer.
+     *
+     * @fires SelectEvent
+     * @api
+     */
+    var Select = /** @class */ (function (_super) {
+        __extends$13(Select, _super);
+        /**
+         * @param {Options=} opt_options Options.
+         */
+        function Select(opt_options) {
+            var _this = _super.call(this) || this;
+            var options = opt_options ? opt_options : {};
+            /**
+             * @private
+             */
+            _this.boundAddFeature_ = _this.addFeature_.bind(_this);
+            /**
+             * @private
+             */
+            _this.boundRemoveFeature_ = _this.removeFeature_.bind(_this);
+            /**
+             * @private
+             * @type {import("../events/condition.js").Condition}
+             */
+            _this.condition_ = options.condition ? options.condition : singleClick;
+            /**
+             * @private
+             * @type {import("../events/condition.js").Condition}
+             */
+            _this.addCondition_ = options.addCondition ? options.addCondition : never;
+            /**
+             * @private
+             * @type {import("../events/condition.js").Condition}
+             */
+            _this.removeCondition_ = options.removeCondition
+                ? options.removeCondition
+                : never;
+            /**
+             * @private
+             * @type {import("../events/condition.js").Condition}
+             */
+            _this.toggleCondition_ = options.toggleCondition
+                ? options.toggleCondition
+                : shiftKeyOnly;
+            /**
+             * @private
+             * @type {boolean}
+             */
+            _this.multi_ = options.multi ? options.multi : false;
+            /**
+             * @private
+             * @type {FilterFunction}
+             */
+            _this.filter_ = options.filter ? options.filter : TRUE;
+            /**
+             * @private
+             * @type {number}
+             */
+            _this.hitTolerance_ = options.hitTolerance ? options.hitTolerance : 0;
+            /**
+             * @private
+             * @type {import("../style/Style.js").default|Array.<import("../style/Style.js").default>|import("../style/Style.js").StyleFunction|null}
+             */
+            _this.style_ =
+                options.style !== undefined ? options.style : getDefaultStyleFunction();
+            /**
+             * @private
+             * @type {import("../Collection.js").default}
+             */
+            _this.features_ = options.features || new Collection();
+            /** @type {function(import("../layer/Layer.js").default): boolean} */
+            var layerFilter;
+            if (options.layers) {
+                if (typeof options.layers === 'function') {
+                    layerFilter = options.layers;
+                }
+                else {
+                    var layers_1 = options.layers;
+                    layerFilter = function (layer) {
+                        return includes(layers_1, layer);
+                    };
+                }
+            }
+            else {
+                layerFilter = TRUE;
+            }
+            /**
+             * @private
+             * @type {function(import("../layer/Layer.js").default): boolean}
+             */
+            _this.layerFilter_ = layerFilter;
+            /**
+             * An association between selected feature (key)
+             * and layer (value)
+             * @private
+             * @type {Object<string, import("../layer/Layer.js").default>}
+             */
+            _this.featureLayerAssociation_ = {};
+            return _this;
+        }
+        /**
+         * @param {import("../Feature.js").FeatureLike} feature Feature.
+         * @param {import("../layer/Layer.js").default} layer Layer.
+         * @private
+         */
+        Select.prototype.addFeatureLayerAssociation_ = function (feature, layer) {
+            this.featureLayerAssociation_[getUid(feature)] = layer;
+        };
+        /**
+         * Get the selected features.
+         * @return {import("../Collection.js").default<import("../Feature.js").default>} Features collection.
+         * @api
+         */
+        Select.prototype.getFeatures = function () {
+            return this.features_;
+        };
+        /**
+         * Returns the Hit-detection tolerance.
+         * @returns {number} Hit tolerance in pixels.
+         * @api
+         */
+        Select.prototype.getHitTolerance = function () {
+            return this.hitTolerance_;
+        };
+        /**
+         * Returns the associated {@link module:ol/layer/Vector~Vector vectorlayer} of
+         * the (last) selected feature. Note that this will not work with any
+         * programmatic method like pushing features to
+         * {@link module:ol/interaction/Select~Select#getFeatures collection}.
+         * @param {import("../Feature.js").FeatureLike} feature Feature
+         * @return {import('../layer/Vector.js').default} Layer.
+         * @api
+         */
+        Select.prototype.getLayer = function (feature) {
+            return /** @type {import('../layer/Vector.js').default} */ (this
+                .featureLayerAssociation_[getUid(feature)]);
+        };
+        /**
+         * Hit-detection tolerance. Pixels inside the radius around the given position
+         * will be checked for features.
+         * @param {number} hitTolerance Hit tolerance in pixels.
+         * @api
+         */
+        Select.prototype.setHitTolerance = function (hitTolerance) {
+            this.hitTolerance_ = hitTolerance;
+        };
+        /**
+         * Remove the interaction from its current map, if any,  and attach it to a new
+         * map, if any. Pass `null` to just remove the interaction from the current map.
+         * @param {import("../PluggableMap.js").default} map Map.
+         * @api
+         */
+        Select.prototype.setMap = function (map) {
+            var currentMap = this.getMap();
+            if (currentMap && this.style_) {
+                this.features_.forEach(this.restorePreviousStyle_.bind(this));
+            }
+            _super.prototype.setMap.call(this, map);
+            if (map) {
+                this.features_.addEventListener(CollectionEventType.ADD, this.boundAddFeature_);
+                this.features_.addEventListener(CollectionEventType.REMOVE, this.boundRemoveFeature_);
+                if (this.style_) {
+                    this.features_.forEach(this.applySelectedStyle_.bind(this));
+                }
+            }
+            else {
+                this.features_.removeEventListener(CollectionEventType.ADD, this.boundAddFeature_);
+                this.features_.removeEventListener(CollectionEventType.REMOVE, this.boundRemoveFeature_);
+            }
+        };
+        /**
+         * @param {import("../Collection.js").CollectionEvent} evt Event.
+         * @private
+         */
+        Select.prototype.addFeature_ = function (evt) {
+            var feature = evt.element;
+            if (this.style_) {
+                this.applySelectedStyle_(feature);
+            }
+        };
+        /**
+         * @param {import("../Collection.js").CollectionEvent} evt Event.
+         * @private
+         */
+        Select.prototype.removeFeature_ = function (evt) {
+            var feature = evt.element;
+            if (this.style_) {
+                this.restorePreviousStyle_(feature);
+            }
+        };
+        /**
+         * @return {import("../style/Style.js").StyleLike|null} Select style.
+         */
+        Select.prototype.getStyle = function () {
+            return this.style_;
+        };
+        /**
+         * @param {import("../Feature.js").default} feature Feature
+         * @private
+         */
+        Select.prototype.applySelectedStyle_ = function (feature) {
+            var key = getUid(feature);
+            if (!(key in originalFeatureStyles)) {
+                originalFeatureStyles[key] = feature.getStyle();
+            }
+            feature.setStyle(this.style_);
+        };
+        /**
+         * @param {import("../Feature.js").default} feature Feature
+         * @private
+         */
+        Select.prototype.restorePreviousStyle_ = function (feature) {
+            var key = getUid(feature);
+            var selectInteractions = /** @type {Array<Select>} */ (this.getMap()
+                .getInteractions()
+                .getArray()
+                .filter(function (interaction) {
+                return (interaction instanceof Select &&
+                    interaction.getStyle() &&
+                    interaction.getFeatures().getArray().indexOf(feature) !== -1);
+            }));
+            if (selectInteractions.length > 0) {
+                feature.setStyle(selectInteractions[selectInteractions.length - 1].getStyle());
+            }
+            else {
+                feature.setStyle(originalFeatureStyles[key]);
+                delete originalFeatureStyles[key];
+            }
+        };
+        /**
+         * @param {import("../Feature.js").FeatureLike} feature Feature.
+         * @private
+         */
+        Select.prototype.removeFeatureLayerAssociation_ = function (feature) {
+            delete this.featureLayerAssociation_[getUid(feature)];
+        };
+        /**
+         * Handles the {@link module:ol/MapBrowserEvent map browser event} and may change the
+         * selected state of features.
+         * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Map browser event.
+         * @return {boolean} `false` to stop event propagation.
+         * @this {Select}
+         */
+        Select.prototype.handleEvent = function (mapBrowserEvent) {
+            if (!this.condition_(mapBrowserEvent)) {
+                return true;
+            }
+            var add = this.addCondition_(mapBrowserEvent);
+            var remove = this.removeCondition_(mapBrowserEvent);
+            var toggle = this.toggleCondition_(mapBrowserEvent);
+            var set = !add && !remove && !toggle;
+            var map = mapBrowserEvent.map;
+            var features = this.getFeatures();
+            var deselected = [];
+            var selected = [];
+            if (set) {
+                // Replace the currently selected feature(s) with the feature(s) at the
+                // pixel, or clear the selected feature(s) if there is no feature at
+                // the pixel.
+                clear(this.featureLayerAssociation_);
+                map.forEachFeatureAtPixel(mapBrowserEvent.pixel, 
+                /**
+                 * @param {import("../Feature.js").FeatureLike} feature Feature.
+                 * @param {import("../layer/Layer.js").default} layer Layer.
+                 * @return {boolean|undefined} Continue to iterate over the features.
+                 */
+                function (feature, layer) {
+                    if (this.filter_(feature, layer)) {
+                        selected.push(feature);
+                        this.addFeatureLayerAssociation_(feature, layer);
+                        return !this.multi_;
+                    }
+                }.bind(this), {
+                    layerFilter: this.layerFilter_,
+                    hitTolerance: this.hitTolerance_,
+                });
+                for (var i = features.getLength() - 1; i >= 0; --i) {
+                    var feature = features.item(i);
+                    var index = selected.indexOf(feature);
+                    if (index > -1) {
+                        // feature is already selected
+                        selected.splice(index, 1);
+                    }
+                    else {
+                        features.remove(feature);
+                        deselected.push(feature);
+                    }
+                }
+                if (selected.length !== 0) {
+                    features.extend(selected);
+                }
+            }
+            else {
+                // Modify the currently selected feature(s).
+                map.forEachFeatureAtPixel(mapBrowserEvent.pixel, 
+                /**
+                 * @param {import("../Feature.js").FeatureLike} feature Feature.
+                 * @param {import("../layer/Layer.js").default} layer Layer.
+                 * @return {boolean|undefined} Continue to iterate over the features.
+                 */
+                function (feature, layer) {
+                    if (this.filter_(feature, layer)) {
+                        if ((add || toggle) && !includes(features.getArray(), feature)) {
+                            selected.push(feature);
+                            this.addFeatureLayerAssociation_(feature, layer);
+                        }
+                        else if ((remove || toggle) &&
+                            includes(features.getArray(), feature)) {
+                            deselected.push(feature);
+                            this.removeFeatureLayerAssociation_(feature);
+                        }
+                        return !this.multi_;
+                    }
+                }.bind(this), {
+                    layerFilter: this.layerFilter_,
+                    hitTolerance: this.hitTolerance_,
+                });
+                for (var j = deselected.length - 1; j >= 0; --j) {
+                    features.remove(deselected[j]);
+                }
+                features.extend(selected);
+            }
+            if (selected.length > 0 || deselected.length > 0) {
+                this.dispatchEvent(new SelectEvent(SelectEventType.SELECT, selected, deselected, mapBrowserEvent));
+            }
+            return true;
+        };
+        return Select;
+    }(Interaction));
+    /**
+     * @return {import("../style/Style.js").StyleFunction} Styles.
+     */
+    function getDefaultStyleFunction() {
+        var styles = createEditingStyle();
+        extend(styles[GeometryType.POLYGON], styles[GeometryType.LINE_STRING]);
+        extend(styles[GeometryType.GEOMETRY_COLLECTION], styles[GeometryType.LINE_STRING]);
+        return function (feature) {
+            if (!feature.getGeometry()) {
+                return null;
+            }
+            return styles[feature.getGeometry().getType()];
+        };
+    }
+
     /**
      * @module ol/interaction
      */
@@ -28340,7 +29558,7 @@
         return interactions;
     }
 
-    var __extends$12 = (undefined && undefined.__extends) || (function () {
+    var __extends$14 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -28401,7 +29619,7 @@
      * @api
      */
     var Map = /** @class */ (function (_super) {
-        __extends$12(Map, _super);
+        __extends$14(Map, _super);
         /**
          * @param {import("./PluggableMap.js").MapOptions} options Map options.
          */
@@ -29152,7 +30370,7 @@
         USE_INTERIM_TILES_ON_ERROR: 'useInterimTilesOnError',
     };
 
-    var __extends$13 = (undefined && undefined.__extends) || (function () {
+    var __extends$15 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -29205,7 +30423,7 @@
      * @api
      */
     var BaseTileLayer = /** @class */ (function (_super) {
-        __extends$13(BaseTileLayer, _super);
+        __extends$15(BaseTileLayer, _super);
         /**
          * @param {Options=} opt_options Tile layer options.
          */
@@ -29261,7 +30479,7 @@
         return BaseTileLayer;
     }(Layer));
 
-    var __extends$14 = (undefined && undefined.__extends) || (function () {
+    var __extends$16 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -29280,7 +30498,7 @@
      * @api
      */
     var CanvasTileLayerRenderer = /** @class */ (function (_super) {
-        __extends$14(CanvasTileLayerRenderer, _super);
+        __extends$16(CanvasTileLayerRenderer, _super);
         /**
          * @param {import("../../layer/Tile.js").default|import("../../layer/VectorTile.js").default} tileLayer Tile layer.
          */
@@ -29750,7 +30968,7 @@
      */
     CanvasTileLayerRenderer.prototype.getLayer;
 
-    var __extends$15 = (undefined && undefined.__extends) || (function () {
+    var __extends$17 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -29774,7 +30992,7 @@
      * @api
      */
     var TileLayer = /** @class */ (function (_super) {
-        __extends$15(TileLayer, _super);
+        __extends$17(TileLayer, _super);
         /**
          * @param {import("./BaseTile.js").Options=} opt_options Tile layer options.
          */
@@ -29792,7 +31010,7 @@
         return TileLayer;
     }(BaseTileLayer));
 
-    var __extends$16 = (undefined && undefined.__extends) || (function () {
+    var __extends$18 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -29868,7 +31086,7 @@
      * @abstract
      */
     var Tile = /** @class */ (function (_super) {
-        __extends$16(Tile, _super);
+        __extends$18(Tile, _super);
         /**
          * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
          * @param {import("./TileState.js").default} state State.
@@ -30087,7 +31305,7 @@
         return Tile;
     }(Target));
 
-    var __extends$17 = (undefined && undefined.__extends) || (function () {
+    var __extends$19 = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -30101,7 +31319,7 @@
         };
     })();
     var ImageTile = /** @class */ (function (_super) {
-        __extends$17(ImageTile, _super);
+        __extends$19(ImageTile, _super);
         /**
          * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
          * @param {import("./TileState.js").default} state State.
@@ -30903,7 +32121,7 @@
         return context.canvas;
     }
 
-    var __extends$18 = (undefined && undefined.__extends) || (function () {
+    var __extends$1a = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -30926,7 +32144,7 @@
      *
      */
     var ReprojTile = /** @class */ (function (_super) {
-        __extends$18(ReprojTile, _super);
+        __extends$1a(ReprojTile, _super);
         /**
          * @param {import("../proj/Projection.js").default} sourceProj Source projection.
          * @param {import("../tilegrid/TileGrid.js").default} sourceTileGrid Source tile grid.
@@ -31402,7 +32620,7 @@
         return LRUCache;
     }());
 
-    var __extends$19 = (undefined && undefined.__extends) || (function () {
+    var __extends$1b = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -31416,7 +32634,7 @@
         };
     })();
     var TileCache = /** @class */ (function (_super) {
-        __extends$19(TileCache, _super);
+        __extends$1b(TileCache, _super);
         function TileCache() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
@@ -31619,7 +32837,7 @@
         return extent;
     }
 
-    var __extends$1a = (undefined && undefined.__extends) || (function () {
+    var __extends$1c = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -31656,7 +32874,7 @@
      * @api
      */
     var TileSource = /** @class */ (function (_super) {
-        __extends$1a(TileSource, _super);
+        __extends$1c(TileSource, _super);
         /**
          * @param {Options} options SourceTile source options.
          */
@@ -31937,7 +33155,7 @@
      * type.
      */
     var TileSourceEvent = /** @class */ (function (_super) {
-        __extends$1a(TileSourceEvent, _super);
+        __extends$1c(TileSourceEvent, _super);
         /**
          * @param {string} type Type.
          * @param {import("../Tile.js").default} tile The tile.
@@ -32063,7 +33281,7 @@
         return urls;
     }
 
-    var __extends$1b = (undefined && undefined.__extends) || (function () {
+    var __extends$1d = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -32102,7 +33320,7 @@
      * @fires import("./Tile.js").TileSourceEvent
      */
     var UrlTile = /** @class */ (function (_super) {
-        __extends$1b(UrlTile, _super);
+        __extends$1d(UrlTile, _super);
         /**
          * @param {Options} options Image tile options.
          */
@@ -32281,7 +33499,7 @@
         return UrlTile;
     }(TileSource));
 
-    var __extends$1c = (undefined && undefined.__extends) || (function () {
+    var __extends$1e = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -32346,7 +33564,7 @@
      * @api
      */
     var TileImage = /** @class */ (function (_super) {
-        __extends$1c(TileImage, _super);
+        __extends$1e(TileImage, _super);
         /**
          * @param {!Options} options Image tile options.
          */
@@ -32723,7 +33941,7 @@
     /**
      * @module ol/tilegrid/WMTS
      */
-    var __extends$1d = (undefined && undefined.__extends) || (function () {
+    var __extends$1f = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -32773,7 +33991,7 @@
      * @api
      */
     var WMTSTileGrid = /** @class */ (function (_super) {
-        __extends$1d(WMTSTileGrid, _super);
+        __extends$1f(WMTSTileGrid, _super);
         /**
          * @param {Options} options WMTS options.
          */
@@ -32903,7 +34121,7 @@
     /**
      * @module ol/source/WMTS
      */
-    var __extends$1e = (undefined && undefined.__extends) || (function () {
+    var __extends$1g = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -32964,7 +34182,7 @@
      * @api
      */
     var WMTS = /** @class */ (function (_super) {
-        __extends$1e(WMTS, _super);
+        __extends$1g(WMTS, _super);
         /**
          * @param {Options} options WMTS options.
          */
@@ -33715,7 +34933,7 @@
         return getAllTextContent(node, false).trim();
     }
 
-    var __extends$1f = (undefined && undefined.__extends) || (function () {
+    var __extends$1h = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -33744,7 +34962,7 @@
         'OperationsMetadata': makeObjectPropertySetter(readOperationsMetadata),
     });
     var OWS = /** @class */ (function (_super) {
-        __extends$1f(OWS, _super);
+        __extends$1h(OWS, _super);
         function OWS() {
             return _super.call(this) || this;
         }
@@ -34006,7 +35224,7 @@
         return readString(node);
     }
 
-    var __extends$1g = (undefined && undefined.__extends) || (function () {
+    var __extends$1i = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -34044,7 +35262,7 @@
      * @api
      */
     var WMTSCapabilities = /** @class */ (function (_super) {
-        __extends$1g(WMTSCapabilities, _super);
+        __extends$1i(WMTSCapabilities, _super);
         function WMTSCapabilities() {
             var _this = _super.call(this) || this;
             /**
@@ -40906,7 +42124,7 @@
     /**
      * @module ol/source/XYZ
      */
-    var __extends$1h = (undefined && undefined.__extends) || (function () {
+    var __extends$1j = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -40982,7 +42200,7 @@
      * @api
      */
     var XYZ = /** @class */ (function (_super) {
-        __extends$1h(XYZ, _super);
+        __extends$1j(XYZ, _super);
         /**
          * @param {Options=} opt_options XYZ options.
          */
@@ -41058,7 +42276,7 @@
     /**
      * @module ol/source/OSM
      */
-    var __extends$1i = (undefined && undefined.__extends) || (function () {
+    var __extends$1k = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -41109,7 +42327,7 @@
      * @api
      */
     var OSM = /** @class */ (function (_super) {
-        __extends$1i(OSM, _super);
+        __extends$1k(OSM, _super);
         /**
          * @param {Options=} [opt_options] Open Street Map options.
          */
@@ -41148,7 +42366,7 @@
     /**
      * @module ol/source/TileWMS
      */
-    var __extends$1j = (undefined && undefined.__extends) || (function () {
+    var __extends$1l = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -41219,7 +42437,7 @@
      * @api
      */
     var TileWMS = /** @class */ (function (_super) {
-        __extends$1j(TileWMS, _super);
+        __extends$1l(TileWMS, _super);
         /**
          * @param {Options=} [opt_options] Tile WMS options.
          */
@@ -41826,7 +43044,7 @@
         return transformed;
     }
 
-    var __extends$1k = (undefined && undefined.__extends) || (function () {
+    var __extends$1m = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -41846,7 +43064,7 @@
      * @api
      */
     var GeometryCollection = /** @class */ (function (_super) {
-        __extends$1k(GeometryCollection, _super);
+        __extends$1m(GeometryCollection, _super);
         /**
          * @param {Array<Geometry>=} opt_geometries Geometries.
          */
@@ -42136,7 +43354,7 @@
         return clonedGeometries;
     }
 
-    var __extends$1l = (undefined && undefined.__extends) || (function () {
+    var __extends$1n = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -42158,7 +43376,7 @@
      * @abstract
      */
     var JSONFeature = /** @class */ (function (_super) {
-        __extends$1l(JSONFeature, _super);
+        __extends$1n(JSONFeature, _super);
         function JSONFeature() {
             return _super.call(this) || this;
         }
@@ -42334,7 +43552,7 @@
     /**
      * @module ol/format/GeoJSON
      */
-    var __extends$1m = (undefined && undefined.__extends) || (function () {
+    var __extends$1o = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -42378,7 +43596,7 @@
      * @api
      */
     var GeoJSON = /** @class */ (function (_super) {
-        __extends$1m(GeoJSON, _super);
+        __extends$1o(GeoJSON, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -42829,7 +44047,7 @@
         };
     }
 
-    var __extends$1n = (undefined && undefined.__extends) || (function () {
+    var __extends$1p = (undefined && undefined.__extends) || (function () {
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -42883,7 +44101,7 @@
      * @api
      */
     var TopoJSON = /** @class */ (function (_super) {
-        __extends$1n(TopoJSON, _super);
+        __extends$1p(TopoJSON, _super);
         /**
          * @param {Options=} opt_options Options.
          */
@@ -43355,12 +44573,12 @@
 
       }),
       //visible: false,
-      title: 'eer' // style: new Style({
-      //   fill: fillStyle,
-      //   stroke: lineStyle,
-      //   image: pointStyle
-      // })
-
+      title: 'eer',
+      style: new Style({
+        fill: fillStyle,
+        stroke: lineStyle,
+        image: pointStyle
+      })
     });
     var style = new Style({
       fill: new Fill({
@@ -43392,10 +44610,21 @@
       target: document.getElementById('mouse-position'),
       undefinedHTML: '&nbsp;'
     });
+    var container = document.getElementById('popup');
+    var content = document.getElementById('popup-content');
+    var closer = document.getElementById('popup-closer');
+    var overlay = new Overlay({
+      element: container,
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250
+      }
+    });
     var map = new Map({
       controls: defaults().extend([mousePositionControl]),
       layers: [layers['osm']],
       // Start with just initial OSM basemap
+      overlays: [overlay],
       target: 'map',
       view: new View({
         projection: 'EPSG:27700',
@@ -43528,5 +44757,43 @@
         updateRenderEdgesOnLayer(layer);
       });
     };
+
+    var select = new Select();
+    map.addInteraction(select);
+    var selectedFeatures = select.getFeatures();
+    var infoBox = document.getElementById('info');
+    selectedFeatures.on(['add', 'remove'], function () {
+      var names = selectedFeatures.getArray().map(function (feature) {
+        return feature.get('EER13NM');
+      });
+
+      if (names.length > 0) {
+        infoBox.innerHTML = names.join(', ');
+      } else {
+        infoBox.innerHTML = 'No electoral region selected';
+      }
+    });
+
+    closer.onclick = function () {
+      overlay.setPosition(undefined);
+      closer.blur();
+      return false;
+    };
+
+    map.on('singleclick', function (evt) {
+      var coordinate = evt.coordinate;
+      var hdms = toStringHDMS(toLonLat(coordinate));
+      var region = selectedFeatures.getArray().map(function (feature) {
+        return feature.get('EER13NM');
+      });
+      var regiontext = 'No electoral region selected';
+
+      if (region.length > 0) {
+        regiontext = region.join(', ');
+      }
+
+      content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code><p>Region:</p><code>' + regiontext + '</code>';
+      overlay.setPosition(coordinate);
+    });
 
 })));

@@ -4,18 +4,17 @@
     <title>G360</title>
     <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
     <script src="https://unpkg.com/elm-pep"></script>
-    <style>
-      .map {
-        width: 100%;
-        height:400px;
-      }
-    </style>
   </head>
   <link rel="icon" 
       type="image/png" 
       href="https://icons.iconarchive.com/icons/goodstuff-no-nonsense/free-space/1024/earth-icon.png">
   <body>
     <div id="map" class="map"></div>
+    <div id="popup" class="ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content"></div>
+    </div>
+    <div id="info">No countries selected</div>
     <div id="mouse-position"></div>
     <form class="form-inline">
       <div class="col-md-3">
