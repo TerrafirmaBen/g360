@@ -21,6 +21,8 @@ import {GeoJSON, TopoJSON} from 'ol/format';
 import {Style} from 'ol/style';
 import {Select} from 'ol/interaction';
 import Overlay from 'ol/Overlay';
+import "regenerator-runtime/runtime";
+const sleep = ms => new Promise(res => setTimeout(res, ms));
 //import {VectorImageLayer} from 'ol/layer/VectorImage';
 //import VectorSource from 'ol/source/Vector';
 
@@ -201,9 +203,6 @@ layers['tf'] = new TileLayer({
     projection: 'EPSG:27700',
   }),
   title: 'LR Haz NGRM ol tile set',
-
-  //visible: false,
-  //opacity: 0.5,
   minZoom: 9.5
 });
 
@@ -232,7 +231,6 @@ layers['eer'] = new VectorLayer({
     format: new TopoJSON(),
     //projection: document.getElementById('view-projection').value
   }),
-  //visible: false,
   title: 'eer',
   style: new Style({
     fill: fillStyle,
@@ -259,10 +257,6 @@ layers['countries'] = new VectorLayer({
     url: 'https://openlayers.org/en/v4.6.5/examples/data/geojson/countries.geojson',
     
   }),
-  // style: function (feature) {
-  //   style.getText().setText(feature.get('name'));
-  //   return style;
-  // },
 })
 
 
@@ -277,8 +271,7 @@ var mousePositionControl = new MousePosition({
 });
 
 var container = document.getElementById('popup');
-var content = document.getElementById('popup-content');
-var closer = document.getElementById('popup-closer');
+
 
 var overlay = new Overlay({
   element: container,
@@ -426,23 +419,8 @@ renderEdgesCheckbox.onchange = function () {
 };
 
 
-var select = new Select();
-map.addInteraction(select);
-var selectedFeatures = select.getFeatures();
-
-var infoBox = document.getElementById('info');
-
-selectedFeatures.on(['add', 'remove'], function () {
-  var names = selectedFeatures.getArray().map(function (feature) {
-    return feature.get('EER13NM');
-  });
-  if (names.length > 0) {
-    infoBox.innerHTML = names.join(', ');
-  } else {
-    infoBox.innerHTML = 'No electoral region selected';
-  }
-});
-
+var content = document.getElementById('popup-content');
+var closer = document.getElementById('popup-closer');
 
 closer.onclick = function () {
   overlay.setPosition(undefined);
@@ -451,18 +429,23 @@ closer.onclick = function () {
 };
 
 
-map.on('singleclick', function (evt) {
+var select = new Select();
+map.addInteraction(select);
+
+map.on('singleclick', async function (evt) {
   var coordinate = evt.coordinate;
   var hdms = toStringHDMS(toLonLat(coordinate));
-  var region = selectedFeatures.getArray().map(function (feature) {
+  await sleep(1);
+
+  var region = select.getFeatures().getArray().map(function (feature) {
     return feature.get('EER13NM');
   });
   var regiontext = 'No electoral region selected';
   if (region.length > 0) {
     regiontext = region.join(', ');
   }
-
   content.innerHTML = '<p>You clicked here:</p><code>' + hdms + 
   '</code><p>Region:</p><code>' + regiontext + '</code>';
+
   overlay.setPosition(coordinate);
 });

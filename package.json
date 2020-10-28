@@ -27,14 +27,16 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-multi-entry": "^4.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
+    "@types/regenerator-runtime": "^0.13.0",
+    "parcel": "1.11.0",
     "rollup": "^2.28.2",
-    "rollup-plugin-css-only": "^2.1.0",
-    "parcel": "1.11.0"
+    "rollup-plugin-css-only": "^2.1.0"
   },
   "dependencies": {
     "ol": "^6.4.3",
     "pg": "^8.4.1",
     "proj4": "2.6.2",
+    "regenerator-runtime": "^0.13.7",
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "topojson": "^3.0.2"
