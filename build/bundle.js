@@ -46417,6 +46417,14 @@
       features: [feature]
     })
   });
+  var container = document.getElementById('popup');
+  var overlay = new Overlay({
+    element: container,
+    autoPan: true,
+    autoPanAnimation: {
+      duration: 250
+    }
+  });
   var mousePositionControl = new MousePosition({
     coordinateFormat: createStringXY(2),
     projection: document.getElementById('view-projection').value,
@@ -46426,16 +46434,71 @@
     target: document.getElementById('mouse-position'),
     undefinedHTML: '&nbsp;'
   });
-  var container = document.getElementById('popup');
-  var overlay = new Overlay({
-    element: container,
-    autoPan: true,
-    autoPanAnimation: {
-      duration: 250
+
+  var RotateNorthControl = /*@__PURE__*/function (Control) {
+    function RotateNorthControl(opt_options) {
+      var options = opt_options || {};
+      var button = document.createElement('button');
+      button.innerHTML = 'N';
+      var element = document.createElement('div');
+      element.className = 'rotate-north ol-unselectable ol-control';
+      element.appendChild(button);
+      Control.call(this, {
+        element: element,
+        target: options.target
+      });
+      button.addEventListener('click', this.handleRotateNorth.bind(this), false);
     }
-  });
+
+    if (Control) RotateNorthControl.__proto__ = Control;
+    RotateNorthControl.prototype = Object.create(Control && Control.prototype);
+    RotateNorthControl.prototype.constructor = RotateNorthControl;
+
+    RotateNorthControl.prototype.handleRotateNorth = function handleRotateNorth() {
+      this.getMap().getView().setRotation(0);
+    };
+
+    return RotateNorthControl;
+  }(Control);
+
+  var ElectoralLayer = /*@__PURE__*/function (Control) {
+    function ElectoralLayer(opt_options) {
+      var options = opt_options || {};
+      var button = document.createElement('button');
+      button.innerHTML = 'L';
+      var element = document.createElement('div');
+      element.className = 'show-el-layer ol-unselectable ol-control';
+      element.appendChild(button);
+      Control.call(this, {
+        element: element,
+        target: options.target
+      });
+      button.addEventListener('click', this.handleLayerChange.bind(this), false);
+    }
+
+    if (Control) ElectoralLayer.__proto__ = Control;
+    ElectoralLayer.prototype = Object.create(Control && Control.prototype);
+    ElectoralLayer.prototype.constructor = ElectoralLayer;
+
+    ElectoralLayer.prototype.handleLayerChange = function handleLayerChange() {
+      var eer_layer = layers['eer'];
+
+      if (!renderOverlay) {
+        renderOverlay = true;
+        eer_layer.setOpacity(opacityValue);
+        updateRenderEdgesOnLayer(eer_layer);
+        map.getLayers().setAt(1, eer_layer);
+      } else {
+        renderOverlay = false;
+        map.getLayers().removeAt(1);
+      }
+    };
+
+    return ElectoralLayer;
+  }(Control);
+
   var map = new Map({
-    controls: defaults().extend([mousePositionControl]),
+    controls: defaults().extend([mousePositionControl, new RotateNorthControl(), new ElectoralLayer()]),
     layers: [layers['osm']],
     // Start with just initial OSM basemap
     overlays: [overlay],

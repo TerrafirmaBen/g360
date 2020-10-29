@@ -80,6 +80,22 @@
   }
   .ol-popup-closer:after {
     content: "✖";
+  }
+
+  .rotate-north {
+    top: 65px;
+    left: .5em;
+  }
+  .ol-touch .rotate-north {
+    top: 80px;
+  }
+
+  .show-el-layer {
+    top: 130px;
+    left: .5em;
+  }
+  .ol-touch .show-el-layer {
+    top: 160px;
   }.ol-box {
   box-sizing: border-box;
   border-radius: 2px;
