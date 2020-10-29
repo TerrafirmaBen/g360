@@ -17,14 +17,14 @@ import {defaults as defaultControls} from 'ol/control';
 import {Fill, Stroke, Circle} from 'ol/style';
 import {Vector as VectorLayer} from 'ol/layer';
 import {Vector as VectorSource} from 'ol/source';
-import {GeoJSON, TopoJSON} from 'ol/format';
+import {GeoJSON, TopoJSON, WKT} from 'ol/format';
 import {Style} from 'ol/style';
 import {Select} from 'ol/interaction';
 import Overlay from 'ol/Overlay';
 import "regenerator-runtime/runtime";
+
 const sleep = ms => new Promise(res => setTimeout(res, ms));
-//import {VectorImageLayer} from 'ol/layer/VectorImage';
-//import VectorSource from 'ol/source/Vector';
+
 
 var opacityValue = 1;
 
@@ -259,7 +259,20 @@ layers['countries'] = new VectorLayer({
   }),
 })
 
+var wkt = "Polygon ((385219.76934220944531262 275120.31611970614176244, " +
+  "510206.33200901799136773 374468.60952152829850093, " + 
+  "611691.14784958900418133 249482.04685471975244582, " +
+  "385219.76934220944531262 275120.31611970614176244))";
 
+var feature = new WKT().readFeature(wkt, {
+  dataProjection: 'EPSG:27700',
+  featureProjection: 'EPSG:27700'
+})
+layers['wkt_example'] = new VectorLayer( {
+  source: new VectorSource( {
+    features: [feature]
+  })
+})
 var mousePositionControl = new MousePosition({
   coordinateFormat: createStringXY(2),
   projection: document.getElementById('view-projection').value,
@@ -448,4 +461,44 @@ map.on('singleclick', async function (evt) {
   '</code><p>Region:</p><code>' + regiontext + '</code>';
 
   overlay.setPosition(coordinate);
+});
+
+document.getElementById('export-png').addEventListener('click', function () {
+  map.once('rendercomplete', function () {
+    var mapCanvas = document.createElement('canvas');
+    var size = map.getSize();
+    mapCanvas.width = size[0];
+    mapCanvas.height = size[1];
+    var mapContext = mapCanvas.getContext('2d');
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.ol-layer canvas'),
+      function (canvas) {
+        if (canvas.width > 0) {
+          var opacity = canvas.parentNode.style.opacity;
+          mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+          var transform = canvas.style.transform;
+          // Get the transform parameters from the style's transform matrix
+          var matrix = transform
+            .match(/^matrix\(([^\(]*)\)$/)[1]
+            .split(',')
+            .map(Number);
+          // Apply the transform to the export map context
+          CanvasRenderingContext2D.prototype.setTransform.apply(
+            mapContext,
+            matrix
+          );
+          mapContext.drawImage(canvas, 0, 0);
+        }
+      }
+    );
+    if (navigator.msSaveBlob) {
+      // link download attribuute does not work on MS browsers
+      navigator.msSaveBlob(mapCanvas.msToBlob(), 'map.png');
+    } else {
+      var link = document.getElementById('image-download');
+      link.href = mapCanvas.toDataURL();
+      link.click();
+    }
+  });
+  map.renderSync();
 });

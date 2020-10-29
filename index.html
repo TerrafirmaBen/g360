@@ -31,6 +31,7 @@
           <option value="tf">TF NGRM (EPSG:27700)</option>
           <option value="eer">Electoral Regions</option>
           <option value="countries">Countries</option>
+          <option value="wkt_example">Example WKT</option>
           <option value="wms21781">Swisstopo WMS (EPSG:21781)</option>
           <option value="wmts3413">NASA Arctic WMTS (EPSG:3413)</option>
           <option value="states">United States (EPSG:3857)</option>
@@ -61,7 +62,9 @@
         Render reprojection edges
         <input type="checkbox" id="render-edges">
       </label>
-      </form>
+    </form>
+    <a id="export-png" class="btn btn-default"><i class="fa fa-download"></i> Download PNG</a>
+    <a id="image-download" download="map.png"></a>
     <link rel="stylesheet" href="./build/bundle.css">
     <script src="./build/bundle.js"></script>
   </body>
