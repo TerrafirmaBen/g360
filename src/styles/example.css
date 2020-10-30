@@ -90,10 +90,26 @@
     top: 80px;
   }
 
-  .show-el-layer {
+  /* .show-el-layer {
     top: 130px;
     left: .5em;
   }
   .ol-touch .show-el-layer {
     top: 160px;
+  } */
+
+  #container {
+    position: relative;
+    color: seagreen;
+  }
+
+  #layer-button {
+    position: absolute;
+    /* left: .5em; */
+    left: 50px;
+    top: 50px;
+    color: sandybrown;
+  }
+  #export-png {
+    color: skyblue;
   }

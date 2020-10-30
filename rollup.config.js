@@ -6,6 +6,7 @@ import css from "rollup-plugin-css-only";
 import {terser} from 'rollup-plugin-terser';
 import json from '@rollup/plugin-json';
 import { string } from "rollup-plugin-string";
+import execute from 'rollup-plugin-execute';
 
 
 export default [{
@@ -30,6 +31,7 @@ export default [{
         string({
             include: "**/*.shader"
         }),
+        //execute('npm run docs')
     ],
     onwarn: function(warning, superOnWarn) {
         if (warning.code === 'THIS_IS_UNDEFINED') {

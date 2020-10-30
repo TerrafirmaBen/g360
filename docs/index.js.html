@@ -1,4 +1,91 @@
-import 'ol/ol.css';
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> index.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>index.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import 'ol/ol.css';
 import './styles/example.css';
 import Map from 'ol/Map';
 import TileGrid from 'ol/tilegrid/TileGrid';
@@ -112,8 +199,8 @@ layers['wms4326'] = new TileLayer({
 layers['wms21781'] = new TileLayer({
   source: new TileWMS({
     attributions:
-      '© <a href="http://www.geo.admin.ch/internet/geoportal/' +
-      'en/home.html">Pixelmap 1:1000000 / geo.admin.ch</a>',
+      '© &lt;a href="http://www.geo.admin.ch/internet/geoportal/' +
+      'en/home.html">Pixelmap 1:1000000 / geo.admin.ch&lt;/a>',
     crossOrigin: 'anonymous',
     params: {
       'LAYERS': 'ch.swisstopo.pixelkarte-farbe-pk1000.noscale',
@@ -129,7 +216,7 @@ var parser = new WMTSCapabilities();
 layers['wmts3413'] = new TileLayer();
 var urlA =
   'https://map1.vis.earthdata.nasa.gov/wmts-arctic/' +
-  'wmts.cgi?SERVICE=WMTS&request=GetCapabilities';
+  'wmts.cgi?SERVICE=WMTS&amp;request=GetCapabilities';
 fetch(urlA)
   .then(function (response) {
     return response.text();
@@ -168,7 +255,7 @@ fetch(urlB)
 
 var startResolution = getWidth(getProjection('EPSG:27700').getExtent()) / 256;
 var resolutions = new Array(22);
-for (var i = 0, ii = resolutions.length; i < ii; ++i) {
+for (var i = 0, ii = resolutions.length; i &lt; ii; ++i) {
   resolutions[i] = startResolution / Math.pow(2, i);
 }
 
@@ -190,7 +277,7 @@ layers['states'] = new TileLayer({
 layers['tf'] = new TileLayer({
   source: new TileWMS({
     url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
-    attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+    attributions: 'Metadata © &lt;a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.&lt;/a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
     params: {
       'FORMAT': 'image/png',
       'VERSION': '1.3.0',
@@ -304,7 +391,7 @@ var mousePositionControl = new MousePosition({
   // be placed within the map.
   className: 'custom-mouse-position',
   target: document.getElementById('mouse-position'),
-  undefinedHTML: '&nbsp;',
+  undefinedHTML: '&amp;nbsp;',
 });
 
 
@@ -329,7 +416,7 @@ var RotateNorthControl = /*@__PURE__*/(function (Control) {
   }
 
   if ( Control ) RotateNorthControl.__proto__ = Control;
-  RotateNorthControl.prototype = Object.create( Control && Control.prototype );
+  RotateNorthControl.prototype = Object.create( Control &amp;&amp; Control.prototype );
   RotateNorthControl.prototype.constructor = RotateNorthControl;
 
   RotateNorthControl.prototype.handleRotateNorth = function handleRotateNorth () {
@@ -343,37 +430,37 @@ var ElectoralLayerToggle = /*@__PURE__*/(function (Control) {
   function ElectoralLayerSwitch(opt_options) {
     var options = opt_options || {};
 
-    // var button = document.createElement('button');
-    // button.innerHTML = 'Enable region layer';
+    var button = document.createElement('button');
+    button.width =
+    button.innerHTML = 'Enable region layer';
 
-    
-    //var button = document.createElement('button')
-    //var element = document.createElement('div');
-    var element = document.getElementById('layer-button')
+    var element = document.createElement('div');
     element.className = 'show-el-layer ol-unselectable ol-control';
-    //element.appendChild(button);
+    element.appendChild(button);
 
     Control.call(this, {
       element: element,
       target: options.target,
     });
 
-    element.addEventListener('click', this.handleLayerChange.bind(this), false);
+    button.addEventListener('click', this.handleLayerChange.bind(this), false);
   }
 
   if ( Control ) ElectoralLayerSwitch.__proto__ = Control;
-  ElectoralLayerSwitch.prototype = Object.create( Control && Control.prototype );
+  ElectoralLayerSwitch.prototype = Object.create( Control &amp;&amp; Control.prototype );
   ElectoralLayerSwitch.prototype.constructor = ElectoralLayerSwitch;
 
   ElectoralLayerSwitch.prototype.handleLayerChange = function handleLayerChange () {
     var eer_layer = layers['eer'];
     if (!renderOverlay) {
     renderOverlay = true;
+    ElectoralLayerSwitch.button.innerHTML = 'Disable region layer';
     eer_layer.setOpacity(opacityValue);
     updateRenderEdgesOnLayer(eer_layer);
     map.getLayers().setAt(1, eer_layer);
     } else {
       renderOverlay = false;
+      ElectoralLayerSwitch.button.innerHTML = 'Enable region layer';
       map.getLayers().removeAt(1);
     }
   };
@@ -481,7 +568,7 @@ baseLayerSelect.onchange = function () {
  */
 overlayLayerSelect.onchange = function () {
   var layer = layers[overlayLayerSelect.value];
-  if (layer && renderOverlay) {
+  if (layer &amp;&amp; renderOverlay) {
     layer.setOpacity(opacityValue);
     updateRenderEdgesOnLayer(layer);
     map.getLayers().setAt(1, layer);
@@ -547,8 +634,8 @@ map.on('singleclick', async function (evt) {
   if (region.length > 0) {
     regiontext = region.join(', ');
   }
-  content.innerHTML = '<p>You clicked here:</p><code>' + hdms + 
-  '</code><p>Region:</p><code>' + regiontext + '</code>';
+  content.innerHTML = '&lt;p>You clicked here:&lt;/p>&lt;code>' + hdms + 
+  '&lt;/code>&lt;p>Region:&lt;/p>&lt;code>' + regiontext + '&lt;/code>';
 
   overlay.setPosition(coordinate);
 });
@@ -592,3 +679,32 @@ document.getElementById('export-png').addEventListener('click', function () {
   });
   map.renderSync();
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+</body>
+</html>
