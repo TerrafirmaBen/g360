@@ -342,22 +342,11 @@ var RotateNorthControl = /*@__PURE__*/(function (Control) {
 var ElectoralLayerToggle = /*@__PURE__*/(function (Control) {
   function ElectoralLayerSwitch(opt_options) {
     var options = opt_options || {};
-
-    // var button = document.createElement('button');
-    // button.innerHTML = 'Enable region layer';
-
-    
-    //var button = document.createElement('button')
-    //var element = document.createElement('div');
-    var element = document.getElementById('layer-button')
-    element.className = 'show-el-layer ol-unselectable ol-control';
-    //element.appendChild(button);
-
+    var element = document.getElementById('layer-button');
     Control.call(this, {
       element: element,
       target: options.target,
     });
-
     element.addEventListener('click', this.handleLayerChange.bind(this), false);
   }
 
@@ -379,6 +368,37 @@ var ElectoralLayerToggle = /*@__PURE__*/(function (Control) {
   };
 
   return ElectoralLayerSwitch;
+}(Control));
+
+var BNGLayerToggle = /*@__PURE__*/(function (Control) {
+  function BNGLayerSwitch(opt_options) {
+    var options = opt_options || {};
+    var element = document.getElementById('bng-render-checkbox');
+    Control.call(this, {
+      element: element,
+      target: options.target,
+    });
+    element.addEventListener('change', this.handleLayerChange.bind(this), false);
+  }
+
+  if ( Control ) BNGLayerSwitch.__proto__ = Control;
+  BNGLayerSwitch.prototype = Object.create( Control && Control.prototype );
+  BNGLayerSwitch.prototype.constructor = BNGLayerSwitch;
+
+  BNGLayerSwitch.prototype.handleLayerChange = function handleLayerChange () {
+    var bng_layer = layers['bng'];
+    if (!renderOverlay) {
+    renderOverlay = true;
+    bng_layer.setOpacity(opacityValue);
+    updateRenderEdgesOnLayer(bng_layer);
+    map.getLayers().setAt(1, bng_layer);
+    } else {
+      renderOverlay = false;
+      map.getLayers().removeAt(1);
+    }
+  };
+
+  return BNGLayerSwitch;
 }(Control));
 
 var map = new Map({

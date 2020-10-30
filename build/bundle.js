@@ -47296,14 +47296,8 @@
 
   var ElectoralLayerToggle = /*@__PURE__*/function (Control) {
     function ElectoralLayerSwitch(opt_options) {
-      var options = opt_options || {}; // var button = document.createElement('button');
-      // button.innerHTML = 'Enable region layer';
-      //var button = document.createElement('button')
-      //var element = document.createElement('div');
-
+      var options = opt_options || {};
       var element = document.getElementById('layer-button');
-      element.className = 'show-el-layer ol-unselectable ol-control'; //element.appendChild(button);
-
       Control.call(this, {
         element: element,
         target: options.target
