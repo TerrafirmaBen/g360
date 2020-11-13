@@ -9,20 +9,28 @@
       type="image/png" 
       href="https://icons.iconarchive.com/icons/goodstuff-no-nonsense/free-space/1024/earth-icon.png">
   <body>
-    <div id="container">
+<!-- Start container for map and elements within -->
+
+  <div id="container">
       <div id="map" class="map"></div>
       <div id="layer-button" class="ol-control ol-unselectable">Region Layer</div>
-      <div id="bng-render" class="ol-control ol-unselectable">
-      <label>
-        <input type="checkbox" id="bng-render-checkbox">
-        Render BNG
-      </label>
-      </div>
       <div id="popup" class="ol-popup">
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content"></div>
       </div>
+
+
+      <div id="sidebar">
+          Sidebar
+      </div>
+
+
   </div>
+
+
+<!-- Below map elements: -->
+
+
     <div id="info">No countries selected</div>
     <div id="mouse-position"></div>
     <form class="form-inline">
@@ -74,6 +82,8 @@
     </form>
     <a id="export-png" class="btn btn-default"><i class="fa fa-download"></i> Download PNG</a>
     <a id="image-download" download="map.png"></a>
+
+
     <link rel="stylesheet" href="./build/bundle.css">
     <script src="./build/bundle.js"></script>
   </body>

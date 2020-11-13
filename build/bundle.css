@@ -97,15 +97,18 @@
 
   #layer-button {
     position: absolute;
-    right: .5em;
+    left: .5em;
     top: 120px;
     color: blue;
   }
-  #bng-render {
+
+  #sidebar {
     position: absolute;
-    right: .5em;
-    top: 170px;
-    color: red;
+    left: .5em;
+    top: 150px;
+    background-color: brown;
+    width: 12%;
+    height: 25%;
   }
 
   #export-png {
