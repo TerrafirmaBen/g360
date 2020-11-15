@@ -95,22 +95,22 @@
     color: seagreen;
   }
 
-  #layer-button {
-    position: absolute;
-    left: .5em;
-    top: 120px;
-    color: blue;
-  }
+  
 
   #sidebar {
     position: absolute;
     left: .5em;
     top: 150px;
     background-color: brown;
-    width: 12%;
-    height: 25%;
+    width: 25%;
+    height: 30%;
   }
 
+  #layer-button {
+    position: absolute;
+    color: blue;
+    left: .5em;
+  }
   #export-png {
     color: skyblue;
   }.ol-box {
