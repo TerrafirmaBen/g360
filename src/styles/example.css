@@ -90,27 +90,28 @@
     top: 80px;
   }
 
-  #container {
-    position: relative;
-    color: seagreen;
+
+  #export-png {
+    color: skyblue;
   }
 
-  
+  #container {
+    position: relative;
+  }
 
   #sidebar {
     position: absolute;
     left: .5em;
-    top: 150px;
-    background-color: brown;
+    top: .5em;
+    background-color: lightseagreen;
+    color: black;
     width: 25%;
     height: 30%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
 
   #layer-button {
     position: absolute;
     color: blue;
     left: .5em;
-  }
-  #export-png {
-    color: skyblue;
   }

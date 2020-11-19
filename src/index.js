@@ -13,7 +13,7 @@ import {get as getProjection, toLonLat} from 'ol/proj';
 import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
 import {createStringXY, toStringHDMS} from 'ol/coordinate';
-import {OverviewMap, FullScreen, Control, defaults as defaultControls} from 'ol/control';
+import {OverviewMap, FullScreen, Control, defaults as defaultControls, Attribution} from 'ol/control';
 import {Fill, Stroke, Circle} from 'ol/style';
 import {Vector as VectorLayer} from 'ol/layer';
 import {Vector as VectorSource} from 'ol/source';
@@ -339,43 +339,46 @@ var RotateNorthControl = /*@__PURE__*/(function (Control) {
   return RotateNorthControl;
 }(Control));
 
-var ElectoralLayerToggle = /*@__PURE__*/(function (Control) {
-  function ElectoralLayerSwitch(opt_options) {
-    var options = opt_options || {};
-    var element = document.getElementById('layer-button');
-    Control.call(this, {
-      element: element,
-      target: options.target,
-    });
-    element.addEventListener('click', this.handleLayerChange.bind(this), false);
-  }
+// var ElectoralLayerToggle = /*@__PURE__*/(function (Control) {
+//   function ElectoralLayerSwitch(opt_options) {
+//     var options = opt_options || {};
+//     var element = document.getElementById('layer-button');
+//     Control.call(this, {
+//       element: element,
+//       //target: options.target,
+//     });
+//     element.addEventListener('click', this.handleLayerChange.bind(this), false);
+    
+//   }
 
-  if ( Control ) ElectoralLayerSwitch.__proto__ = Control;
-  ElectoralLayerSwitch.prototype = Object.create( Control && Control.prototype );
-  ElectoralLayerSwitch.prototype.constructor = ElectoralLayerSwitch;
+//   if ( Control ) ElectoralLayerSwitch.__proto__ = Control;
+//   ElectoralLayerSwitch.prototype = Object.create( Control && Control.prototype );
+//   ElectoralLayerSwitch.prototype.constructor = ElectoralLayerSwitch;
 
-  ElectoralLayerSwitch.prototype.handleLayerChange = function handleLayerChange () {
-    var eer_layer = layers['eer'];
-    if (!renderOverlay) {
-    renderOverlay = true;
-    eer_layer.setOpacity(opacityValue);
-    updateRenderEdgesOnLayer(eer_layer);
-    map.getLayers().setAt(1, eer_layer);
-    } else {
-      renderOverlay = false;
-      map.getLayers().removeAt(1);
-    }
-  };
+//   ElectoralLayerSwitch.prototype.handleLayerChange = function handleLayerChange () {
+//     var eer_layer = layers['eer'];
+//     if (!renderOverlay) {
+//     renderOverlay = true;
+//     eer_layer.setOpacity(opacityValue);
+//     updateRenderEdgesOnLayer(eer_layer);
+//     map.getLayers().setAt(1, eer_layer);
+//     } else {
+//       renderOverlay = false;
+//       map.getLayers().removeAt(1);
+//     }
+//   };
 
-  return ElectoralLayerSwitch;
-}(Control));
+//   return ElectoralLayerSwitch;
+// }(Control));
 
 var map = new Map({
-  controls: defaultControls().extend([mousePositionControl, 
-    new RotateNorthControl(),
-    new ElectoralLayerToggle(),
-    new FullScreen(),
-    overviewMapControl]),
+  controls: [new Attribution()],
+  // controls: defaultControls().extend([mousePositionControl, 
+  //   new RotateNorthControl(),
+  //   new FullScreen(),
+  //   overviewMapControl,
+  // ]),
+  // new ElectoralLayerToggle()]),
   layers: [layers['osm']],  // Start with just initial OSM basemap
   overlays: [overlay],
   target: 'map',
@@ -385,6 +388,22 @@ var map = new Map({
     zoom: 1,
   }),
 });
+
+var electoralToggle = document.getElementById('layer-button')
+
+electoralToggle.onclick = function () {
+  var eer_layer = layers['eer'];
+    if (!renderOverlay) {
+    renderOverlay = true;
+    eer_layer.setOpacity(opacityValue);
+    updateRenderEdgesOnLayer(eer_layer);
+    map.getLayers().setAt(1, eer_layer);
+    } else {
+      renderOverlay = false;
+      map.getLayers().removeAt(1);
+    }
+};
+
 
 var baseLayerSelect = document.getElementById('base-layer');
 var overlayLayerSelect = document.getElementById('overlay-layer');
