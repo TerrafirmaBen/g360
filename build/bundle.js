@@ -46978,42 +46978,9 @@
     target: document.getElementById('mouse-position'),
     undefinedHTML: '&nbsp;'
   });
-  //   function ElectoralLayerSwitch(opt_options) {
-  //     var options = opt_options || {};
-  //     var element = document.getElementById('layer-button');
-  //     Control.call(this, {
-  //       element: element,
-  //       //target: options.target,
-  //     });
-  //     element.addEventListener('click', this.handleLayerChange.bind(this), false);
-  //   }
-  //   if ( Control ) ElectoralLayerSwitch.__proto__ = Control;
-  //   ElectoralLayerSwitch.prototype = Object.create( Control && Control.prototype );
-  //   ElectoralLayerSwitch.prototype.constructor = ElectoralLayerSwitch;
-  //   ElectoralLayerSwitch.prototype.handleLayerChange = function handleLayerChange () {
-  //     var eer_layer = layers['eer'];
-  //     if (!renderOverlay) {
-  //     renderOverlay = true;
-  //     eer_layer.setOpacity(opacityValue);
-  //     updateRenderEdgesOnLayer(eer_layer);
-  //     map.getLayers().setAt(1, eer_layer);
-  //     } else {
-  //       renderOverlay = false;
-  //       map.getLayers().removeAt(1);
-  //     }
-  //   };
-  //   return ElectoralLayerSwitch;
-  // }(Control));
-
 
   var map = new Map({
     controls: [new Attribution()],
-    // controls: defaultControls().extend([mousePositionControl, 
-    //   new RotateNorthControl(),
-    //   new FullScreen(),
-    //   overviewMapControl,
-    // ]),
-    // new ElectoralLayerToggle()]),
     layers: [layers['osm']],
     // Start with just initial OSM basemap
     overlays: [overlay],
@@ -47040,12 +47007,12 @@
     }
   };
 
+  var renderExtras = document.getElementById('show-extras');
   var baseLayerSelect = document.getElementById('base-layer');
   var overlayLayerSelect = document.getElementById('overlay-layer');
   var renderOverlayCheckbox = document.getElementById('render-overlay');
   var renderOverlay = false;
   var opacitySlider = document.getElementById("opacitySliderElement");
-  var opacityDisplay = document.getElementById("opacityDisplayValue");
   var viewProjSelect = document.getElementById('view-projection');
   var renderEdgesCheckbox = document.getElementById('render-edges');
   var renderEdges = false;
@@ -47140,6 +47107,14 @@
       layer.setOpacity(opacityValue);
     } else {
       map.getLayers().removeAt(1);
+    }
+  };
+
+  renderExtras.onchange = function () {
+    if (renderExtras.checked) {
+      document.getElementById('extras').style.display = 'block';
+    } else {
+      document.getElementById('extras').style.display = 'none';
     }
   }; // opacityDisplay.innerHTML = "Opacity: 1"
   // Update the current slider value (each time you drag the slider handle)
