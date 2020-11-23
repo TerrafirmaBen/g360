@@ -141,6 +141,7 @@
     position: absolute;
     bottom: .5em;
     color: red;
+    left: .5em;
   }.ol-box {
   box-sizing: border-box;
   border-radius: 2px;
