@@ -1,5 +1,7 @@
-.example_class { color: red; }
-.map { height: 400px; width: 100%; }
+
+
+
+.map { height: 500px; width: 100%; }
 
 .slidecontainer {
     width: 100%; /* Width of the outside container */
@@ -97,6 +99,8 @@
 
   #container {
     position: relative;
+    width: 100%;
+    height: 100%;
   }
 
   #sidebar {
@@ -118,11 +122,12 @@
 
   #extras {
     position: absolute;
-    left: .5em;
-    bottom: .5em;
+    top: .5em;
+    right: .5em;
     background-color: lightcoral;
     color: black;
-    width: 80%;
-    height: 20%;
+    width: 40%;
+    height: 40%;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: .5em;
   }

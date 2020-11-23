@@ -47141,14 +47141,12 @@
     } else {
       map.getLayers().removeAt(1);
     }
-  };
-
-  opacityDisplay.innerHTML = "Opacity: 1"; // Display the default slider value
+  }; // opacityDisplay.innerHTML = "Opacity: 1"
   // Update the current slider value (each time you drag the slider handle)
 
+
   opacitySlider.oninput = function () {
-    opacityValue = this.value / 100;
-    opacityDisplay.innerHTML = "Opacity: " + opacityValue;
+    opacityValue = this.value / 100; // opacityDisplay.innerHTML = "Opacity: " + opacityValue;
 
     if (renderOverlay) {
       layers[overlayLayerSelect.value].setOpacity(opacityValue);
