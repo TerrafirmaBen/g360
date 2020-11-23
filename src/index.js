@@ -360,9 +360,13 @@ electoralToggle.onclick = function () {
     eer_layer.setOpacity(opacityValue);
     updateRenderEdgesOnLayer(eer_layer);
     map.getLayers().setAt(1, eer_layer);
+    electoralToggle.style.backgroundColor = "palegreen"
+    electoralToggle.style.fontStyle = "normal"
     } else {
       renderOverlay = false;
       map.getLayers().removeAt(1);
+      electoralToggle.style.backgroundColor = "palevioletred"
+      electoralToggle.style.fontStyle = "italic"
     }
 };
 

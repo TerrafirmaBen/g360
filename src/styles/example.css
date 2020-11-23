@@ -120,8 +120,10 @@
 
   #layer-button {
     position: absolute;
-    color: blue;
+    color: black;
     left: .5em;
+    background-color: palevioletred;
+    font-style: italic;
   }
 
   #extras {
