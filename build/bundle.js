@@ -46978,9 +46978,8 @@
     target: document.getElementById('mouse-position'),
     undefinedHTML: '&nbsp;'
   });
-
   var map = new Map({
-    controls: [new Attribution()],
+    controls: [new Attribution(), mousePositionControl],
     layers: [layers['osm']],
     // Start with just initial OSM basemap
     overlays: [overlay],

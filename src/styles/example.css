@@ -97,10 +97,6 @@
   }
 
 
-  #export-png {
-    color: skyblue;
-  }
-
   #container {
     position: relative;
     width: 100%;
@@ -142,6 +138,10 @@
   #show-extras-label {
     position: absolute;
     bottom: .5em;
-    color: red;
     left: .5em;
+  }
+
+
+  #export-png {
+    font-weight: bold;
   }

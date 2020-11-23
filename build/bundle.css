@@ -97,10 +97,6 @@
   }
 
 
-  #export-png {
-    color: skyblue;
-  }
-
   #container {
     position: relative;
     width: 100%;
@@ -142,9 +138,14 @@
   #show-extras-label {
     position: absolute;
     bottom: .5em;
-    color: red;
     left: .5em;
-  }.ol-box {
+  }
+
+
+  #export-png {
+    font-weight: bold;
+  }
+.ol-box {
   box-sizing: border-box;
   border-radius: 2px;
   border: 2px solid blue;
