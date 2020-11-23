@@ -115,3 +115,14 @@
     color: blue;
     left: .5em;
   }
+
+  #extras {
+    position: absolute;
+    left: .5em;
+    bottom: .5em;
+    background-color: lightcoral;
+    color: black;
+    width: 80%;
+    height: 20%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }

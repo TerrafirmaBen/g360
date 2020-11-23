@@ -114,6 +114,17 @@
     position: absolute;
     color: blue;
     left: .5em;
+  }
+
+  #extras {
+    position: absolute;
+    left: .5em;
+    bottom: .5em;
+    background-color: lightcoral;
+    color: black;
+    width: 90%;
+    height: 20%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }.ol-box {
   box-sizing: border-box;
   border-radius: 2px;
