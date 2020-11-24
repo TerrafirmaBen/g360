@@ -114,10 +114,10 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
 
-  #layer-button {
+ .layer-button {
     position: absolute;
     color: black;
-    left: .5em;
+    /* left: .5em; */
     background-color: palevioletred;
     font-style: italic;
   }
