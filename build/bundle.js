@@ -46990,22 +46990,25 @@
       zoom: 1
     })
   });
+  var activeLayers = [];
   var regionLayerToggle = document.getElementById('region-layer-button');
   regionLayerToggle.style.backgroundColor = "palevioletred";
 
   regionLayerToggle.onclick = function () {
     var layer = layers['eer'];
 
-    if (!renderOverlay) {
-      renderOverlay = true;
+    if (!activeLayers.includes('eer')) {
       layer.setOpacity(opacityValue);
       updateRenderEdgesOnLayer(layer);
-      map.getLayers().setAt(1, layer);
+      map.getLayers().setAt(activeLayers.length + 1, layer);
       regionLayerToggle.style.backgroundColor = "palegreen";
       regionLayerToggle.style.fontStyle = "normal";
+      activeLayers.push("eer");
     } else {
-      renderOverlay = false;
-      map.getLayers().removeAt(1);
+      map.getLayers().removeAt(activeLayers.indexOf('eer') + 1);
+      activeLayers = activeLayers.filter(function (layer_name) {
+        return layer_name !== "eer";
+      });
       regionLayerToggle.style.backgroundColor = "palevioletred";
       regionLayerToggle.style.fontStyle = "italic";
     }
@@ -47017,16 +47020,18 @@
   bngLayerToggle.onclick = function () {
     var layer = layers['bng'];
 
-    if (!renderOverlay) {
-      renderOverlay = true;
+    if (!activeLayers.includes('bng')) {
       layer.setOpacity(opacityValue);
       updateRenderEdgesOnLayer(layer);
-      map.getLayers().setAt(1, layer);
+      map.getLayers().setAt(activeLayers.length + 1, layer);
       bngLayerToggle.style.backgroundColor = "palegreen";
       bngLayerToggle.style.fontStyle = "normal";
+      activeLayers.push("bng");
     } else {
-      renderOverlay = false;
-      map.getLayers().removeAt(1);
+      map.getLayers().removeAt(activeLayers.indexOf('bng') + 1);
+      activeLayers = activeLayers.filter(function (layer_name) {
+        return layer_name !== "bng";
+      });
       bngLayerToggle.style.backgroundColor = "palevioletred";
       bngLayerToggle.style.fontStyle = "italic";
     }
