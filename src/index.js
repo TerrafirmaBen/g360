@@ -323,43 +323,34 @@ var activeLayers = [];
 
 var regionLayerToggle = document.getElementById('region-layer-button')
 regionLayerToggle.style.backgroundColor = "palevioletred"
-
-regionLayerToggle.onclick = function () {
-  var layer = layers['eer'];
-    if (!activeLayers.includes('eer')) {
-    layer.setOpacity(opacityValue);
-    updateRenderEdgesOnLayer(layer);
-    map.getLayers().setAt(activeLayers.length + 1, layer);
-    regionLayerToggle.style.backgroundColor = "palegreen"
-    regionLayerToggle.style.fontStyle = "normal"
-    activeLayers.push("eer")
-    } else {
-      map.getLayers().removeAt(activeLayers.indexOf('eer') + 1);
-      activeLayers = activeLayers.filter(function (layer_name) { return layer_name !== "eer"})
-      regionLayerToggle.style.backgroundColor = "palevioletred"
-      regionLayerToggle.style.fontStyle = "italic"
-    }
-};
-
 var bngLayerToggle = document.getElementById('bng-layer-button')
 bngLayerToggle.style.backgroundColor = "palevioletred"
 
-bngLayerToggle.onclick = function () {
-  var layer = layers['bng'];
-    if (!activeLayers.includes('bng')) {
-    layer.setOpacity(opacityValue);
-    updateRenderEdgesOnLayer(layer);
-    map.getLayers().setAt(activeLayers.length + 1, layer);
-    bngLayerToggle.style.backgroundColor = "palegreen"
-    bngLayerToggle.style.fontStyle = "normal"
-    activeLayers.push("bng")
-    } else {
-      map.getLayers().removeAt(activeLayers.indexOf('bng') + 1);
-      activeLayers = activeLayers.filter(function (layer_name) { return layer_name !== "bng"})
-      bngLayerToggle.style.backgroundColor = "palevioletred"
-      bngLayerToggle.style.fontStyle = "italic"
-    }
-};
+var layer_toggle_pool = {'eer': regionLayerToggle,
+                          'bng': bngLayerToggle}
+        
+
+function assign_layer_toggle(layer_name) {
+    layer_toggle_pool[layer_name].onclick = function () {
+      if (!activeLayers.includes(layer_name)) {
+        layers[layer_name].setOpacity(opacityValue);
+        updateRenderEdgesOnLayer(layers[layer_name]);
+        map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
+        layer_toggle_pool[layer_name].style.backgroundColor = "palegreen"
+        layer_toggle_pool[layer_name].style.fontStyle = "normal"
+        activeLayers.push(layer_name)
+      } else {
+        map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
+        activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
+        layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
+        layer_toggle_pool[layer_name].style.fontStyle = "italic"
+      }
+  }
+}
+
+for (var layer_toggle_name in layer_toggle_pool) {
+  assign_layer_toggle(layer_toggle_name)
+}
 
 var renderExtras = document.getElementById('show-extras');
 
