@@ -322,13 +322,10 @@ var map = new Map({
 var activeLayers = [];
 
 var regionLayerToggle = document.getElementById('region-layer-button')
-regionLayerToggle.style.backgroundColor = "palevioletred"
 var bngLayerToggle = document.getElementById('bng-layer-button')
-bngLayerToggle.style.backgroundColor = "palevioletred"
 
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle}
-        
 
 function assign_layer_toggle(layer_name) {
     layer_toggle_pool[layer_name].onclick = function () {
@@ -349,6 +346,7 @@ function assign_layer_toggle(layer_name) {
 }
 
 for (var layer_toggle_name in layer_toggle_pool) {
+  layer_toggle_pool[layer_toggle_name].style.backgroundColor = "palevioletred"
   assign_layer_toggle(layer_toggle_name)
 }
 

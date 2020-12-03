@@ -46991,10 +46991,10 @@
     })
   });
   var activeLayers = [];
-  var regionLayerToggle = document.getElementById('region-layer-button');
-  regionLayerToggle.style.backgroundColor = "palevioletred";
-  var bngLayerToggle = document.getElementById('bng-layer-button');
-  bngLayerToggle.style.backgroundColor = "palevioletred";
+  var regionLayerToggle = document.getElementById('region-layer-button'); // regionLayerToggle.style.backgroundColor = "palevioletred"
+
+  var bngLayerToggle = document.getElementById('bng-layer-button'); // bngLayerToggle.style.backgroundColor = "palevioletred"
+
   var layer_toggle_pool = {
     'eer': regionLayerToggle,
     'bng': bngLayerToggle
@@ -47021,6 +47021,7 @@
   }
 
   for (var layer_toggle_name in layer_toggle_pool) {
+    layer_toggle_pool[layer_toggle_name].style.backgroundColor = "palevioletred";
     assign_layer_toggle(layer_toggle_name);
   }
 
