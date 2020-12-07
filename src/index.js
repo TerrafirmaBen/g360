@@ -328,9 +328,7 @@ var bngLayerToggle = document.getElementById('bng-layer-button')
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle}
 
-function assign_layer_toggle(layer_name) {
-    layer_toggle_pool[layer_name].onclick = function () {
-      if (!activeLayers.includes(layer_name)) {
+function activate_layer(layer_name) {
         layers[layer_name].setOpacity(opacityValue);
         updateRenderEdgesOnLayer(layers[layer_name]);
         console.log("Setting layer at:", activeLayers.length + 1)
@@ -339,12 +337,22 @@ function assign_layer_toggle(layer_name) {
         layer_toggle_pool[layer_name].style.fontStyle = "normal"
         activeLayers.push(layer_name)
         console.log("Active layers:", activeLayers)
-      } else {
+} 
+
+function deactivate_layer(layer_name) {
         map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
         activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
         layer_toggle_pool[layer_name].style.fontStyle = "italic"
         console.log("Active layers:", activeLayers)
+}
+
+function assign_layer_toggle(layer_name) {
+    layer_toggle_pool[layer_name].onclick = function () {
+      if (!activeLayers.includes(layer_name)) {
+        activate_layer(layer_name)
+      } else {
+        deactivate_layer(layer_name)
 
       }
   }

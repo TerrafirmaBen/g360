@@ -47000,25 +47000,45 @@
     'bng': bngLayerToggle
   };
 
+  function activate_layer(layer_name) {
+    layers[layer_name].setOpacity(opacityValue);
+    updateRenderEdgesOnLayer(layers[layer_name]);
+    console.log("Setting layer at:", activeLayers.length + 1);
+    map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
+    layer_toggle_pool[layer_name].style.backgroundColor = "palegreen";
+    layer_toggle_pool[layer_name].style.fontStyle = "normal";
+    activeLayers.push(layer_name);
+    console.log("Active layers:", activeLayers);
+  }
+
+  function deactivate_layer(layer_name) {
+    map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
+    activeLayers = activeLayers.filter(function (certain_layer_name) {
+      return certain_layer_name !== layer_name;
+    });
+    layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred";
+    layer_toggle_pool[layer_name].style.fontStyle = "italic";
+    console.log("Active layers:", activeLayers);
+  }
+
   function assign_layer_toggle(layer_name) {
     layer_toggle_pool[layer_name].onclick = function () {
       if (!activeLayers.includes(layer_name)) {
-        layers[layer_name].setOpacity(opacityValue);
-        updateRenderEdgesOnLayer(layers[layer_name]);
-        console.log("Setting layer at:", activeLayers.length + 1);
-        map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
-        layer_toggle_pool[layer_name].style.backgroundColor = "palegreen";
-        layer_toggle_pool[layer_name].style.fontStyle = "normal";
-        activeLayers.push(layer_name);
-        console.log("Active layers:", activeLayers);
+        activate_layer(layer_name); // layers[layer_name].setOpacity(opacityValue);
+        // updateRenderEdgesOnLayer(layers[layer_name]);
+        // console.log("Setting layer at:", activeLayers.length + 1)
+        // map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
+        // layer_toggle_pool[layer_name].style.backgroundColor = "palegreen"
+        // layer_toggle_pool[layer_name].style.fontStyle = "normal"
+        // activeLayers.push(layer_name)
+        // console.log("Active layers:", activeLayers)
       } else {
-        map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
-        activeLayers = activeLayers.filter(function (certain_layer_name) {
-          return certain_layer_name !== layer_name;
-        });
-        layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred";
-        layer_toggle_pool[layer_name].style.fontStyle = "italic";
-        console.log("Active layers:", activeLayers);
+        // map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
+        // activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
+        // layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
+        // layer_toggle_pool[layer_name].style.fontStyle = "italic"
+        // console.log("Active layers:", activeLayers)
+        deactivate_layer(layer_name);
       }
     };
   }
