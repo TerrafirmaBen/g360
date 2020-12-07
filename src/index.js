@@ -320,7 +320,8 @@ var map = new Map({
   }),
 });
 
-var activeLayers = [];
+var activeLayers = ['osm'];
+var inactiveLayers = ['eer', 'bng'];
 
 var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
@@ -332,19 +333,23 @@ function activate_layer(layer_name) {
         layers[layer_name].setOpacity(opacityValue);
         updateRenderEdgesOnLayer(layers[layer_name]);
         console.log("Setting layer at:", activeLayers.length + 1)
-        map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
+        map.getLayers().setAt(activeLayers.length, layers[layer_name]);
         layer_toggle_pool[layer_name].style.backgroundColor = "palegreen"
         layer_toggle_pool[layer_name].style.fontStyle = "normal"
+        inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         activeLayers.push(layer_name)
         console.log("Active layers:", activeLayers)
+        console.log("Inactive layers:", inactiveLayers)
 } 
 
 function deactivate_layer(layer_name) {
-        map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
-        activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
         layer_toggle_pool[layer_name].style.fontStyle = "italic"
+        map.getLayers().removeAt(activeLayers.indexOf(layer_name));
+        inactiveLayers.push(layer_name)
+        activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         console.log("Active layers:", activeLayers)
+        console.log("Inactive layers:", inactiveLayers)
 }
 
 function assign_layer_toggle(layer_name) {
@@ -353,11 +358,13 @@ function assign_layer_toggle(layer_name) {
         activate_layer(layer_name)
       } else {
         deactivate_layer(layer_name)
-
       }
   }
 }
 
+
+// Assigns layer toggles to the buttons themselves
+// TODO: Reassign from layer pool
 for (var layer_toggle_name in layer_toggle_pool) {
   layer_toggle_pool[layer_toggle_name].style.backgroundColor = "palevioletred"
   assign_layer_toggle(layer_toggle_name)
@@ -525,6 +532,13 @@ var layer_pool_el = document.getElementById("layer-pool");
 var layer_pool_sortable = new Sortable(layer_pool_el, {
   group: "layer-list-group", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
   animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+
+  // // Element is removed from the list into another list
+  onRemove: function (/**Event*/ evt) {
+    console.log(evt.oldIndex)
+    console.log(inactiveLayers[evt.oldIndex])
+    // same properties as onEnd
+  },
 })
 
 var renderExtras = document.getElementById('show-extras');

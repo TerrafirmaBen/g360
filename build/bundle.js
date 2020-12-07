@@ -46992,7 +46992,8 @@
       zoom: 1
     })
   });
-  var activeLayers = [];
+  var activeLayers = ['osm'];
+  var inactiveLayers = ['eer', 'bng'];
   var regionLayerToggle = document.getElementById('region-layer-button');
   var bngLayerToggle = document.getElementById('bng-layer-button');
   var layer_toggle_pool = {
@@ -47004,44 +47005,40 @@
     layers[layer_name].setOpacity(opacityValue);
     updateRenderEdgesOnLayer(layers[layer_name]);
     console.log("Setting layer at:", activeLayers.length + 1);
-    map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
+    map.getLayers().setAt(activeLayers.length, layers[layer_name]);
     layer_toggle_pool[layer_name].style.backgroundColor = "palegreen";
     layer_toggle_pool[layer_name].style.fontStyle = "normal";
+    inactiveLayers = inactiveLayers.filter(function (certain_layer_name) {
+      return certain_layer_name !== layer_name;
+    });
     activeLayers.push(layer_name);
     console.log("Active layers:", activeLayers);
+    console.log("Inactive layers:", inactiveLayers);
   }
 
   function deactivate_layer(layer_name) {
-    map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
+    layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred";
+    layer_toggle_pool[layer_name].style.fontStyle = "italic";
+    map.getLayers().removeAt(activeLayers.indexOf(layer_name));
+    inactiveLayers.push(layer_name);
     activeLayers = activeLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
     });
-    layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred";
-    layer_toggle_pool[layer_name].style.fontStyle = "italic";
     console.log("Active layers:", activeLayers);
+    console.log("Inactive layers:", inactiveLayers);
   }
 
   function assign_layer_toggle(layer_name) {
     layer_toggle_pool[layer_name].onclick = function () {
       if (!activeLayers.includes(layer_name)) {
-        activate_layer(layer_name); // layers[layer_name].setOpacity(opacityValue);
-        // updateRenderEdgesOnLayer(layers[layer_name]);
-        // console.log("Setting layer at:", activeLayers.length + 1)
-        // map.getLayers().setAt(activeLayers.length + 1, layers[layer_name]);
-        // layer_toggle_pool[layer_name].style.backgroundColor = "palegreen"
-        // layer_toggle_pool[layer_name].style.fontStyle = "normal"
-        // activeLayers.push(layer_name)
-        // console.log("Active layers:", activeLayers)
+        activate_layer(layer_name);
       } else {
-        // map.getLayers().removeAt(activeLayers.indexOf(layer_name) + 1);
-        // activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
-        // layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
-        // layer_toggle_pool[layer_name].style.fontStyle = "italic"
-        // console.log("Active layers:", activeLayers)
         deactivate_layer(layer_name);
       }
     };
-  }
+  } // Assigns layer toggles to the buttons themselves
+  // TODO: Reassign from layer pool
+
 
   for (var layer_toggle_name in layer_toggle_pool) {
     layer_toggle_pool[layer_toggle_name].style.backgroundColor = "palevioletred";
@@ -47184,8 +47181,15 @@
   var layer_pool_sortable = new It(layer_pool_el, {
     group: "layer-list-group",
     // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
-    animation: 150 // ms, animation speed moving items when sorting, `0` — without animation
-
+    animation: 150,
+    // ms, animation speed moving items when sorting, `0` — without animation
+    // // Element is removed from the list into another list
+    onRemove: function onRemove(
+    /**Event*/
+    evt) {
+      console.log(evt.oldIndex);
+      console.log(inactiveLayers[evt.oldIndex]); // same properties as onEnd
+    }
   });
   var renderExtras = document.getElementById('show-extras');
   var baseLayerSelect = document.getElementById('base-layer');
