@@ -22,6 +22,7 @@ import {Style} from 'ol/style';
 import {Select} from 'ol/interaction';
 import Overlay from 'ol/Overlay';
 import "regenerator-runtime/runtime";
+import Sortable from "sortablejs";
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
@@ -320,6 +321,9 @@ var map = new Map({
 });
 
 var activeLayers = [];
+
+var el = document.getElementById("layer-list");
+var sortable = Sortable.create(el);
 
 var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
