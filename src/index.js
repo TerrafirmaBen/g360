@@ -356,8 +356,8 @@ for (var layer_toggle_name in layer_toggle_pool) {
 }
 
 function swap_layers(layer_a_id, layer_b_id) {
-  console.log("First layer:", activeLayers[layer_a_id]);
-  console.log("Second layer:", activeLayers[layer_b_id]);
+  console.log("First layer selected:", activeLayers[layer_a_id]);
+  console.log("Second layer selected:", activeLayers[layer_b_id]);
   // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
   // if (layer_a_id < layer_b_id) {
   //   activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
@@ -379,18 +379,18 @@ function swap_layers(layer_a_id, layer_b_id) {
 
 }
 
-var el = document.getElementById("layer-list");
-var sortable = new Sortable(el, {
+var active_layers_el = document.getElementById("active-layers");
+var active_layers_sortable = new Sortable(active_layers_el, {
   // variables
 
-  // group: "name", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
+  group: "layer-list-group", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
   // sort: true, // sorting inside list
   // delay: 0, // time in milliseconds to define when the sorting should start
   // delayOnTouchOnly: false, // only delay if user is using touch
   // touchStartThreshold: 0, // px, how many pixels the point should move before cancelling a delayed drag event
   // disabled: false, // Disables the sortable if set to true.
   // store: null, // @see Store
-  // animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+  animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
   // easing: "cubic-bezier(1, 0, 0, 1)", // Easing for animation. Defaults to null. See https://easings.net/ for examples.
   // handle: ".my-handle", // Drag handle selector within list items
   // filter: ".ignore-elements", // Selectors that do not lead to dragging (String or Function)
@@ -512,6 +512,12 @@ var sortable = new Sortable(el, {
   //   // same properties as onEnd
   // },
 });
+
+var layer_pool_el = document.getElementById("layer-pool");
+var layer_pool_sortable = new Sortable(layer_pool_el, {
+  group: "layer-list-group", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
+  animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+})
 
 var renderExtras = document.getElementById('show-extras');
 
