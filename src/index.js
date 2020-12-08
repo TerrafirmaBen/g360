@@ -330,9 +330,10 @@ var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle}
 
 function activate_layer(layer_name) {
+        console.log("Active layers before:", activeLayers);
         layers[layer_name].setOpacity(opacityValue);
         updateRenderEdgesOnLayer(layers[layer_name]);
-        console.log("Setting layer at:", activeLayers.length + 1)
+        console.log("Setting layer at:", activeLayers.length)
         map.getLayers().setAt(activeLayers.length, layers[layer_name]);
         layer_toggle_pool[layer_name].style.backgroundColor = "palegreen"
         layer_toggle_pool[layer_name].style.fontStyle = "normal"
@@ -345,6 +346,7 @@ function activate_layer(layer_name) {
 function deactivate_layer(layer_name) {
         layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
         layer_toggle_pool[layer_name].style.fontStyle = "italic"
+        console.log("Attempting to deactivate layer..")
         map.getLayers().removeAt(activeLayers.indexOf(layer_name));
         inactiveLayers.push(layer_name)
         activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
@@ -355,8 +357,10 @@ function deactivate_layer(layer_name) {
 function assign_layer_toggle(layer_name) {
     layer_toggle_pool[layer_name].onclick = function () {
       if (!activeLayers.includes(layer_name)) {
+        console.log("Trying to activate", layer_name)
         activate_layer(layer_name)
       } else {
+        console.log("Trying to deactivate", layer_name)
         deactivate_layer(layer_name)
       }
   }
@@ -370,8 +374,8 @@ for (var layer_toggle_name in layer_toggle_pool) {
   assign_layer_toggle(layer_toggle_name)
 }
 
-function swap_layers(layer_a_id, layer_b_id) {
-  console.log("First layer selected:", activeLayers[layer_a_id]);
+function swap_active_layers(layer_a_id, layer_b_id) {
+  if (layer_a_id > 0 & layer_b_id > 0) {console.log("First layer selected:", activeLayers[layer_a_id]);
   console.log("Second layer selected:", activeLayers[layer_b_id]);
   // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
   // if (layer_a_id < layer_b_id) {
@@ -390,6 +394,20 @@ function swap_layers(layer_a_id, layer_b_id) {
     activeLayers = [activeLayers[layer_b_id], activeLayers[layer_a_id]]
   } else {
     activeLayers = [activeLayers[layer_a_id], activeLayers[layer_b_id]]
+  }
+  console.log("Active layers after swap:", activeLayers)
+}
+    
+
+}
+
+function swap_pool_layers(layer_a_id, layer_b_id) {
+  console.log("First layer selected:", inactiveLayers[layer_a_id]);
+  console.log("Second layer selected:", inactiveLayers[layer_b_id]);
+  if (layer_a_id < layer_b_id) {
+    inactiveLayers = [inactiveLayers[layer_b_id], inactiveLayers[layer_a_id]]
+  } else {
+    inactiveLayers = [inactiveLayers[layer_a_id], inactiveLayers[layer_b_id]]
   }
 
 }
@@ -464,8 +482,9 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   //   evt.from; // previous list
   //   evt.oldIndex; // element's old index within old parent
   //   evt.newIndex; // element's new index within new parent
-  console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-  swap_layers(evt.oldIndex, evt.newIndex);
+    console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
+    swap_active_layers(evt.oldIndex, evt.newIndex);
+    console.log(evt.to, evt.from)
 
   
   //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
@@ -490,9 +509,10 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   // },
 
   // // Element is removed from the list into another list
-  // onRemove: function (/**Event*/ evt) {
-  //   // same properties as onEnd
-  // },
+  onRemove: function (/**Event*/ evt) {
+    deactivate_layer(activeLayers[evt.oldIndex + 1])
+    // same properties as onEnd
+  },
 
   // // Attempt to drag a filtered element
   // onFilter: function (/**Event*/ evt) {
@@ -532,11 +552,26 @@ var layer_pool_el = document.getElementById("layer-pool");
 var layer_pool_sortable = new Sortable(layer_pool_el, {
   group: "layer-list-group", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
   animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
-
+  onEnd: function (/**Event*/ evt) {
+    //   var itemEl = evt.item; // dragged HTMLElement
+    //   evt.to; // target list
+    //   evt.from; // previous list
+    //   evt.oldIndex; // element's old index within old parent
+    //   evt.newIndex; // element's new index within new parent
+      console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
+      swap_active_layers(evt.oldIndex, evt.newIndex);
+  
+    
+    //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
+    //   evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
+    //   evt.clone; // the clone element
+    //   evt.pullMode; // when item is in another sortable: `"clone"` if cloning, `true` if moving
+    },
   // // Element is removed from the list into another list
   onRemove: function (/**Event*/ evt) {
     console.log(evt.oldIndex)
     console.log(inactiveLayers[evt.oldIndex])
+    activate_layer(inactiveLayers[evt.oldIndex])
     // same properties as onEnd
   },
 })
