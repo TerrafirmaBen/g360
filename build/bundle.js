@@ -47056,8 +47056,10 @@
 
   function swap_active_layers(layer_a_id, layer_b_id) {
     if (layer_a_id > 0 & layer_b_id > 0) {
-      console.log("First layer selected:", layer_a_id, activeLayers[layer_a_id]);
-      console.log("Second layer selected:", layer_b_id, activeLayers[layer_b_id]); // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
+      var layer_a_name = activeLayers[layer_a_id];
+      var layer_b_name = activeLayers[layer_b_id];
+      console.log("First layer selected:", layer_a_id, layer_a_name);
+      console.log("Second layer selected:", layer_b_id, layer_b_name); // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
       // if (layer_a_id < layer_b_id) {
       // activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
       //                                                         activeLayers.slice(layer_a_id+1,layer_b_id),
@@ -47070,9 +47072,17 @@
       if (layer_a_id < layer_b_id) {
         // activeLayers = [activeLayers[layer_b_id], activeLayers[layer_a_id]]
         activeLayers = activeLayers.slice(0, layer_a_id).concat([activeLayers[layer_b_id]], activeLayers.slice(layer_a_id + 1, layer_b_id), activeLayers[layer_a_id], activeLayers.slice(layer_b_id + 1));
+        map.getLayers().removeAt(layer_b_id);
+        map.getLayers().removeAt(layer_a_id);
+        map.getLayers().setAt(layer_a_id, layers[layer_b_name]);
+        map.getLayers().setAt(layer_b_id, layers[layer_a_name]);
       } else {
         // activeLayers = [activeLayers[layer_a_id], activeLayers[layer_b_id]]
         activeLayers = activeLayers.slice(0, layer_b_id).concat([activeLayers[layer_a_id]], activeLayers.slice(layer_b_id + 1, layer_a_id), activeLayers[layer_b_id], activeLayers.slice(layer_a_id + 1));
+        map.getLayers().removeAt(layer_a_id);
+        map.getLayers().removeAt(layer_b_id);
+        map.getLayers().setAt(layer_b_id, layers[layer_a_name]);
+        map.getLayers().setAt(layer_a_id, layers[layer_b_name]);
       }
 
       console.log("Active layers after swap:", activeLayers);
