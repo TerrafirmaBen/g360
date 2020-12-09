@@ -324,13 +324,15 @@ var active_layers_el = document.getElementById("active-layers");
 var layer_pool_el = document.getElementById("layer-pool");
 
 var activeLayers = ['osm'];
-var inactiveLayers = ['eer', 'bng'];
+var inactiveLayers = ['eer', 'bng', 'wkt_example'];
 
 var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
+var wktLayerToggle = document.getElementById('wkt-layer-button')
 
 var layer_toggle_pool = {'eer': regionLayerToggle,
-                          'bng': bngLayerToggle}
+                          'bng': bngLayerToggle,
+                          'wkt_example': wktLayerToggle}
 
 function activate_layer(layer_name) {
         console.log("Active layers before:", activeLayers);
