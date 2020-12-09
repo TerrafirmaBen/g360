@@ -47032,6 +47032,7 @@
     });
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
+    layer_pool_el.append(layer_toggle_pool[layer_name]);
   }
 
   function assign_layer_toggle(layer_name) {

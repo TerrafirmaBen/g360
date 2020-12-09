@@ -358,6 +358,7 @@ function deactivate_layer(layer_name) {
         activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         console.log("Active layers:", activeLayers)
         console.log("Inactive layers:", inactiveLayers)
+        layer_pool_el.append(layer_toggle_pool[layer_name])
 }
 
 function assign_layer_toggle(layer_name) {
