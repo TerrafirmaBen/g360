@@ -383,14 +383,14 @@ for (var layer_toggle_name in layer_toggle_pool) {
 }
 
 function swap_active_layers(layer_a_id, layer_b_id) {
-  if (layer_a_id > 0 & layer_b_id > 0) {console.log("First layer selected:", activeLayers[layer_a_id]);
-  console.log("Second layer selected:", activeLayers[layer_b_id]);
+  if (layer_a_id > 0 & layer_b_id > 0) {console.log("First layer selected:", layer_a_id, activeLayers[layer_a_id]);
+  console.log("Second layer selected:", layer_b_id, activeLayers[layer_b_id]);
   // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
   // if (layer_a_id < layer_b_id) {
-  //   activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
-  //                                                           activeLayers.slice(layer_a_id+1,layer_b_id),
-  //                                                           activeLayers[layer_a_id],
-  //                                                           activeLayers.slice(layer_b_id+1, ))
+    // activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
+    //                                                         activeLayers.slice(layer_a_id+1,layer_b_id),
+    //                                                         activeLayers[layer_a_id],
+    //                                                         activeLayers.slice(layer_b_id+1, ))
 
   // }
 
@@ -399,10 +399,19 @@ function swap_active_layers(layer_a_id, layer_b_id) {
 
   // Simple sort with two layers
   if (layer_a_id < layer_b_id) {
-    activeLayers = [activeLayers[layer_b_id], activeLayers[layer_a_id]]
+    // activeLayers = [activeLayers[layer_b_id], activeLayers[layer_a_id]]
+    activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
+                                                            activeLayers.slice(layer_a_id+1,layer_b_id),
+                                                            activeLayers[layer_a_id],
+                                                            activeLayers.slice(layer_b_id+1, ))
   } else {
-    activeLayers = [activeLayers[layer_a_id], activeLayers[layer_b_id]]
+    // activeLayers = [activeLayers[layer_a_id], activeLayers[layer_b_id]]
+    activeLayers = activeLayers.slice(0,layer_b_id).concat([activeLayers[layer_a_id]], 
+                                                            activeLayers.slice(layer_b_id+1,layer_a_id),
+                                                            activeLayers[layer_b_id],
+                                                            activeLayers.slice(layer_a_id+1, ))
   }
+
   console.log("Active layers after swap:", activeLayers)
 }
     
@@ -491,7 +500,7 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   //   evt.oldIndex; // element's old index within old parent
   //   evt.newIndex; // element's new index within new parent
     console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-    swap_active_layers(evt.oldIndex, evt.newIndex);
+    swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
     console.log(evt.to, evt.from)
 
   
