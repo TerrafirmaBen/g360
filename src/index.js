@@ -320,6 +320,9 @@ var map = new Map({
   }),
 });
 
+var active_layers_el = document.getElementById("active-layers");
+var layer_pool_el = document.getElementById("layer-pool");
+
 var activeLayers = ['osm'];
 var inactiveLayers = ['eer', 'bng'];
 
@@ -335,17 +338,20 @@ function activate_layer(layer_name) {
         updateRenderEdgesOnLayer(layers[layer_name]);
         console.log("Setting layer at:", activeLayers.length)
         map.getLayers().setAt(activeLayers.length, layers[layer_name]);
-        layer_toggle_pool[layer_name].style.backgroundColor = "palegreen"
-        layer_toggle_pool[layer_name].style.fontStyle = "normal"
+        layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen"
+        layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "normal"
         inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         activeLayers.push(layer_name)
         console.log("Active layers:", activeLayers)
         console.log("Inactive layers:", inactiveLayers)
+        console.log("Trying to change list")
+        active_layers_el.append(layer_toggle_pool[layer_name])
+
 } 
 
 function deactivate_layer(layer_name) {
-        layer_toggle_pool[layer_name].style.backgroundColor = "palevioletred"
-        layer_toggle_pool[layer_name].style.fontStyle = "italic"
+        layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palevioletred"
+        layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "italic"
         console.log("Attempting to deactivate layer..")
         map.getLayers().removeAt(activeLayers.indexOf(layer_name));
         inactiveLayers.push(layer_name)
@@ -359,6 +365,7 @@ function assign_layer_toggle(layer_name) {
       if (!activeLayers.includes(layer_name)) {
         console.log("Trying to activate", layer_name)
         activate_layer(layer_name)
+
       } else {
         console.log("Trying to deactivate", layer_name)
         deactivate_layer(layer_name)
@@ -370,7 +377,7 @@ function assign_layer_toggle(layer_name) {
 // Assigns layer toggles to the buttons themselves
 // TODO: Reassign from layer pool
 for (var layer_toggle_name in layer_toggle_pool) {
-  layer_toggle_pool[layer_toggle_name].style.backgroundColor = "palevioletred"
+  layer_toggle_pool[layer_toggle_name].firstElementChild.style.backgroundColor = "palevioletred"
   assign_layer_toggle(layer_toggle_name)
 }
 
@@ -412,7 +419,7 @@ function swap_pool_layers(layer_a_id, layer_b_id) {
 
 }
 
-var active_layers_el = document.getElementById("active-layers");
+
 var active_layers_sortable = new Sortable(active_layers_el, {
   // variables
 
@@ -548,31 +555,28 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   // },
 });
 
-var layer_pool_el = document.getElementById("layer-pool");
 var layer_pool_sortable = new Sortable(layer_pool_el, {
   group: "layer-list-group", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
   animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
   onEnd: function (/**Event*/ evt) {
-    //   var itemEl = evt.item; // dragged HTMLElement
-    //   evt.to; // target list
-    //   evt.from; // previous list
-    //   evt.oldIndex; // element's old index within old parent
-    //   evt.newIndex; // element's new index within new parent
       console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
       swap_active_layers(evt.oldIndex, evt.newIndex);
-  
-    
-    //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
-    //   evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
-    //   evt.clone; // the clone element
-    //   evt.pullMode; // when item is in another sortable: `"clone"` if cloning, `true` if moving
     },
   // // Element is removed from the list into another list
   onRemove: function (/**Event*/ evt) {
     console.log(evt.oldIndex)
     console.log(inactiveLayers[evt.oldIndex])
     activate_layer(inactiveLayers[evt.oldIndex])
+    console.log(evt.from, evt.to)
     // same properties as onEnd
+  },
+  onChoose: function (/**Event*/ evt) {
+    console.log("Selected an elt");
+    console.log(evt.item)
+    // evt.item.remove()
+
+    // layer_pool_el.remove(evt.item.firstChild)
+    // evt.item.detach().appendTo(active_layers_el)
   },
 })
 
