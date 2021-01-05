@@ -47006,21 +47006,24 @@
   };
 
   function activate_layer(layer_name) {
+    var layer_position = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : activeLayers.length;
     console.log("Active layers before:", activeLayers);
     layers[layer_name].setOpacity(opacityValue);
     updateRenderEdgesOnLayer(layers[layer_name]);
-    console.log("Setting layer at:", activeLayers.length);
-    map.getLayers().setAt(activeLayers.length, layers[layer_name]);
     layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen";
     layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "normal";
     inactiveLayers = inactiveLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
     });
-    activeLayers.push(layer_name);
+    console.log("Setting layer at:", layer_position);
+    map.getLayers().setAt(layer_position, layers[layer_name]);
+    activeLayers.push(layer_name); // activeLayers = activeLayers.slice(0, layer_position).concat([layer_name],
+    //                                                                 activeLayers.slice(layer_position,));
+
+    active_layers_el.prepend(layer_toggle_pool[layer_name]);
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
     console.log("Trying to change list");
-    active_layers_el.append(layer_toggle_pool[layer_name]);
   }
 
   function deactivate_layer(layer_name) {
@@ -47056,12 +47059,16 @@
     assign_layer_toggle(layer_toggle_name);
   }
 
-  function swap_active_layers(layer_a_id, layer_b_id) {
-    if (layer_a_id > 0 & layer_b_id > 0) {
-      var layer_a_name = activeLayers[layer_a_id];
-      var layer_b_name = activeLayers[layer_b_id];
-      console.log("First layer selected:", layer_a_id, layer_a_name);
-      console.log("Second layer selected:", layer_b_id, layer_b_name); // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
+  function layer_target(layer_id) {
+    return activeLayers.length - layer_id;
+  }
+
+  function swap_active_layers(old_index, new_index) {
+    if (old_index > 0 & new_index > 0) {
+      var layer_target_old_index = layer_target(old_index);
+      var layer_target_new_index = layer_target(new_index);
+      var layer_name_old_index = activeLayers[layer_target_old_index];
+      var layer_name_new_index = activeLayers[layer_target_new_index]; // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
       // if (layer_a_id < layer_b_id) {
       // activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
       //                                                         activeLayers.slice(layer_a_id+1,layer_b_id),
@@ -47071,23 +47078,37 @@
       // Reassign activeLayers array
       // Simple sort with two layers
 
-      if (layer_a_id < layer_b_id) {
-        // activeLayers = [activeLayers[layer_b_id], activeLayers[layer_a_id]]
-        activeLayers = activeLayers.slice(0, layer_a_id).concat([activeLayers[layer_b_id]], activeLayers.slice(layer_a_id + 1, layer_b_id), activeLayers[layer_a_id], activeLayers.slice(layer_b_id + 1));
-        map.getLayers().removeAt(layer_b_id);
-        map.getLayers().removeAt(layer_a_id);
-        map.getLayers().setAt(layer_a_id, layers[layer_b_name]);
-        map.getLayers().setAt(layer_b_id, layers[layer_a_name]);
+      if (old_index < new_index) {
+        activeLayers = activeLayers.slice(0, old_index).concat([activeLayers[new_index]], activeLayers.slice(old_index + 1, new_index), activeLayers[old_index], activeLayers.slice(new_index + 1));
+        console.log(activeLayers); // Remove layers from top to bottom                                              
+
+        map.getLayers().removeAt(layer_target_old_index); // remove higher up map
+
+        map.getLayers().removeAt(layer_target_new_index); // TODO: need to set all layers between
+        // Set layers from bottom to top
+
+        map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+        map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
       } else {
-        // activeLayers = [activeLayers[layer_a_id], activeLayers[layer_b_id]]
-        activeLayers = activeLayers.slice(0, layer_b_id).concat([activeLayers[layer_a_id]], activeLayers.slice(layer_b_id + 1, layer_a_id), activeLayers[layer_b_id], activeLayers.slice(layer_a_id + 1));
-        map.getLayers().removeAt(layer_a_id);
-        map.getLayers().removeAt(layer_b_id);
-        map.getLayers().setAt(layer_b_id, layers[layer_a_name]);
-        map.getLayers().setAt(layer_a_id, layers[layer_b_name]);
+        activeLayers = activeLayers.slice(0, new_index).concat([activeLayers[old_index]], activeLayers.slice(new_index + 1, old_index), activeLayers[new_index], activeLayers.slice(old_index + 1));
+        map.getLayers().removeAt(layer_target_new_index);
+        map.getLayers().removeAt(layer_name_old_index);
+        map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+        map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
       }
 
       console.log("Active layers after swap:", activeLayers);
+    }
+  }
+
+  function swap_pool_layers(layer_a_id, layer_b_id) {
+    console.log("First layer selected:", inactiveLayers[layer_a_id]);
+    console.log("Second layer selected:", inactiveLayers[layer_b_id]);
+
+    if (layer_a_id < layer_b_id) {
+      inactiveLayers = [inactiveLayers[layer_b_id], inactiveLayers[layer_a_id]];
+    } else {
+      inactiveLayers = [inactiveLayers[layer_a_id], inactiveLayers[layer_b_id]];
     }
   }
 
@@ -47215,7 +47236,7 @@
     /**Event*/
     evt) {
       console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-      swap_active_layers(evt.oldIndex, evt.newIndex);
+      swap_pool_layers(evt.oldIndex, evt.newIndex);
     },
     // // Element is removed from the list into another list
     onRemove: function onRemove(
@@ -47225,15 +47246,14 @@
       console.log(inactiveLayers[evt.oldIndex]);
       activate_layer(inactiveLayers[evt.oldIndex]);
       console.log(evt.from, evt.to); // same properties as onEnd
-    },
-    onChoose: function onChoose(
-    /**Event*/
-    evt) {
-      console.log("Selected an elt");
-      console.log(evt.item); // evt.item.remove()
-      // layer_pool_el.remove(evt.item.firstChild)
-      // evt.item.detach().appendTo(active_layers_el)
-    }
+    } // onChoose: function (/**Event*/ evt) {
+    //   console.log("Selected an elt");
+    //   console.log(evt.item)
+    //   // evt.item.remove()
+    //   // layer_pool_el.remove(evt.item.firstChild)
+    //   // evt.item.detach().appendTo(active_layers_el)
+    // },
+
   });
   var renderExtras = document.getElementById('show-extras');
   var baseLayerSelect = document.getElementById('base-layer');
