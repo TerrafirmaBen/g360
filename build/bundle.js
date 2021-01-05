@@ -47091,8 +47091,10 @@
         map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
       } else {
         activeLayers = activeLayers.slice(0, new_index).concat([activeLayers[old_index]], activeLayers.slice(new_index + 1, old_index), activeLayers[new_index], activeLayers.slice(old_index + 1));
+        console.log(layer_target_new_index, layer_target_old_index);
         map.getLayers().removeAt(layer_target_new_index);
-        map.getLayers().removeAt(layer_name_old_index);
+        map.getLayers().removeAt(layer_target_old_index);
+        console.log("hit");
         map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
         map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
       }

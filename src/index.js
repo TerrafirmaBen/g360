@@ -429,8 +429,9 @@ function swap_active_layers(old_index, new_index) {
                                                             activeLayers.slice(new_index+1,old_index),
                                                             activeLayers[new_index],
                                                             activeLayers.slice(old_index+1, ));
+    console.log(activeLayers)                                                        
     map.getLayers().removeAt(layer_target_new_index);
-    map.getLayers().removeAt(layer_name_old_index);
+    map.getLayers().removeAt(layer_target_old_index);
     map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
     map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
   }
