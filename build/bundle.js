@@ -47081,33 +47081,37 @@
       if (old_index < new_index) {
         activeLayers = activeLayers.slice(0, layer_target_new_index).concat([activeLayers[layer_target_old_index]], activeLayers.slice(layer_target_new_index + 1, layer_target_old_index), activeLayers[layer_target_new_index], activeLayers.slice(layer_target_old_index + 1));
         console.log(activeLayers); // Remove layers from top to bottom
+        // for (i=layer_target_old_index; i >= layer_target_new_index; i--) {                                              
+        //       map.getLayers().removeAt(i);
+        // }
 
-        for (i$1 = layer_target_old_index; i$1 >= layer_target_new_index; i$1--) {
-          map.getLayers().removeAt(i$1);
-        } // Set layers from bottom to top
+        console.log("Removing", layer_target_old_index);
+        map.getLayers().removeAt(layer_target_old_index);
+        console.log("Removing", layer_target_new_index);
+        map.getLayers().removeAt(layer_target_new_index); // Set layers from bottom to top
 
-
-        map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
-
-        for (i$1 = layer_target_new_index + 1; i$1 < layer_target_old_index; i$1++) {
-          map.getLayers().insertAt(i$1, layers[activeLayers[i$1]]);
-        }
+        console.log("Begin inserts");
+        map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]); // for (i=layer_target_new_index+1; i < layer_target_old_index; i++) {
+        //   map.getLayers().insertAt(i, layers[activeLayers[i]]);
+        // }
 
         map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
       } else {
         activeLayers = activeLayers.slice(0, layer_target_old_index).concat([activeLayers[layer_target_new_index]], activeLayers.slice(layer_target_old_index + 1, layer_target_new_index), activeLayers[layer_target_old_index], activeLayers.slice(layer_target_new_index + 1));
         console.log(activeLayers); // Remove layers from top to bottom
+        // for (i=layer_target_new_index; i >= layer_target_old_index; i--) {                                              
+        //   map.getLayers().removeAt(i);
+        // }
 
-        for (i$1 = layer_target_new_index; i$1 >= layer_target_old_index; i$1--) {
-          map.getLayers().removeAt(i$1);
-        } // Set layers from bottom to top
+        console.log("Removing", layer_target_new_index);
+        map.getLayers().removeAt(layer_target_new_index);
+        console.log("Removing", layer_target_old_index);
+        map.getLayers().removeAt(layer_target_old_index);
+        console.log("Start inserts"); // Set layers from bottom to top
 
-
-        map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
-
-        for (i$1 = layer_target_old_index + 1; i$1 < layer_target_new_index; i$1++) {
-          map.getLayers().insertAt(i$1, layers[activeLayers[i$1]]);
-        }
+        map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]); // for (i=layer_target_old_index+1; i < layer_target_new_index; i++) {
+        //   map.getLayers().insertAt(i, layers[activeLayers[i]]);
+        // }
 
         map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
       }
