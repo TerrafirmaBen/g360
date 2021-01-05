@@ -411,29 +411,41 @@ function swap_active_layers(old_index, new_index) {
 
   // Simple sort with two layers
   if (old_index < new_index) {
-    activeLayers = activeLayers.slice(0,old_index).concat([activeLayers[new_index]], 
-                                                            activeLayers.slice(old_index+1,new_index),
-                                                            activeLayers[old_index],
-                                                            activeLayers.slice(new_index+1, ));
+    activeLayers = activeLayers.slice(0,layer_target_new_index).concat([activeLayers[layer_target_old_index]], 
+                                                            activeLayers.slice(layer_target_new_index+1,layer_target_old_index),
+                                                            activeLayers[layer_target_new_index],
+                                                            activeLayers.slice(layer_target_old_index+1, ));                                                   
     console.log(activeLayers);
-    // Remove layers from top to bottom                                              
-    map.getLayers().removeAt(layer_target_old_index);  // remove higher up map
-    map.getLayers().removeAt(layer_target_new_index);
-    // TODO: need to set all layers between
+    // Remove layers from top to bottom
+    for (i=layer_target_old_index; i >= layer_target_new_index; i--) {                                              
+          map.getLayers().removeAt(i);
+    }
     // Set layers from bottom to top
+    
     map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+    for (i=layer_target_new_index+1; i < layer_target_old_index; i++) {
+      map.getLayers().setAt(i, layers[activeLayers[i]]);
+    }
     map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
 
   } else {
-    activeLayers = activeLayers.slice(0,new_index).concat([activeLayers[old_index]], 
-                                                            activeLayers.slice(new_index+1,old_index),
-                                                            activeLayers[new_index],
-                                                            activeLayers.slice(old_index+1, ));
-    console.log(activeLayers)                                                        
-    map.getLayers().removeAt(layer_target_new_index);
-    map.getLayers().removeAt(layer_target_old_index);
+    activeLayers = activeLayers.slice(0,layer_target_old_index).concat([activeLayers[layer_target_new_index]], 
+                                                            activeLayers.slice(layer_target_old_index+1,layer_target_new_index),
+                                                            activeLayers[layer_target_old_index],
+                                                            activeLayers.slice(layer_target_new_index+1, ));
+    console.log(activeLayers);
+
+    // Remove layers from top to bottom
+    for (i=layer_target_new_index; i >= layer_target_old_index; i--) {                                              
+      map.getLayers().removeAt(i);
+    }
+    // Set layers from bottom to top
     map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+    for (i=layer_target_old_index+1; i < layer_target_new_index; i++) {
+      map.getLayers().setAt(i, layers[activeLayers[i]]);
+    }
     map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+    
   }
 
   console.log("Active layers after swap:", activeLayers)
@@ -525,7 +537,9 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   //   evt.oldIndex; // element's old index within old parent
   //   evt.newIndex; // element's new index within new parent
     console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-    swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
+    if (evt.newIndex != evt.oldIndex) {
+      swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
+    }
     console.log(evt.to, evt.from)
 
   
@@ -552,7 +566,9 @@ var active_layers_sortable = new Sortable(active_layers_el, {
 
   // // Element is removed from the list into another list
   onRemove: function (/**Event*/ evt) {
+    if (evt.to != evt.from) {
     deactivate_layer(activeLayers[evt.oldIndex + 1])
+    }
     // same properties as onEnd
   },
 

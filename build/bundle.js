@@ -47079,23 +47079,46 @@
       // Simple sort with two layers
 
       if (old_index < new_index) {
-        activeLayers = activeLayers.slice(0, old_index).concat([activeLayers[new_index]], activeLayers.slice(old_index + 1, new_index), activeLayers[old_index], activeLayers.slice(new_index + 1));
-        console.log(activeLayers); // Remove layers from top to bottom                                              
+        console.log("Swapping", activeLayers[old_index], activeLayers[new_index]); // activeLayers = activeLayers.slice(0,old_index).concat([activeLayers[new_index]], 
+        //                                                         activeLayers.slice(old_index+1,new_index),
+        //                                                         activeLayers[old_index],
+        //                                                         activeLayers.slice(new_index+1, ));
 
-        map.getLayers().removeAt(layer_target_old_index); // remove higher up map
+        activeLayers = activeLayers.slice(0, layer_target_new_index).concat([activeLayers[layer_target_old_index]], activeLayers.slice(layer_target_new_index + 1, layer_target_old_index), activeLayers[layer_target_new_index], activeLayers.slice(layer_target_old_index + 1));
+        console.log(activeLayers); // Remove layers from top to bottom
 
-        map.getLayers().removeAt(layer_target_new_index); // TODO: need to set all layers between
-        // Set layers from bottom to top
+        for (i$1 = layer_target_old_index; i$1 >= layer_target_new_index; i$1--) {
+          map.getLayers().removeAt(i$1);
+        } // Set layers from bottom to top
+
 
         map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+
+        for (i$1 = layer_target_new_index + 1; i$1 < layer_target_old_index; i$1++) {
+          map.getLayers().setAt(i$1, layers[activeLayers[i$1]]);
+        }
+
         map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
       } else {
-        activeLayers = activeLayers.slice(0, new_index).concat([activeLayers[old_index]], activeLayers.slice(new_index + 1, old_index), activeLayers[new_index], activeLayers.slice(old_index + 1));
-        console.log(layer_target_new_index, layer_target_old_index);
-        map.getLayers().removeAt(layer_target_new_index);
-        map.getLayers().removeAt(layer_target_old_index);
-        console.log("hit");
+        console.log("Swapping", activeLayers[old_index], activeLayers[new_index]); // activeLayers = activeLayers.slice(0,new_index).concat([activeLayers[old_index]], 
+        //                                                         activeLayers.slice(new_index+1,old_index),
+        //                                                         activeLayers[new_index],
+        //                                                         activeLayers.slice(old_index+1, ));
+
+        activeLayers = activeLayers.slice(0, layer_target_old_index).concat([activeLayers[layer_target_new_index]], activeLayers.slice(layer_target_old_index + 1, layer_target_new_index), activeLayers[layer_target_old_index], activeLayers.slice(layer_target_new_index + 1));
+        console.log(activeLayers); // Remove layers from top to bottom
+
+        for (i$1 = layer_target_new_index; i$1 >= layer_target_old_index; i$1--) {
+          map.getLayers().removeAt(i$1);
+        } // Set layers from bottom to top
+
+
         map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+
+        for (i$1 = layer_target_old_index + 1; i$1 < layer_target_new_index; i$1++) {
+          map.getLayers().setAt(i$1, layers[activeLayers[i$1]]);
+        }
+
         map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
       }
 
@@ -47175,7 +47198,11 @@
       //   evt.oldIndex; // element's old index within old parent
       //   evt.newIndex; // element's new index within new parent
       console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-      swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
+
+      if (evt.newIndex != evt.oldIndex) {
+        swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
+      }
+
       console.log(evt.to, evt.from); //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
       //   evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
       //   evt.clone; // the clone element
@@ -47197,7 +47224,10 @@
     onRemove: function onRemove(
     /**Event*/
     evt) {
-      deactivate_layer(activeLayers[evt.oldIndex + 1]); // same properties as onEnd
+      if (evt.to != evt.from) {
+        deactivate_layer(activeLayers[evt.oldIndex + 1]);
+      } // same properties as onEnd
+
     } // // Attempt to drag a filtered element
     // onFilter: function (/**Event*/ evt) {
     //   var itemEl = evt.item; // HTMLElement receiving the `mousedown|tapstart` event.
