@@ -47079,11 +47079,6 @@
       // Simple sort with two layers
 
       if (old_index < new_index) {
-        console.log("Swapping", activeLayers[old_index], activeLayers[new_index]); // activeLayers = activeLayers.slice(0,old_index).concat([activeLayers[new_index]], 
-        //                                                         activeLayers.slice(old_index+1,new_index),
-        //                                                         activeLayers[old_index],
-        //                                                         activeLayers.slice(new_index+1, ));
-
         activeLayers = activeLayers.slice(0, layer_target_new_index).concat([activeLayers[layer_target_old_index]], activeLayers.slice(layer_target_new_index + 1, layer_target_old_index), activeLayers[layer_target_new_index], activeLayers.slice(layer_target_old_index + 1));
         console.log(activeLayers); // Remove layers from top to bottom
 
@@ -47092,19 +47087,14 @@
         } // Set layers from bottom to top
 
 
-        map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+        map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
 
         for (i$1 = layer_target_new_index + 1; i$1 < layer_target_old_index; i$1++) {
-          map.getLayers().setAt(i$1, layers[activeLayers[i$1]]);
+          map.getLayers().insertAt(i$1, layers[activeLayers[i$1]]);
         }
 
-        map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+        map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
       } else {
-        console.log("Swapping", activeLayers[old_index], activeLayers[new_index]); // activeLayers = activeLayers.slice(0,new_index).concat([activeLayers[old_index]], 
-        //                                                         activeLayers.slice(new_index+1,old_index),
-        //                                                         activeLayers[new_index],
-        //                                                         activeLayers.slice(old_index+1, ));
-
         activeLayers = activeLayers.slice(0, layer_target_old_index).concat([activeLayers[layer_target_new_index]], activeLayers.slice(layer_target_old_index + 1, layer_target_new_index), activeLayers[layer_target_old_index], activeLayers.slice(layer_target_new_index + 1));
         console.log(activeLayers); // Remove layers from top to bottom
 
@@ -47113,13 +47103,13 @@
         } // Set layers from bottom to top
 
 
-        map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+        map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
 
         for (i$1 = layer_target_old_index + 1; i$1 < layer_target_new_index; i$1++) {
-          map.getLayers().setAt(i$1, layers[activeLayers[i$1]]);
+          map.getLayers().insertAt(i$1, layers[activeLayers[i$1]]);
         }
 
-        map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+        map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
       }
 
       console.log("Active layers after swap:", activeLayers);

@@ -421,12 +421,11 @@ function swap_active_layers(old_index, new_index) {
           map.getLayers().removeAt(i);
     }
     // Set layers from bottom to top
-    
-    map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+    map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
     for (i=layer_target_new_index+1; i < layer_target_old_index; i++) {
-      map.getLayers().setAt(i, layers[activeLayers[i]]);
+      map.getLayers().insertAt(i, layers[activeLayers[i]]);
     }
-    map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+    map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
 
   } else {
     activeLayers = activeLayers.slice(0,layer_target_old_index).concat([activeLayers[layer_target_new_index]], 
@@ -440,11 +439,11 @@ function swap_active_layers(old_index, new_index) {
       map.getLayers().removeAt(i);
     }
     // Set layers from bottom to top
-    map.getLayers().setAt(layer_target_old_index, layers[layer_name_new_index]);
+    map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
     for (i=layer_target_old_index+1; i < layer_target_new_index; i++) {
-      map.getLayers().setAt(i, layers[activeLayers[i]]);
+      map.getLayers().insertAt(i, layers[activeLayers[i]]);
     }
-    map.getLayers().setAt(layer_target_new_index, layers[layer_name_old_index]);
+    map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
     
   }
 
