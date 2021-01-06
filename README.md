@@ -1,2 +1,2 @@
-# bm13563_es6_template
-es6 development template, using rollup and babel
+# Ground360
+A web service using OpenLayers to revolutionise how we look at the ground.
