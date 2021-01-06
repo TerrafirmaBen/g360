@@ -34,6 +34,7 @@
     "rollup-plugin-css-only": "^2.1.0"
   },
   "dependencies": {
+    "array-move": "^3.0.1",
     "better-docs": "^2.3.2",
     "jsdoc": "^3.6.6",
     "ol": "^6.4.3",

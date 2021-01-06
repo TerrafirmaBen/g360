@@ -23,6 +23,7 @@ import {Select} from 'ol/interaction';
 import Overlay from 'ol/Overlay';
 import "regenerator-runtime/runtime";
 import Sortable from "sortablejs";
+const arrayMove = require('array-move');
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
@@ -391,54 +392,28 @@ function layer_target(layer_id){
   return (activeLayers.length) - layer_id;
 }
 
-function swap_active_layers(old_index, new_index) {  
+function swap_active_layers(old_index, new_index) {  // Move layer at old_index to new_index
   if (old_index > 0 & new_index > 0) {
     var layer_target_old_index = layer_target(old_index);
     var layer_target_new_index = layer_target(new_index);
-    var layer_name_old_index = activeLayers[layer_target_old_index];
+    var layer_name_old_index = activeLayers[layer_target_old_index];  // Name of layer being moved
     var layer_name_new_index = activeLayers[layer_target_new_index];
-  // sorted_ab = [layer_a_id, layer_b_id].sort()  // sort indices to min, max
-  // if (layer_a_id < layer_b_id) {
-    // activeLayers = activeLayers.slice(0,layer_a_id).concat([activeLayers[layer_b_id]], 
-    //                                                         activeLayers.slice(layer_a_id+1,layer_b_id),
-    //                                                         activeLayers[layer_a_id],
-    //                                                         activeLayers.slice(layer_b_id+1, ))
-
-  // }
-
 
   // Reassign activeLayers array
 
-  // Simple sort with two layers
-  if (old_index < new_index) {
-    activeLayers = activeLayers.slice(0,layer_target_new_index).concat([activeLayers[layer_target_old_index]], 
-                                                            activeLayers.slice(layer_target_new_index+1,layer_target_old_index),
-                                                            activeLayers[layer_target_new_index],
-                                                            activeLayers.slice(layer_target_old_index+1, ));                                                   
-    console.log(activeLayers);
+  activeLayers = arrayMove(activeLayers, layer_target_old_index, layer_target_new_index)
+  if (old_index < new_index) {  // Corresponds to moving a layer down        
     // Remove layers from top to bottom
-    console.log("Removing", layer_target_old_index)
     map.getLayers().removeAt(layer_target_old_index);
-    console.log("Removing", layer_target_new_index)
     map.getLayers().removeAt(layer_target_new_index)
     // Set layers from bottom to top
-    console.log("Begin inserts")
     map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
     map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
 
-  } else {
-    activeLayers = activeLayers.slice(0,layer_target_old_index).concat([activeLayers[layer_target_new_index]], 
-                                                            activeLayers.slice(layer_target_old_index+1,layer_target_new_index),
-                                                            activeLayers[layer_target_old_index],
-                                                            activeLayers.slice(layer_target_new_index+1, ));
-    console.log(activeLayers);
-
+  } else {  // Corresponds to moving a layer up
     // Remove layers from top to bottom
-    console.log("Removing",layer_target_new_index)
     map.getLayers().removeAt(layer_target_new_index)
-    console.log("Removing", layer_target_old_index)
     map.getLayers().removeAt(layer_target_old_index)
-    console.log("Start inserts")
     // Set layers from bottom to top
     map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
     map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
