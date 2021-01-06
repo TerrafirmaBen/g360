@@ -5,7 +5,7 @@
 
 
 
-.map { width: 100%; height: 500px;}
+.map { width: 100%; height: 500px; transition: 0.5s;}
 
 .slidecontainer {
     width: 100%; /* Width of the outside container */
@@ -103,16 +103,26 @@
     height: 100%;
   }
 
-  #sidebar {
+  #open-sidebar {
+    z-index: 2;
     position: absolute;
-    left: .5em;
     top: .5em;
+  }
+
+  #sidebar {
+    z-index: 1;
+    position: absolute;
+    /* top: 100px; */
+    top: 0;
+    display: none;
     background-color: lightseagreen;
     color: black;
-    width: 25%;
-    height: 30%;
+    width: 0;
+    /* width: 25%; */
+    height: 500px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: .7em;
+    transition: 0.5s;
   }
 
  .layer-button {

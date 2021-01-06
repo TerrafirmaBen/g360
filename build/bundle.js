@@ -46956,6 +46956,32 @@
     })
   });
   var container = document.getElementById('popup');
+  var sidebar_visible = false;
+  var open_sidebar_btn = document.querySelector(".open-sidebar");
+  open_sidebar_btn.addEventListener("click", function () {
+    if (sidebar_visible) {
+      hide_sidebar();
+      sidebar_visible = false;
+    } else {
+      show_sidebar();
+      sidebar_visible = true;
+    }
+  });
+
+  function show_sidebar() {
+    document.querySelector('#sidebar').style.display = 'block';
+    document.querySelector("#sidebar").style.width = "25%";
+    document.querySelector("#map").style.width = "75%";
+    document.querySelector('#map').style.marginLeft = "25%";
+  }
+
+  function hide_sidebar() {
+    document.querySelector("#sidebar").style.display = "none";
+    document.querySelector("#sidebar").style.width = "0";
+    document.querySelector("#map").style.width = "100%";
+    document.querySelector('#map').style.marginLeft = "0";
+  }
+
   var overlay = new Overlay({
     element: container,
     autoPan: true,
