@@ -32,6 +32,8 @@ export default [{
             include: "**/*.shader"
         }),
         //execute('npm run docs')
+        execute('cp build/bundle.js g360_webserver/map/static/map/script/bundle.js'),
+        execute('cp build/bundle.css g360_webserver/map/static/map/styles/bundle.css')
     ],
     onwarn: function(warning, superOnWarn) {
         if (warning.code === 'THIS_IS_UNDEFINED') {
