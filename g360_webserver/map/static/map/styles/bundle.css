@@ -114,7 +114,8 @@
     position: absolute;
     /* top: 100px; */
     top: 0;
-    display: none;
+    left: 0;
+    /* display: none; */
     background-color: lightseagreen;
     color: black;
     width: 0;
@@ -123,6 +124,7 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: .7em;
     transition: 0.5s;
+    overflow-x: hidden;
   }
 
  .layer-button {
