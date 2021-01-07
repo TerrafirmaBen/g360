@@ -46970,6 +46970,8 @@
 
   function show_sidebar() {
     // document.querySelector('#sidebar').style.display = 'block';
+    document.querySelector("#layer-button-list").style.display = 'block';
+    document.querySelector("#show-extras-label").style.display = 'block';
     document.querySelector("#sidebar").style.width = "25%";
     document.querySelector("#map").style.width = "75%";
     document.querySelector('#map').style.marginLeft = "25%";
@@ -46977,8 +46979,10 @@
 
   function hide_sidebar() {
     // document.querySelector("#sidebar").style.display = "none";
-    document.querySelector("#sidebar").style.width = "0";
-    document.querySelector("#map").style.width = "100%";
+    document.querySelector("#layer-button-list").style.display = "none";
+    document.querySelector("#show-extras-label").style.display = 'none';
+    document.querySelector("#sidebar").style.width = "6%";
+    document.querySelector("#map").style.width = "94%";
     document.querySelector('#map').style.marginLeft = "0";
   }
 

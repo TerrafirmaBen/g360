@@ -5,7 +5,7 @@
 
 
 
-.map { width: 100%; height: 500px; transition: 0.5s;}
+.map { width: 94%; height: 500px; transition: 0.5s;}
 
 .slidecontainer {
     width: 100%; /* Width of the outside container */
@@ -107,6 +107,7 @@
     z-index: 2;
     position: absolute;
     top: .5em;
+    right: .5em;
   }
 
   #sidebar {
@@ -118,7 +119,7 @@
     /* display: none; */
     background-color: lightseagreen;
     color: black;
-    width: 0;
+    width: 6%;
     /* width: 25%; */
     height: 500px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -126,6 +127,14 @@
     transition: 0.5s;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  #layer-button-list {
+    display: none;
+  }
+
+  #show-extras-label {
+    display: none;
   }
 
  .layer-button {
