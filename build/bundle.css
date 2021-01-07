@@ -130,8 +130,18 @@
   }
 
   #layer-button-list {
+    position: absolute;
+    top: 80px;
+  }
+
+  #active-layers-section {
     display: none;
   }
+
+  #layer-pool-section {
+    display: none;
+  }
+
 
   #show-extras-label {
     display: none;

@@ -46970,7 +46970,17 @@
 
   function show_sidebar() {
     // document.querySelector('#sidebar').style.display = 'block';
-    document.querySelector("#layer-button-list").style.display = 'block';
+    console.log(activeLayers.length, inactiveLayers.length);
+
+    if (activeLayers.length > 1) {
+      document.querySelector("#active-layers-section").style.display = 'block';
+    }
+
+    if (inactiveLayers.length > 0) {
+      document.querySelector("#layer-pool-section").style.display = 'block';
+    } // document.querySelector("#layer-button-list").style.display = 'block';
+
+
     document.querySelector("#show-extras-label").style.display = 'block';
     document.querySelector("#sidebar").style.width = "25%";
     document.querySelector("#map").style.width = "75%";
@@ -46979,8 +46989,9 @@
 
   function hide_sidebar() {
     // document.querySelector("#sidebar").style.display = "none";
-    document.querySelector("#layer-button-list").style.display = "none";
-    document.querySelector("#show-extras-label").style.display = 'block';
+    document.querySelector("#active-layers-section").style.display = "none";
+    document.querySelector("#layer-pool-section").style.display = "none";
+    document.querySelector("#show-extras-label").style.display = 'none';
     document.querySelector("#sidebar").style.width = "6%";
     document.querySelector("#map").style.width = "94%";
     document.querySelector('#map').style.marginLeft = "0";
@@ -47053,6 +47064,12 @@
     //                                                                 activeLayers.slice(layer_position,));
 
     active_layers_el.prepend(layer_toggle_pool[layer_name]);
+    document.querySelector("#active-layers-section").style.display = 'block';
+
+    if (inactiveLayers.length == 0) {
+      document.querySelector("#layer-pool-section").style.display = 'none';
+    }
+
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
     console.log("Trying to change list");
@@ -47070,6 +47087,12 @@
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
     layer_pool_el.append(layer_toggle_pool[layer_name]);
+
+    if (activeLayers.length == 0) {
+      document.querySelector("#active-layers-section").style.display = 'none';
+    }
+
+    document.querySelector("#layer-pool-section").style.display = 'block';
   }
 
   function assign_layer_toggle(layer_name) {
