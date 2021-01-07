@@ -124,7 +124,8 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: .7em;
     transition: 0.5s;
-    overflow-x: hidden;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
  .layer-button {
