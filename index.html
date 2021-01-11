@@ -5,8 +5,8 @@
     <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
     <script src="https://unpkg.com/elm-pep"></script>
   </head>
-  <link rel="icon" 
-      type="image/png" 
+  <link rel="icon"
+      type="image/png"
       href="https://icons.iconarchive.com/icons/goodstuff-no-nonsense/free-space/1024/earth-icon.png">
   <body>
 <!-- Start container for map and elements within -->
@@ -22,12 +22,45 @@
 
 
       <div id="sidebar" class="ol-unselectable">
-        <button id="open-sidebar" class="open-sidebar">>></button>
+        <button type="button" id="open-sidebar" class="ico open-sidebar">
+        <svg id="hamburger" class="svg-btn">
+          <line x1="20%" y1="50%" x2="80%" y2="50%"/>
+           <line x1="20%" y1="50%" x2="80%" y2="50%"/>
+           <line x1="20%" y1="50%" x2="80%" y2="50%"/>
+        </svg>
+        </button>
 
           <div id="tab-list">
             <ul id="list-of-tabs">
-              <li><button id="layer-select-tab">L</button></li>
-              <li><button id="settings-tab">S</button></li>
+              <li>
+                <button type="button" class="ico" id="layer-select-tab">
+                  <svg id="layers" class="svg-btn">
+                    <line x1="12" y1="10" x2="12" y2="34"/>
+                    <line x1="42" y1="10" x2="42" y2="34"/>
+                    <polygon id="sel" points="12,10 42,10 36,16 6,16"/>
+                    <polygon points="12,22 42,22 36,28 6,28"/>
+                    <polygon points="12,34 42,34 36,40 6,40"/>
+                    <line x1="6" y1="16" x2="6" y2="40"/>
+                    <line x1="36" y1="16" x2="36" y2="40"/>
+
+                  </svg>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ico" id="settings-tab">
+                  <svg id="cogs" class="svg-btn">
+                    <circle cx="50%" cy="50%" r="25%"/>
+                    <line x1="50%" y1="25%" x2="50%" y2="16%"/>
+                    <line x1="50%" y1="75%" x2="50%" y2="84%"/>
+                    <line x1="25%" y1="50%" x2="16%" y2="50%"/>
+                    <line x1="75%" y1="50%" x2="84%" y2="50%"/>
+                    <line x1="25%" y1="25%" x2="30%" y2="30%"/>
+                    <line x1="75%" y1="75%" x2="70%" y2="70%"/>
+                    <line x1="25%" y1="75%" x2="30%" y2="70%"/>
+                    <line x1="75%" y1="25%" x2="70%" y2="30%"/>
+                  </svg>
+                </button>
+              </li>
             </ul>
           </div>
           <div id="layer-button-list">
@@ -50,7 +83,7 @@
 
           <div id="settings">
             Settings
-    
+
                   <div id="mouse-position"></div>
                   <form class="form-inline">
                     <div class="col-md-3">
@@ -101,11 +134,11 @@
                   </form>
                   <a id="export-png" class="btn btn-default"><i class="fa fa-download"></i> Download PNG</a>
                   <a id="image-download" download="map.png"></a>
-    
+
           </div>
       </div>
 
-      
+
 
 
   </div>
