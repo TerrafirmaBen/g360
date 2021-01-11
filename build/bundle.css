@@ -4,8 +4,7 @@
 } */
 
 
-
-.map { width: 94%; height: 500px; transition: 0.5s;}
+.map { width: 100%; height: 500px; transition: 0.5s;}
 
 .slidecontainer {
     width: 100%; /* Width of the outside container */
@@ -129,9 +128,28 @@
     white-space: nowrap;
   }
 
+  #tab-list {
+    /* position:absolute; */
+    background-color: grey;
+    height: 500px;
+    width: 100%;
+    transition: 0.25s;
+    display: inline-block;
+  }
+  
+  #list-of-tabs {
+    position:absolute;
+    margin: 0;
+    padding: 0;
+    top: 50px;
+    list-style-type: none;
+  }
+
   #layer-button-list {
+    display: inline-block;
     position: absolute;
     top: 80px;
+    padding-left: 1em;
   }
 
   #active-layers-section {
@@ -145,6 +163,8 @@
 
   #show-extras-label {
     display: none;
+    position: absolute;
+    padding-left: 1em;
   }
 
  .layer-button {
@@ -153,24 +173,20 @@
     font-style: italic;
   }
 
-  #extras {
+  #settings {
     display: none;
+    z-index: 2;
     position: absolute;
-    top: .5em;
-    right: .5em;
-    background-color: lightcoral;
+    top: 100px;
+    /* right: .5em; */
+    /* background-color: lightcoral; */
     color: black;
-    width: 40%;
-    height: 40%;
+    /* width: 40%; */
+    /* height: 40%; */
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: .5em;
   }
 
-  #show-extras-label {
-    position: absolute;
-    bottom: .5em;
-    left: .5em;
-  }
 
 
   #export-png {

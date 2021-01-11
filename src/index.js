@@ -1,5 +1,5 @@
 import 'ol/ol.css';
-import './styles/example.css';
+import './styles/style_sheet.css';
 import Map from 'ol/Map';
 import TileGrid from 'ol/tilegrid/TileGrid';
 import TileLayer from 'ol/layer/Tile';
@@ -292,7 +292,6 @@ open_sidebar_btn.addEventListener("click", () => {
 });
 
 function show_sidebar() {
-  // document.querySelector('#sidebar').style.display = 'block';
   console.log(activeLayers.length, inactiveLayers.length)
   if (activeLayers.length > 1) {
     document.querySelector("#active-layers-section").style.display = 'block';
@@ -300,23 +299,41 @@ function show_sidebar() {
   if (inactiveLayers.length > 0) {
     document.querySelector("#layer-pool-section").style.display = 'block';
   }
-  // document.querySelector("#layer-button-list").style.display = 'block';
-  document.querySelector("#show-extras-label").style.display = 'block';
+  document.querySelector("#tab-list").style.width = '20%';
   document.querySelector("#sidebar").style.width = "25%";
   document.querySelector("#map").style.width = "75%";
   document.querySelector('#map').style.marginLeft = "25%";
   }
 
 function hide_sidebar() {
-  // document.querySelector("#sidebar").style.display = "none";
   document.querySelector("#active-layers-section").style.display = "none";
   document.querySelector("#layer-pool-section").style.display = "none";
-  document.querySelector("#show-extras-label").style.display = 'none';
+  document.querySelector("#tab-list").style.width = '100%';
+
   document.querySelector("#sidebar").style.width = "6%";
-  document.querySelector("#map").style.width = "94%"
+  document.querySelector("#map").style.width = "100%"
   document.querySelector('#map').style.marginLeft = "0";
 }
 
+let layers_btn = document.querySelector("#layer-select-tab");
+layers_btn.addEventListener("click", () => {
+  show_layer_select();
+});
+
+function show_layer_select() {
+  document.querySelector("#layer-button-list").style.display = "inline-block";
+  document.querySelector("#settings").style.display = "none";
+};
+
+let settings_btn = document.querySelector("#settings-tab");
+settings_btn.addEventListener("click", () => {
+  show_settings();
+});
+
+function show_settings() {
+  document.querySelector("#layer-button-list").style.display = "none";
+  document.querySelector("#settings").style.display = "inline-block";
+}
 
 var overlay = new Overlay({
   element: container,
@@ -651,7 +668,7 @@ var layer_pool_sortable = new Sortable(layer_pool_el, {
   // },
 })
 
-var renderExtras = document.getElementById('show-extras');
+
 
 var baseLayerSelect = document.getElementById('base-layer');
 var overlayLayerSelect = document.getElementById('overlay-layer');
@@ -754,13 +771,6 @@ renderOverlayCheckbox.onchange = function () {
   }
 };
 
-renderExtras.onchange = function () {
-  if (renderExtras.checked) {
-    document.getElementById('extras').style.display = 'block'
-  } else {
-    document.getElementById('extras').style.display = 'none'
-  }
-}
 
 // opacityDisplay.innerHTML = "Opacity: 1"
 

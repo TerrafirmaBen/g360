@@ -20,24 +20,22 @@
         <div id="popup-content"></div>
       </div>
 
-      
-
-      <!-- <nav id="sideNav" class="sideNav">
-        <a href="#">Login</a>
-        <a href="#">Register</a>
-        <a href="#">Home</a>
-        <a href="#">About Us</a>
-        </nav> -->
-
 
       <div id="sidebar" class="ol-unselectable">
         <button id="open-sidebar" class="open-sidebar">>></button>
+
+          <div id="tab-list">
+            <ul id="list-of-tabs">
+              <li><button id="layer-select-tab">L</button></li>
+              <li><button id="settings-tab">S</button></li>
+            </ul>
+          </div>
           <div id="layer-button-list">
             <div id="active-layers-section">
             Active Layers
             <ul id="active-layers"></ul>
           </div>
-            <div id="layer-pool-section">
+          <div id="layer-pool-section">
             Layer Pool
             <ul id="layer-pool">
               <li id="region-layer-button">  <div  class="layer-button ol-control">Region Layer</div></li>
@@ -49,67 +47,65 @@
           </div>
 
 
-          <label id="show-extras-label" class="ol-unselectable">
-            Show extras panel
-            <input type="checkbox" id="show-extras">
-          </label>
+
+          <div id="settings">
+            Settings
+    
+                  <div id="mouse-position"></div>
+                  <form class="form-inline">
+                    <div class="col-md-3">
+                      <label>Base map:</label>
+                      <select id="base-layer">
+                        <option value="osm">OSM (EPSG:3857)</option>
+                        <option value="wms4326">WMS (EPSG:4326)</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label>Overlay map:</label>
+                      <select id="overlay-layer">
+                        <option value="bng">British National Grid (EPSG:27700)</option>
+                        <option value="tf">TF NGRM (EPSG:27700)</option>
+                        <option value="eer">Electoral Regions</option>
+                        <option value="countries">Countries</option>
+                        <option value="wkt_example">Example WKT</option>
+                        <option value="wms21781">Swisstopo WMS (EPSG:21781)</option>
+                        <option value="wmts3413">NASA Arctic WMTS (EPSG:3413)</option>
+                        <option value="states">United States (EPSG:3857)</option>
+                      </select>
+                    </div>
+                    <label>
+                      Render overlay map
+                      <input type="checkbox" id="render-overlay">
+                    </label>
+                    <div class="slidecontainer">
+                      <input type="range" min="0" max="100" value="100" class="slider" id="opacitySliderElement">
+                    </div>
+                    <!-- <div id="opacityDisplayValue"></div> -->
+                    <div class="col-md-5">
+                      <label>View projection:</label>
+                      <select id="view-projection">
+                          <option value="EPSG:27700">British National Grid (EPSG:27700)</option>
+                        <option value="EPSG:3857">Spherical Mercator (EPSG:3857)</option>
+                        <option value="EPSG:4326">WGS 84 (EPSG:4326)</option>
+                        <option value="ESRI:54009">Mollweide (ESRI:54009)</option>
+                        <option value="EPSG:23032">ED50 / UTM zone 32N (EPSG:23032)</option>
+                        <option value="EPSG:2163">US National Atlas Equal Area (EPSG:2163)</option>
+                        <option value="EPSG:3413">NSIDC Polar Stereographic North (EPSG:3413)</option>
+                        <option value="EPSG:5479">RSRGD2000 / MSLC2000 (EPSG:5479)</option>
+                      </select>
+                    </div>
+                    <label>
+                      Render reprojection edges
+                      <input type="checkbox" id="render-edges">
+                    </label>
+                  </form>
+                  <a id="export-png" class="btn btn-default"><i class="fa fa-download"></i> Download PNG</a>
+                  <a id="image-download" download="map.png"></a>
+    
+          </div>
       </div>
 
-      <div id="extras">
-        Extras
-
-              <div id="mouse-position"></div>
-              <form class="form-inline">
-                <div class="col-md-3">
-                  <label>Base map:</label>
-                  <select id="base-layer">
-                    <option value="osm">OSM (EPSG:3857)</option>
-                    <option value="wms4326">WMS (EPSG:4326)</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label>Overlay map:</label>
-                  <select id="overlay-layer">
-                    <option value="bng">British National Grid (EPSG:27700)</option>
-                    <option value="tf">TF NGRM (EPSG:27700)</option>
-                    <option value="eer">Electoral Regions</option>
-                    <option value="countries">Countries</option>
-                    <option value="wkt_example">Example WKT</option>
-                    <option value="wms21781">Swisstopo WMS (EPSG:21781)</option>
-                    <option value="wmts3413">NASA Arctic WMTS (EPSG:3413)</option>
-                    <option value="states">United States (EPSG:3857)</option>
-                  </select>
-                </div>
-                <label>
-                  Render overlay map
-                  <input type="checkbox" id="render-overlay">
-                </label>
-                <div class="slidecontainer">
-                  <input type="range" min="0" max="100" value="100" class="slider" id="opacitySliderElement">
-                </div>
-                <!-- <div id="opacityDisplayValue"></div> -->
-                <div class="col-md-5">
-                  <label>View projection:</label>
-                  <select id="view-projection">
-                      <option value="EPSG:27700">British National Grid (EPSG:27700)</option>
-                    <option value="EPSG:3857">Spherical Mercator (EPSG:3857)</option>
-                    <option value="EPSG:4326">WGS 84 (EPSG:4326)</option>
-                    <option value="ESRI:54009">Mollweide (ESRI:54009)</option>
-                    <option value="EPSG:23032">ED50 / UTM zone 32N (EPSG:23032)</option>
-                    <option value="EPSG:2163">US National Atlas Equal Area (EPSG:2163)</option>
-                    <option value="EPSG:3413">NSIDC Polar Stereographic North (EPSG:3413)</option>
-                    <option value="EPSG:5479">RSRGD2000 / MSLC2000 (EPSG:5479)</option>
-                  </select>
-                </div>
-                <label>
-                  Render reprojection edges
-                  <input type="checkbox" id="render-edges">
-                </label>
-              </form>
-              <a id="export-png" class="btn btn-default"><i class="fa fa-download"></i> Download PNG</a>
-              <a id="image-download" download="map.png"></a>
-
-      </div>
+      
 
 
   </div>
