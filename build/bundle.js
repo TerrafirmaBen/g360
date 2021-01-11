@@ -46997,6 +46997,11 @@
   var layers_btn = document.querySelector("#layer-select-tab");
   layers_btn.addEventListener("click", function () {
     show_layer_select();
+
+    if (!sidebar_visible) {
+      show_sidebar();
+      sidebar_visible = true;
+    }
   });
 
   function show_layer_select() {
@@ -47006,6 +47011,11 @@
   var settings_btn = document.querySelector("#settings-tab");
   settings_btn.addEventListener("click", function () {
     show_settings();
+
+    if (!sidebar_visible) {
+      show_sidebar();
+      sidebar_visible = true;
+    }
   });
 
   function show_settings() {

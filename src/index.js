@@ -318,6 +318,10 @@ function hide_sidebar() {
 let layers_btn = document.querySelector("#layer-select-tab");
 layers_btn.addEventListener("click", () => {
   show_layer_select();
+  if (!sidebar_visible) {
+    show_sidebar()
+    sidebar_visible = true;
+  }
 });
 
 function show_layer_select() {
@@ -328,6 +332,10 @@ function show_layer_select() {
 let settings_btn = document.querySelector("#settings-tab");
 settings_btn.addEventListener("click", () => {
   show_settings();
+  if (!sidebar_visible) {
+    show_sidebar()
+    sidebar_visible = true;
+  }
 });
 
 function show_settings() {
