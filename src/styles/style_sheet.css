@@ -104,7 +104,7 @@
 
   #open-sidebar {
     z-index: 2;
-    position: absolute;
+    /*position: absolute;*/
     top: .5em;
     right: .5em;
   }
@@ -118,7 +118,7 @@
     /* display: none; */
     background-color: lightseagreen;
     color: black;
-    width: 6%;
+    width: 100px;
     /* width: 25%; */
     height: 500px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -132,17 +132,20 @@
     /* position:absolute; */
     background-color: grey;
     height: 500px;
-    width: 100%;
+    width: 100px;
     transition: 0.25s;
     display: inline-block;
   }
 
   #list-of-tabs {
     position:absolute;
-    margin: 0;
+    width: 100px;
+    margin: 0.5rem;
     padding: 0;
-    top: 50px;
     list-style-type: none;
+  }
+  #list-of-tabs > li {
+    margin: 0.3rem;
   }
 
   #layer-button-list {
