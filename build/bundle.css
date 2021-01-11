@@ -129,7 +129,7 @@
   }
 
   #tab-list {
-    /* position:absolute; */
+    position: relative;
     background-color: grey;
     height: 500px;
     width: 100px;
@@ -139,9 +139,10 @@
 
   #list-of-tabs {
     position:absolute;
-    width: 100px;
-    margin: 0.5rem;
+    width: 100%;
     padding: 0;
+    display: grid;
+    justify-content: center;
     list-style-type: none;
   }
   #list-of-tabs > li {
