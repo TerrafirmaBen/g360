@@ -405,6 +405,11 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         updateRenderEdgesOnLayer(layers[layer_name]);
         layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen"
         layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "normal"
+        var node = document.createElement("div");                 // Create a div
+        node.setAttribute("id",layer_name+"_slider")
+        var textnode = document.createTextNode("Water");         // Create a filler text node
+        node.appendChild(textnode);                              
+        active_layers_el.prepend(node);  
         inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         console.log("Setting layer at:", layer_position)
         map.getLayers().setAt(layer_position, layers[layer_name]);
@@ -433,6 +438,7 @@ function deactivate_layer(layer_name) {
         console.log("Active layers:", activeLayers)
         console.log("Inactive layers:", inactiveLayers)
         layer_pool_el.append(layer_toggle_pool[layer_name])
+        active_layers_el.removeChild(document.getElementById(layer_name+"_slider"))
         if (activeLayers.length == 1) {
           document.querySelector("#active-layers-section").style.display = 'none';
         }
