@@ -280,46 +280,76 @@ var container = document.getElementById('popup');
 
 var sidebar_visible = false;
 
+var orientation;
+function viewport_orientation() {
+  var l = window.matchMedia("(orientation: landscape)")
+  var p = window.matchMedia("(orientation: portrait)");
+  if (l.matches) {
+    orientation = "landscape";
+  } else if (p.matches) {
+    orientation = "portrait";
+  }
+}
+viewport_orientation();
+
 let open_sidebar_btn = document.querySelector(".open-sidebar");
 open_sidebar_btn.addEventListener("click", () => {
   if (sidebar_visible) {
-    hide_sidebar();
+    hide_sidebar(orientation);
     sidebar_visible = false;
   } else {
-    show_sidebar();
+    show_sidebar(orientation);
     sidebar_visible = true;
   }
 });
 
-function show_sidebar() {
-  console.log(activeLayers.length, inactiveLayers.length)
+
+
+function show_sidebar(orientation) {
   if (activeLayers.length > 1) {
     document.querySelector("#active-layers-section").style.display = 'block';
   }
   if (inactiveLayers.length > 0) {
     document.querySelector("#layer-pool-section").style.display = 'block';
   }
-  //document.querySelector("#tab-list").style.width = '20%';
-  document.querySelector("#sidebar").style.width = "25%";
-  document.querySelector("#map").style.width = "75%";
-  document.querySelector('#map').style.marginLeft = "25%";
+
+  if (orientation == "landscape") {
+    console.log(activeLayers.length, inactiveLayers.length)
+
+    //document.querySelector("#tab-list").style.width = '20%';
+    document.querySelector("#sidebar").style.width = "25%";
+    document.querySelector("#map").style.width = "75%";
+    document.querySelector('#map').style.marginLeft = "25%";
+  } else if (orientation == "portrait") {
+    document.querySelector("#sidebar").style.height = "25vh";
+    document.querySelector("#map").style.height = "75vh";
+    //document.querySelector('#map').style.marginTop = "25vh";
   }
 
-function hide_sidebar() {
+  }
+
+function hide_sidebar(orientation) {
   document.querySelector("#active-layers-section").style.display = "none";
   document.querySelector("#layer-pool-section").style.display = "none";
   //document.querySelector("#tab-list").style.width = '100%';
 
-  document.querySelector("#sidebar").style.width = "100px";
-  document.querySelector("#map").style.width = "100%"
-  document.querySelector('#map').style.marginLeft = "0";
+  if (orientation == "landscape") {
+    document.querySelector("#sidebar").style.width = "100px";
+    document.querySelector("#map").style.width = "100%"
+    document.querySelector('#map').style.marginLeft = "0";
+  } else if (orientation == "portrait") {
+    document.querySelector("#sidebar").style.height = "100px";
+    document.querySelector("#map").style.height = "100vh"
+    //document.querySelector('#map').style.marginTop = "0vh";
+  }
+
 }
 
 let layers_btn = document.querySelector("#layer-select-tab");
 layers_btn.addEventListener("click", () => {
   show_layer_select();
   if (!sidebar_visible) {
-    show_sidebar()
+    show_sidebar(orientation);
     sidebar_visible = true;
   }
 });
@@ -333,7 +363,7 @@ let settings_btn = document.querySelector("#settings-tab");
 settings_btn.addEventListener("click", () => {
   show_settings();
   if (!sidebar_visible) {
-    show_sidebar()
+    show_sidebar(orientation);
     sidebar_visible = true;
   }
 });
@@ -408,8 +438,8 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         var node = document.createElement("div");                 // Create a div
         node.setAttribute("id",layer_name+"_slider")
         var textnode = document.createTextNode("Water");         // Create a filler text node
-        node.appendChild(textnode);                              
-        active_layers_el.prepend(node);  
+        node.appendChild(textnode);
+        active_layers_el.prepend(node);
         inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         console.log("Setting layer at:", layer_position)
         map.getLayers().setAt(layer_position, layers[layer_name]);

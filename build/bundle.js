@@ -49919,41 +49919,64 @@
   });
   var container = document.getElementById('popup');
   var sidebar_visible = false;
+  var orientation;
+
+  function viewport_orientation() {
+    var l = window.matchMedia("(orientation: landscape)");
+    var p = window.matchMedia("(orientation: portrait)");
+
+    if (l.matches) {
+      orientation = "landscape";
+    } else if (p.matches) {
+      orientation = "portrait";
+    }
+  }
+
+  viewport_orientation();
   var open_sidebar_btn = document.querySelector(".open-sidebar");
   open_sidebar_btn.addEventListener("click", function () {
     if (sidebar_visible) {
-      hide_sidebar();
+      hide_sidebar(orientation);
       sidebar_visible = false;
     } else {
-      show_sidebar();
+      show_sidebar(orientation);
       sidebar_visible = true;
     }
   });
 
-  function show_sidebar() {
-    console.log(activeLayers.length, inactiveLayers.length);
-
+  function show_sidebar(orientation) {
     if (activeLayers.length > 1) {
       document.querySelector("#active-layers-section").style.display = 'block';
     }
 
     if (inactiveLayers.length > 0) {
       document.querySelector("#layer-pool-section").style.display = 'block';
-    } //document.querySelector("#tab-list").style.width = '20%';
+    }
 
+    if (orientation == "landscape") {
+      console.log(activeLayers.length, inactiveLayers.length); //document.querySelector("#tab-list").style.width = '20%';
 
-    document.querySelector("#sidebar").style.width = "25%";
-    document.querySelector("#map").style.width = "75%";
-    document.querySelector('#map').style.marginLeft = "25%";
+      document.querySelector("#sidebar").style.width = "25%";
+      document.querySelector("#map").style.width = "75%";
+      document.querySelector('#map').style.marginLeft = "25%";
+    } else if (orientation == "portrait") {
+      document.querySelector("#sidebar").style.height = "25vh";
+      document.querySelector("#map").style.height = "75vh"; //document.querySelector('#map').style.marginTop = "25vh";
+    }
   }
 
-  function hide_sidebar() {
+  function hide_sidebar(orientation) {
     document.querySelector("#active-layers-section").style.display = "none";
     document.querySelector("#layer-pool-section").style.display = "none"; //document.querySelector("#tab-list").style.width = '100%';
 
-    document.querySelector("#sidebar").style.width = "100px";
-    document.querySelector("#map").style.width = "100%";
-    document.querySelector('#map').style.marginLeft = "0";
+    if (orientation == "landscape") {
+      document.querySelector("#sidebar").style.width = "100px";
+      document.querySelector("#map").style.width = "100%";
+      document.querySelector('#map').style.marginLeft = "0";
+    } else if (orientation == "portrait") {
+      document.querySelector("#sidebar").style.height = "100px";
+      document.querySelector("#map").style.height = "100vh"; //document.querySelector('#map').style.marginTop = "0vh";
+    }
   }
 
   var layers_btn = document.querySelector("#layer-select-tab");
@@ -49961,7 +49984,7 @@
     show_layer_select();
 
     if (!sidebar_visible) {
-      show_sidebar();
+      show_sidebar(orientation);
       sidebar_visible = true;
     }
   });
@@ -49975,7 +49998,7 @@
     show_settings();
 
     if (!sidebar_visible) {
-      show_sidebar();
+      show_sidebar(orientation);
       sidebar_visible = true;
     }
   });
