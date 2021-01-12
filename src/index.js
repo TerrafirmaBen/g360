@@ -257,12 +257,12 @@ layers['countries'] = new VectorLayer({
   source: new VectorSource({
     format: new GeoJSON(),
     url: 'https://openlayers.org/en/v4.6.5/examples/data/geojson/countries.geojson',
-    
+
   }),
 })
 
 var wkt = "Polygon ((385219.76934220944531262 275120.31611970614176244, " +
-  "510206.33200901799136773 374468.60952152829850093, " + 
+  "510206.33200901799136773 374468.60952152829850093, " +
   "611691.14784958900418133 249482.04685471975244582, " +
   "385219.76934220944531262 275120.31611970614176244))";
 
@@ -299,7 +299,7 @@ function show_sidebar() {
   if (inactiveLayers.length > 0) {
     document.querySelector("#layer-pool-section").style.display = 'block';
   }
-  document.querySelector("#tab-list").style.width = '20%';
+  //document.querySelector("#tab-list").style.width = '20%';
   document.querySelector("#sidebar").style.width = "25%";
   document.querySelector("#map").style.width = "75%";
   document.querySelector('#map').style.marginLeft = "25%";
@@ -308,9 +308,9 @@ function show_sidebar() {
 function hide_sidebar() {
   document.querySelector("#active-layers-section").style.display = "none";
   document.querySelector("#layer-pool-section").style.display = "none";
-  document.querySelector("#tab-list").style.width = '100%';
+  //document.querySelector("#tab-list").style.width = '100%';
 
-  document.querySelector("#sidebar").style.width = "6%";
+  document.querySelector("#sidebar").style.width = "100px";
   document.querySelector("#map").style.width = "100%"
   document.querySelector('#map').style.marginLeft = "0";
 }
@@ -354,13 +354,13 @@ var overlay = new Overlay({
 var overviewMapControl = new OverviewMap({
   layers: [new TileLayer({
     source: new OSM(),
-  })], 
+  })],
   view: new View({
     projection: 'EPSG:27700',
     center: [0, 0],
     zoom: 1,
   }),
-  
+
 })
 
 var mousePositionControl = new MousePosition({
@@ -426,7 +426,7 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         console.log("Inactive layers:", inactiveLayers)
         console.log("Trying to change list")
 
-} 
+}
 
 function deactivate_layer(layer_name) {
         layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palevioletred"
@@ -481,7 +481,7 @@ function swap_active_layers(old_index, new_index) {  // Move layer at old_index 
   // Reassign activeLayers array
 
   activeLayers = arrayMove(activeLayers, layer_target_old_index, layer_target_new_index)
-  if (old_index < new_index) {  // Corresponds to moving a layer down        
+  if (old_index < new_index) {  // Corresponds to moving a layer down
     // Remove layers from top to bottom
     map.getLayers().removeAt(layer_target_old_index);
     map.getLayers().removeAt(layer_target_new_index)
@@ -496,13 +496,13 @@ function swap_active_layers(old_index, new_index) {  // Move layer at old_index 
     // Set layers from bottom to top
     map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
     map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
-    
+
   }
 
   console.log("Active layers after swap:", activeLayers)
 
 }
-    
+
 
 }
 
@@ -593,7 +593,7 @@ var active_layers_sortable = new Sortable(active_layers_el, {
     }
     console.log(evt.to, evt.from)
 
-  
+
   //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
   //   evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
   //   evt.clone; // the clone element
@@ -795,7 +795,7 @@ opacitySlider.oninput = function() {
   if (renderOverlay) {
     layers[overlayLayerSelect.value].setOpacity(opacityValue);
   }
-} 
+}
 
 /**
  * Handle change event.
@@ -833,7 +833,7 @@ map.on('singleclick', async function (evt) {
   if (region.length > 0) {
     regiontext = region.join(', ');
   }
-  content.innerHTML = '<p>You clicked here:</p><code>' + hdms + 
+  content.innerHTML = '<p>You clicked here:</p><code>' + hdms +
   '</code><p>Region:</p><code>' + regiontext + '</code>';
 
   overlay.setPosition(coordinate);

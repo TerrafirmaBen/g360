@@ -49939,9 +49939,9 @@
 
     if (inactiveLayers.length > 0) {
       document.querySelector("#layer-pool-section").style.display = 'block';
-    }
+    } //document.querySelector("#tab-list").style.width = '20%';
 
-    document.querySelector("#tab-list").style.width = '20%';
+
     document.querySelector("#sidebar").style.width = "25%";
     document.querySelector("#map").style.width = "75%";
     document.querySelector('#map').style.marginLeft = "25%";
@@ -49949,9 +49949,9 @@
 
   function hide_sidebar() {
     document.querySelector("#active-layers-section").style.display = "none";
-    document.querySelector("#layer-pool-section").style.display = "none";
-    document.querySelector("#tab-list").style.width = '100%';
-    document.querySelector("#sidebar").style.width = "6%";
+    document.querySelector("#layer-pool-section").style.display = "none"; //document.querySelector("#tab-list").style.width = '100%';
+
+    document.querySelector("#sidebar").style.width = "100px";
     document.querySelector("#map").style.width = "100%";
     document.querySelector('#map').style.marginLeft = "0";
   }
@@ -50118,7 +50118,7 @@
       activeLayers = arrayMove(activeLayers, layer_target_old_index, layer_target_new_index);
 
       if (old_index < new_index) {
-        // Corresponds to moving a layer down        
+        // Corresponds to moving a layer down
         // Remove layers from top to bottom
         map.getLayers().removeAt(layer_target_old_index);
         map.getLayers().removeAt(layer_target_new_index); // Set layers from bottom to top
