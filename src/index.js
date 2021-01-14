@@ -278,7 +278,6 @@ layers['wkt_example'] = new VectorLayer( {
 
 var container = document.getElementById('popup');
 
-var sidebar_visible = false;
 
 var orientation;
 function viewport_orientation() {
@@ -292,26 +291,26 @@ function viewport_orientation() {
 }
 viewport_orientation();
 
+var sidebar_visible = false;
+var active_tab = "layer-select-tab";
+
 let open_sidebar_btn = document.querySelector(".open-sidebar");
 open_sidebar_btn.addEventListener("click", () => {
   if (sidebar_visible) {
     hide_sidebar(orientation);
-    sidebar_visible = false;
+    // sidebar_visible = false;
   } else {
     show_sidebar(orientation);
-    sidebar_visible = true;
+    // sidebar_visible = true;
   }
 });
 
 
 
 function show_sidebar(orientation) {
-  if (activeLayers.length > 1) {
-    document.querySelector("#active-layers-section").style.display = 'block';
-  }
-  if (inactiveLayers.length > 0) {
-    document.querySelector("#layer-pool-section").style.display = 'block';
-  }
+  // if (active_tab == "layer-select-tab") {
+  //     show_layer_select();
+  // };
 
   if (orientation == "landscape") {
     console.log(activeLayers.length, inactiveLayers.length)
@@ -325,12 +324,12 @@ function show_sidebar(orientation) {
     document.querySelector("#map").style.height = "75vh";
     //document.querySelector('#map').style.marginTop = "25vh";
   }
-
+  sidebar_visible = true;
   }
 
 function hide_sidebar(orientation) {
-  document.querySelector("#active-layers-section").style.display = "none";
-  document.querySelector("#layer-pool-section").style.display = "none";
+  // document.querySelector("#active-layers-section").style.display = "none";
+  // document.querySelector("#layer-pool-section").style.display = "none";
   //document.querySelector("#tab-list").style.width = '100%';
 
   if (orientation == "landscape") {
@@ -342,29 +341,48 @@ function hide_sidebar(orientation) {
     document.querySelector("#map").style.height = "100vh"
     //document.querySelector('#map').style.marginTop = "0vh";
   }
+  sidebar_visible = false;
 
 }
 
 let layers_btn = document.querySelector("#layer-select-tab");
 layers_btn.addEventListener("click", () => {
   show_layer_select();
-  if (!sidebar_visible) {
+  console.log(active_tab)
+  if (sidebar_visible && active_tab == "layer-select-tab") {
+    hide_sidebar(orientation);
+  } else {
+    active_tab = "layer-select-tab";
+    if (!sidebar_visible) {
     show_sidebar(orientation);
-    sidebar_visible = true;
+    }
   }
+  console.log(active_tab);
+
 });
 
 function show_layer_select() {
   document.querySelector("#layer-button-list").style.display = "inline-block";
+  if (activeLayers.length > 1) {
+    document.querySelector("#active-layers-section").style.display = 'block';
+  }
+  if (inactiveLayers.length > 0) {
+    document.querySelector("#layer-pool-section").style.display = 'block';
+  }
   document.querySelector("#settings").style.display = "none";
 };
+
 
 let settings_btn = document.querySelector("#settings-tab");
 settings_btn.addEventListener("click", () => {
   show_settings();
-  if (!sidebar_visible) {
-    show_sidebar(orientation);
-    sidebar_visible = true;
+  if (sidebar_visible && active_tab == "settings-tab") {
+    hide_sidebar(orientation);
+  } else {
+    active_tab = "settings-tab";
+    if (!sidebar_visible) {
+      show_sidebar(orientation);
+    }
   }
 });
 
@@ -437,9 +455,9 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "normal"
         var node = document.createElement("div");                 // Create a div
         node.setAttribute("id",layer_name+"_slider")
-        var textnode = document.createTextNode("Water");         // Create a filler text node
+        var textnode = document.createTextNode("[opacity slider]");         // Create a filler text node
         node.appendChild(textnode);
-        active_layers_el.prepend(node);
+        // active_layers_el.prepend(node);
         inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         console.log("Setting layer at:", layer_position)
         map.getLayers().setAt(layer_position, layers[layer_name]);
@@ -468,7 +486,7 @@ function deactivate_layer(layer_name) {
         console.log("Active layers:", activeLayers)
         console.log("Inactive layers:", inactiveLayers)
         layer_pool_el.append(layer_toggle_pool[layer_name])
-        active_layers_el.removeChild(document.getElementById(layer_name+"_slider"))
+        // active_layers_el.removeChild(document.getElementById(layer_name+"_slider"))
         if (activeLayers.length == 1) {
           document.querySelector("#active-layers-section").style.display = 'none';
         }
@@ -908,3 +926,6 @@ document.getElementById('export-png').addEventListener('click', function () {
   });
   map.renderSync();
 });
+
+
+show_layer_select();  // Run at startup as default tab is select-layers
