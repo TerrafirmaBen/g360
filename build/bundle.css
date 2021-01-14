@@ -116,19 +116,19 @@ body {
   #sidebar {
     z-index: 1;
     position: absolute;
-    /* top: 100px; */
     top: 0;
     left: 0;
-    /* display: none; */
     background-color: lightseagreen;
     color: black;
-    /* width: 25%; */
-
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: .7em;
     transition: 0.5s;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  .tab {
+    padding-left: 1em;
   }
 
   #tab-list {
@@ -153,7 +153,6 @@ body {
     display: inline-block;
     position: absolute;
     top: 80px;
-    padding-left: 1em;
   }
 
   #active-layers-section {
@@ -182,13 +181,6 @@ body {
     z-index: 2;
     position: absolute;
     top: 100px;
-    /* right: .5em; */
-    /* background-color: lightcoral; */
-    color: black;
-    /* width: 40%; */
-    /* height: 40%; */
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: .5em;
   }
 
 

@@ -47018,7 +47018,6 @@
   var layers_btn = document.querySelector("#layer-select-tab");
   layers_btn.addEventListener("click", function () {
     show_layer_select();
-    console.log(active_tab);
 
     if (sidebar_visible && active_tab == "layer-select-tab") {
       hide_sidebar(orientation);
@@ -47029,8 +47028,6 @@
         show_sidebar(orientation);
       }
     }
-
-    console.log(active_tab);
   });
 
   function show_layer_select() {
@@ -47127,18 +47124,19 @@
     var node = document.createElement("div"); // Create a div
 
     node.setAttribute("id", layer_name + "_slider");
+    var br = document.createElement("br");
+    node.appendChild(br);
     var textnode = document.createTextNode("[opacity slider]"); // Create a filler text node
 
     node.appendChild(textnode); // active_layers_el.prepend(node);
 
+    layer_toggle_pool[layer_name].append(node);
     inactiveLayers = inactiveLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
     });
     console.log("Setting layer at:", layer_position);
     map.getLayers().setAt(layer_position, layers[layer_name]);
-    activeLayers.push(layer_name); // activeLayers = activeLayers.slice(0, layer_position).concat([layer_name],
-    //                                                                 activeLayers.slice(layer_position,));
-
+    activeLayers.push(layer_name);
     active_layers_el.prepend(layer_toggle_pool[layer_name]);
     document.querySelector("#active-layers-section").style.display = 'block';
 
@@ -47149,6 +47147,7 @@
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
     console.log("Trying to change list");
+    console.log(activeLayers.length);
   }
 
   function deactivate_layer(layer_name) {
@@ -47162,7 +47161,8 @@
     });
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
-    layer_pool_el.append(layer_toggle_pool[layer_name]); // active_layers_el.removeChild(document.getElementById(layer_name+"_slider"))
+    layer_pool_el.append(layer_toggle_pool[layer_name]);
+    layer_toggle_pool[layer_name].removeChild(document.getElementById(layer_name + "_slider"));
 
     if (activeLayers.length == 1) {
       document.querySelector("#active-layers-section").style.display = 'none';
