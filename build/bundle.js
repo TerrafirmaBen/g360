@@ -47124,11 +47124,17 @@
     var node = document.createElement("div"); // Create a div
 
     node.setAttribute("id", layer_name + "_slider");
+    node.setAttribute("class", "slidecontainer");
     var br = document.createElement("br");
-    node.appendChild(br);
-    var textnode = document.createTextNode("[opacity slider]"); // Create a filler text node
+    node.appendChild(br); // <input type="range" min="0" max="100" value="100" class="slider" id="opacitySliderElement">
+    // var textnode = document.createTextNode("[opacity slider]");         // Create a filler text node
+    // node.appendChild(textnode);
 
-    node.appendChild(textnode); // active_layers_el.prepend(node);
+    var slider = document.createElement("input");
+    slider.setAttribute("type", "range");
+    slider.setAttribute("class", "slider");
+    slider.classList.remove('ol-unselectable');
+    node.appendChild(slider); // active_layers_el.prepend(node);
 
     layer_toggle_pool[layer_name].append(node);
     inactiveLayers = inactiveLayers.filter(function (certain_layer_name) {
@@ -47253,8 +47259,11 @@
     // easing: "cubic-bezier(1, 0, 0, 1)", // Easing for animation. Defaults to null. See https://easings.net/ for examples.
     // handle: ".my-handle", // Drag handle selector within list items
     // filter: ".ignore-elements", // Selectors that do not lead to dragging (String or Function)
+    // filter: ".slider",
+    // preventOnFilter: true,
     // preventOnFilter: true, // Call `event.preventDefault()` when triggered `filter`
     // draggable: ".item", // Specifies which items inside the element should be draggable
+    // draggable: ".layer-button",
     // dataIdAttr: "data-id",
     // ghostClass: "sortable-ghost", // Class name for the drop placeholder
     // chosenClass: "sortable-chosen", // Class name for the chosen item
@@ -47278,9 +47287,11 @@
     //   dataTransfer.setData("Text", dragEl.textContent); // `dataTransfer` object of HTML5 DragEvent
     // },
     // // Element is chosen
-    // onChoose: function (/**Event*/ evt) {
-    //   evt.oldIndex; // element index within parent
-    // },
+    onChoose: function onChoose(
+    /**Event*/
+    evt) {
+      console.log("elt chosen"); // deactivate_layer(activeLayers[evt.oldIndex + 1])
+    },
     // // Element is unchosen
     // onUnchoose: function (/**Event*/ evt) {
     //   // same properties as onEnd
@@ -47388,11 +47399,11 @@
     // },
 
   });
-  var baseLayerSelect = document.getElementById('base-layer');
-  var overlayLayerSelect = document.getElementById('overlay-layer');
-  var renderOverlayCheckbox = document.getElementById('render-overlay');
-  var renderOverlay = false;
-  var opacitySlider = document.getElementById("opacitySliderElement");
+  var baseLayerSelect = document.getElementById('base-layer'); // var overlayLayerSelect = document.getElementById('overlay-layer');
+  // var renderOverlayCheckbox = document.getElementById('render-overlay');
+  // var renderOverlay = false;
+  // var opacitySlider = document.getElementById("opacitySliderElement");
+
   var viewProjSelect = document.getElementById('view-projection');
   var renderEdgesCheckbox = document.getElementById('render-edges');
   var renderEdges = false;
@@ -47465,39 +47476,34 @@
   /**
    * Handle change event.
    */
-
-
-  overlayLayerSelect.onchange = function () {
-    var layer = layers[overlayLayerSelect.value];
-
-    if (layer && renderOverlay) {
-      layer.setOpacity(opacityValue);
-      updateRenderEdgesOnLayer(layer);
-      map.getLayers().setAt(1, layer);
-    }
-  };
-
-  renderOverlayCheckbox.onchange = function () {
-    renderOverlay = renderOverlayCheckbox.checked;
-
-    if (renderOverlay) {
-      var layer = layers[overlayLayerSelect.value];
-      map.getLayers().setAt(1, layer);
-      layer.setOpacity(opacityValue);
-    } else {
-      map.getLayers().removeAt(1);
-    }
-  }; // opacityDisplay.innerHTML = "Opacity: 1"
+  // overlayLayerSelect.onchange = function () {
+  //   var layer = layers[overlayLayerSelect.value];
+  //   if (layer && renderOverlay) {
+  //     layer.setOpacity(opacityValue);
+  //     updateRenderEdgesOnLayer(layer);
+  //     map.getLayers().setAt(1, layer);
+  //   }
+  // };
+  // renderOverlayCheckbox.onchange = function () {
+  //   renderOverlay = renderOverlayCheckbox.checked;
+  //   if (renderOverlay) {
+  //     var layer = layers[overlayLayerSelect.value]
+  //     map.getLayers().setAt(1, layer)
+  //     layer.setOpacity(opacityValue);
+  //   } else {
+  //     map.getLayers().removeAt(1);
+  //   }
+  // };
+  // opacityDisplay.innerHTML = "Opacity: 1"
   // Update the current slider value (each time you drag the slider handle)
+  // opacitySlider.oninput = function() {
+  //   opacityValue = this.value / 100;
+  //   // opacityDisplay.innerHTML = "Opacity: " + opacityValue;
+  //   if (renderOverlay) {
+  //     layers[overlayLayerSelect.value].setOpacity(opacityValue);
+  //   }
+  // }
 
-
-  opacitySlider.oninput = function () {
-    opacityValue = this.value / 100; // opacityDisplay.innerHTML = "Opacity: " + opacityValue;
-
-    if (renderOverlay) {
-      layers[overlayLayerSelect.value].setOpacity(opacityValue);
-    }
-  };
   /**
    * Handle change event.
    */
