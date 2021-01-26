@@ -47103,6 +47103,7 @@
   });
   var active_layers_el = document.getElementById("active-layers");
   var layer_pool_el = document.getElementById("layer-pool");
+  var layer_removed = false;
   var activeLayers = ['osm'];
   var inactiveLayers = ['eer', 'bng', 'wkt_example'];
   var regionLayerToggle = document.getElementById('region-layer-button');
@@ -47164,9 +47165,9 @@
     inactiveLayers.push(layer_name);
     activeLayers = activeLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
-    });
-    console.log("Active layers:", activeLayers);
-    console.log("Inactive layers:", inactiveLayers);
+    }); // console.log("Active layers:", activeLayers)
+    // console.log("Inactive layers:", inactiveLayers)
+
     layer_pool_el.append(layer_toggle_pool[layer_name]);
     layer_toggle_pool[layer_name].removeChild(document.getElementById(layer_name + "_slider"));
 
@@ -47178,7 +47179,7 @@
   }
 
   function assign_layer_toggle(layer_name) {
-    layer_toggle_pool[layer_name].onclick = function () {
+    layer_toggle_pool[layer_name].firstElementChild.onclick = function () {
       if (!activeLayers.includes(layer_name)) {
         console.log("Trying to activate", layer_name);
         activate_layer(layer_name);
@@ -47259,8 +47260,8 @@
     // easing: "cubic-bezier(1, 0, 0, 1)", // Easing for animation. Defaults to null. See https://easings.net/ for examples.
     // handle: ".my-handle", // Drag handle selector within list items
     // filter: ".ignore-elements", // Selectors that do not lead to dragging (String or Function)
-    // filter: ".slider",
-    // preventOnFilter: true,
+    filter: ".slidecontainer",
+    preventOnFilter: true,
     // preventOnFilter: true, // Call `event.preventDefault()` when triggered `filter`
     // draggable: ".item", // Specifies which items inside the element should be draggable
     // draggable: ".layer-button",
@@ -47287,11 +47288,11 @@
     //   dataTransfer.setData("Text", dragEl.textContent); // `dataTransfer` object of HTML5 DragEvent
     // },
     // // Element is chosen
-    onChoose: function onChoose(
-    /**Event*/
-    evt) {
-      console.log("elt chosen"); // deactivate_layer(activeLayers[evt.oldIndex + 1])
-    },
+    // onChoose: function (/**Event*/ evt) {
+    //   console.log("elt chosen");
+    //   deactivate_layer(activeLayers[evt.oldIndex + 1])
+    //   layer_removed = true;
+    // },
     // // Element is unchosen
     // onUnchoose: function (/**Event*/ evt) {
     //   // same properties as onEnd
@@ -47309,16 +47310,15 @@
       //   evt.from; // previous list
       //   evt.oldIndex; // element's old index within old parent
       //   evt.newIndex; // element's new index within new parent
-      console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-
-      if (evt.newIndex != evt.oldIndex) {
+      // console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
+      if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
         swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
-      }
-
-      console.log(evt.to, evt.from); //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
+      } // console.log(evt.to, evt.from)
+      //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
       //   evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
       //   evt.clone; // the clone element
       //   evt.pullMode; // when item is in another sortable: `"clone"` if cloning, `true` if moving
+
     },
     // // Element is dropped into the list from another list
     // onAdd: function (/**Event*/ evt) {
@@ -47336,7 +47336,8 @@
     onRemove: function onRemove(
     /**Event*/
     evt) {
-      if (evt.to != evt.from) {
+      if (evt.to != evt.from && !layer_removed) {
+        console.log("deactivating", activeLayers[evt.oldIndex + 1]);
         deactivate_layer(activeLayers[evt.oldIndex + 1]);
       } // same properties as onEnd
 
