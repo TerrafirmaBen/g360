@@ -28,9 +28,6 @@ const arrayMove = require('array-move');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 
-var opacityValue = 1;
-
-
 
 proj4.defs(
   'EPSG:27700',
@@ -448,7 +445,7 @@ var layer_toggle_pool = {'eer': regionLayerToggle,
 
 function activate_layer(layer_name,layer_position=activeLayers.length) {
         console.log("Active layers before:", activeLayers);
-        layers[layer_name].setOpacity(opacityValue);
+        layers[layer_name].setOpacity(1);
         updateRenderEdgesOnLayer(layers[layer_name]);
         layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen"
         layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "normal"
@@ -457,9 +454,6 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         node.setAttribute("class", "slidecontainer");
         var br = document.createElement("br");
         node.appendChild(br);
-        // <input type="range" min="0" max="100" value="100" class="slider" id="opacitySliderElement">
-        // var textnode = document.createTextNode("[opacity slider]");         // Create a filler text node
-        // node.appendChild(textnode);
         var slider = document.createElement("input");
         slider.setAttribute("type", "range");
         slider.setAttribute("class", "slider");
@@ -467,8 +461,10 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         slider.setAttribute("min", "0");
         slider.setAttribute("value", "100");
         slider.classList.remove('ol-unselectable');
+        slider.oninput = function() {
+          layers[layer_name].setOpacity(this.value/100);
+        };
         node.appendChild(slider);
-        // active_layers_el.prepend(node);
         layer_toggle_pool[layer_name].append(node);
         inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
         console.log("Setting layer at:", layer_position)

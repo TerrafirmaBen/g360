@@ -46773,9 +46773,9 @@
     return new Promise(function (res) {
       return setTimeout(res, ms);
     });
-  };
+  }; // var opacityValue = 1;
 
-  var opacityValue = 1;
+
   proj4.defs('EPSG:27700', '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' + '+x_0=400000 +y_0=-100000 +ellps=airy ' + '+towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 ' + '+units=m +no_defs');
   proj4.defs('EPSG:23032', '+proj=utm +zone=32 +ellps=intl ' + '+towgs84=-87,-98,-121,0,0,0,0 +units=m +no_defs');
   proj4.defs('EPSG:5479', '+proj=lcc +lat_1=-76.66666666666667 +lat_2=' + '-79.33333333333333 +lat_0=-78 +lon_0=163 +x_0=7000000 +y_0=5000000 ' + '+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
@@ -47117,7 +47117,7 @@
   function activate_layer(layer_name) {
     var layer_position = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : activeLayers.length;
     console.log("Active layers before:", activeLayers);
-    layers[layer_name].setOpacity(opacityValue);
+    layers[layer_name].setOpacity(1);
     updateRenderEdgesOnLayer(layers[layer_name]);
     layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen";
     layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "normal";
@@ -47126,10 +47126,7 @@
     node.setAttribute("id", layer_name + "_slider");
     node.setAttribute("class", "slidecontainer");
     var br = document.createElement("br");
-    node.appendChild(br); // <input type="range" min="0" max="100" value="100" class="slider" id="opacitySliderElement">
-    // var textnode = document.createTextNode("[opacity slider]");         // Create a filler text node
-    // node.appendChild(textnode);
-
+    node.appendChild(br);
     var slider = document.createElement("input");
     slider.setAttribute("type", "range");
     slider.setAttribute("class", "slider");
@@ -47137,8 +47134,12 @@
     slider.setAttribute("min", "0");
     slider.setAttribute("value", "100");
     slider.classList.remove('ol-unselectable');
-    node.appendChild(slider); // active_layers_el.prepend(node);
 
+    slider.oninput = function () {
+      layers[layer_name].setOpacity(this.value / 100);
+    };
+
+    node.appendChild(slider);
     layer_toggle_pool[layer_name].append(node);
     inactiveLayers = inactiveLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
@@ -47263,7 +47264,7 @@
     // handle: ".my-handle", // Drag handle selector within list items
     // filter: ".ignore-elements", // Selectors that do not lead to dragging (String or Function)
     filter: ".slider",
-    // preventOnFilter: true,
+    preventOnFilter: false,
     // preventOnFilter: true, // Call `event.preventDefault()` when triggered `filter`
     // draggable: ".item", // Specifies which items inside the element should be draggable
     // draggable: ".layer-button",
