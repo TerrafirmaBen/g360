@@ -743,7 +743,7 @@ var layer_pool_sortable = new Sortable(layer_pool_el, {
 })
 
 
-
+var locationSearch = document.getElementById('location-search');
 var baseLayerSelect = document.getElementById('base-layer');
 // var overlayLayerSelect = document.getElementById('overlay-layer');
 // var renderOverlayCheckbox = document.getElementById('render-overlay');
@@ -752,6 +752,15 @@ var baseLayerSelect = document.getElementById('base-layer');
 var viewProjSelect = document.getElementById('view-projection');
 var renderEdgesCheckbox = document.getElementById('render-edges');
 var renderEdges = false;
+
+locationSearch.onsubmit = function (event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  var json_string = JSON.stringify(Object.fromEntries(formData));
+  var parse = JSON.parse(json_string)
+  console.log(parse.searchterm);
+  document.getElementById('searchterm').value = "";
+}
 
 
 function updateViewProjection() {
@@ -772,6 +781,8 @@ function updateViewProjection() {
     layers['bng'].setExtent(undefined);
   }
 }
+
+
 
 /**
  * Handle change event.

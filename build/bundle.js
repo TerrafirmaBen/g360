@@ -47401,6 +47401,7 @@
     // },
 
   });
+  var locationSearch = document.getElementById('location-search');
   var baseLayerSelect = document.getElementById('base-layer'); // var overlayLayerSelect = document.getElementById('overlay-layer');
   // var renderOverlayCheckbox = document.getElementById('render-overlay');
   // var renderOverlay = false;
@@ -47409,6 +47410,15 @@
   var viewProjSelect = document.getElementById('view-projection');
   var renderEdgesCheckbox = document.getElementById('render-edges');
   var renderEdges = false;
+
+  locationSearch.onsubmit = function (event) {
+    event.preventDefault();
+    var formData = new FormData(event.target);
+    var json_string = JSON.stringify(Object.fromEntries(formData));
+    var parse = JSON.parse(json_string);
+    console.log(parse.searchterm);
+    document.getElementById('searchterm').value = "";
+  };
 
   function updateViewProjection() {
     var newProj = get$2(viewProjSelect.value);
