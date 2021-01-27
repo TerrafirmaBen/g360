@@ -47103,7 +47103,6 @@
   });
   var active_layers_el = document.getElementById("active-layers");
   var layer_pool_el = document.getElementById("layer-pool");
-  var layer_removed = false;
   var activeLayers = ['osm'];
   var inactiveLayers = ['eer', 'bng', 'wkt_example'];
   var regionLayerToggle = document.getElementById('region-layer-button');
@@ -47134,6 +47133,9 @@
     var slider = document.createElement("input");
     slider.setAttribute("type", "range");
     slider.setAttribute("class", "slider");
+    slider.setAttribute("max", "100");
+    slider.setAttribute("min", "0");
+    slider.setAttribute("value", "100");
     slider.classList.remove('ol-unselectable');
     node.appendChild(slider); // active_layers_el.prepend(node);
 
@@ -47179,7 +47181,7 @@
   }
 
   function assign_layer_toggle(layer_name) {
-    layer_toggle_pool[layer_name].onclick = function () {
+    layer_toggle_pool[layer_name].firstElementChild.onclick = function () {
       if (!activeLayers.includes(layer_name)) {
         console.log("Trying to activate", layer_name);
         activate_layer(layer_name);
@@ -47260,8 +47262,8 @@
     // easing: "cubic-bezier(1, 0, 0, 1)", // Easing for animation. Defaults to null. See https://easings.net/ for examples.
     // handle: ".my-handle", // Drag handle selector within list items
     // filter: ".ignore-elements", // Selectors that do not lead to dragging (String or Function)
-    filter: ".slidecontainer",
-    preventOnFilter: true,
+    filter: ".slider",
+    // preventOnFilter: true,
     // preventOnFilter: true, // Call `event.preventDefault()` when triggered `filter`
     // draggable: ".item", // Specifies which items inside the element should be draggable
     // draggable: ".layer-button",
@@ -47291,7 +47293,6 @@
     // onChoose: function (/**Event*/ evt) {
     //   console.log("elt chosen");
     //   deactivate_layer(activeLayers[evt.oldIndex + 1])
-    //   layer_removed = true;
     // },
     // // Element is unchosen
     // onUnchoose: function (/**Event*/ evt) {
@@ -47336,7 +47337,7 @@
     onRemove: function onRemove(
     /**Event*/
     evt) {
-      if (evt.to != evt.from && !layer_removed) {
+      if (evt.to != evt.from) {
         console.log("deactivating", activeLayers[evt.oldIndex + 1]);
         deactivate_layer(activeLayers[evt.oldIndex + 1]);
       } // same properties as onEnd

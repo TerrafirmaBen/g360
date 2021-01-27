@@ -463,6 +463,9 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         var slider = document.createElement("input");
         slider.setAttribute("type", "range");
         slider.setAttribute("class", "slider");
+        slider.setAttribute("max", "100");
+        slider.setAttribute("min", "0");
+        slider.setAttribute("value", "100");
         slider.classList.remove('ol-unselectable');
         node.appendChild(slider);
         // active_layers_el.prepend(node);
@@ -588,8 +591,8 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   // easing: "cubic-bezier(1, 0, 0, 1)", // Easing for animation. Defaults to null. See https://easings.net/ for examples.
   // handle: ".my-handle", // Drag handle selector within list items
   // filter: ".ignore-elements", // Selectors that do not lead to dragging (String or Function)
-  filter: ".slidecontainer",
-  preventOnFilter: true,
+  filter: ".slider",
+  preventOnFilter: false,
   // preventOnFilter: true, // Call `event.preventDefault()` when triggered `filter`
   // draggable: ".item", // Specifies which items inside the element should be draggable
   // draggable: ".layer-button",
