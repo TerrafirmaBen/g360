@@ -760,18 +760,21 @@ locationSearch.onsubmit = function (event) {
   var parse = JSON.parse(json_string)
   console.log(parse)
   console.log(parse.searchterm);
+  searchterm = parse.searchterm;
   var xhttp = new XMLHttpRequest(); 
   var test_url = 'https://nominatim.openstreetmap.org/search?q=17+Strada+Pictor+Alexandru+Romano%2C+Bukarest&format=geojson'
-  var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=BS84LZ'
+  var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=' + searchterm;
   xhttp.open("GET", api_url, false);
   xhttp.send(); 
 
   var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
-  var random_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
-  var random_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
-  console.log(random_x, random_y)
+  var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
+  var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
+  console.log(search_x, search_y)
 
-  
+  // var lonLat = new OpenLayers.LonLat(random_x,random_y).transform(epsg4326, proj27700);
+  map.getView().setZoom(15);
+  map.getView().setCenter([search_x, search_y]);  
 
   // var parsed_xhttp_response_test_url = JSON.parse(xhttp.responseText);
   // console.log(parsed_xhttp_response_test_url)
