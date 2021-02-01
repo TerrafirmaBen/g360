@@ -184,7 +184,18 @@ body {
     top: 100px;
   }
 
+  #mouse-position {
+    position: absolute;
+    bottom: 25px;
+    right: .5em;
+    width: 12%;
+    height: 4vh;
+    z-index: 2;
+    border-radius: 5px;
+    background-color: lightgreen;
+    overflow: hidden;
 
+  }
 
   #export-png {
     font-weight: bold;

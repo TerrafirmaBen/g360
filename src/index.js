@@ -411,7 +411,6 @@ var mousePositionControl = new MousePosition({
   projection: document.getElementById('view-projection').value,
   // comment the following two lines to have the mouse position
   // be placed within the map.
-  className: 'custom-mouse-position',
   target: document.getElementById('mouse-position'),
   undefinedHTML: '&nbsp;',
 });
@@ -773,7 +772,7 @@ locationSearch.onsubmit = function (event) {
   console.log(search_x, search_y)
 
   // var lonLat = new OpenLayers.LonLat(random_x,random_y).transform(epsg4326, proj27700);
-  map.getView().setZoom(15);
+  map.getView().setZoom(12);
   map.getView().setCenter([search_x, search_y]);  
 
   // var parsed_xhttp_response_test_url = JSON.parse(xhttp.responseText);
