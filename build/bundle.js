@@ -4883,20 +4883,6 @@
    * @module ol/string
    */
   /**
-   * @param {number} number Number to be formatted
-   * @param {number} width The desired width
-   * @param {number=} opt_precision Precision of the output string (i.e. number of decimal places)
-   * @returns {string} Formatted string
-   */
-  function padNumber(number, width, opt_precision) {
-      var numberString = opt_precision !== undefined ? number.toFixed(opt_precision) : '' + number;
-      var decimal = numberString.indexOf('.');
-      decimal = decimal === -1 ? numberString.length : decimal;
-      return decimal > width
-          ? numberString
-          : new Array(1 + width - decimal).join('0') + numberString;
-  }
-  /**
    * Adapted from https://github.com/omichelsen/compare-versions/blob/master/index.js
    * @param {string|number} v1 First version
    * @param {string|number} v2 Second version
@@ -4993,40 +4979,6 @@
       function (coordinate) {
           return toStringXY(coordinate, opt_fractionDigits);
       });
-  }
-  /**
-   * @param {string} hemispheres Hemispheres.
-   * @param {number} degrees Degrees.
-   * @param {number=} opt_fractionDigits The number of digits to include
-   *    after the decimal point. Default is `0`.
-   * @return {string} String.
-   */
-  function degreesToStringHDMS(hemispheres, degrees, opt_fractionDigits) {
-      var normalizedDegrees = modulo(degrees + 180, 360) - 180;
-      var x = Math.abs(3600 * normalizedDegrees);
-      var dflPrecision = opt_fractionDigits || 0;
-      var precision = Math.pow(10, dflPrecision);
-      var deg = Math.floor(x / 3600);
-      var min = Math.floor((x - deg * 3600) / 60);
-      var sec = x - deg * 3600 - min * 60;
-      sec = Math.ceil(sec * precision) / precision;
-      if (sec >= 60) {
-          sec = 0;
-          min += 1;
-      }
-      if (min >= 60) {
-          min = 0;
-          deg += 1;
-      }
-      return (deg +
-          '\u00b0 ' +
-          padNumber(min, 2) +
-          '\u2032 ' +
-          padNumber(sec, 2, dflPrecision) +
-          '\u2033' +
-          (normalizedDegrees == 0
-              ? ''
-              : ' ' + hemispheres.charAt(normalizedDegrees < 0 ? 1 : 0)));
   }
   /**
    * Transforms the given {@link module:ol/coordinate~Coordinate} to a string
@@ -5132,42 +5084,6 @@
       coordinate[0] *= scale;
       coordinate[1] *= scale;
       return coordinate;
-  }
-  /**
-   * Format a geographic coordinate with the hemisphere, degrees, minutes, and
-   * seconds.
-   *
-   * Example without specifying fractional digits:
-   *
-   *     import {toStringHDMS} from 'ol/coordinate';
-   *
-   *     var coord = [7.85, 47.983333];
-   *     var out = toStringHDMS(coord);
-   *     // out is now '47° 58′ 60″ N 7° 50′ 60″ E'
-   *
-   * Example explicitly specifying 1 fractional digit:
-   *
-   *     import {toStringHDMS} from 'ol/coordinate';
-   *
-   *     var coord = [7.85, 47.983333];
-   *     var out = toStringHDMS(coord, 1);
-   *     // out is now '47° 58′ 60.0″ N 7° 50′ 60.0″ E'
-   *
-   * @param {Coordinate} coordinate Coordinate.
-   * @param {number=} opt_fractionDigits The number of digits to include
-   *    after the decimal point. Default is `0`.
-   * @return {string} Hemisphere, degrees, minutes and seconds.
-   * @api
-   */
-  function toStringHDMS(coordinate, opt_fractionDigits) {
-      if (coordinate) {
-          return (degreesToStringHDMS('NS', coordinate[1], opt_fractionDigits) +
-              ' ' +
-              degreesToStringHDMS('EW', coordinate[0], opt_fractionDigits));
-      }
-      else {
-          return '';
-      }
   }
   /**
    * Format a coordinate as a comma delimited string.
@@ -5478,23 +5394,6 @@
       var destProj = get$2(destination);
       add$1(sourceProj, destProj, createTransformFromCoordinateTransform(forward));
       add$1(destProj, sourceProj, createTransformFromCoordinateTransform(inverse));
-  }
-  /**
-   * Transforms a coordinate to longitude/latitude.
-   * @param {import("./coordinate.js").Coordinate} coordinate Projected coordinate.
-   * @param {ProjectionLike=} opt_projection Projection of the coordinate.
-   *     The default is Web Mercator, i.e. 'EPSG:3857'.
-   * @return {import("./coordinate.js").Coordinate} Coordinate as longitude and latitude, i.e. an array
-   *     with longitude as 1st and latitude as 2nd element.
-   * @api
-   */
-  function toLonLat(coordinate, opt_projection) {
-      var lonLat = transform(coordinate, opt_projection !== undefined ? opt_projection : 'EPSG:3857', 'EPSG:4326');
-      var lon = lonLat[0];
-      if (lon < -180 || lon > 180) {
-          lonLat[0] = modulo(lon + 180, 360) - 180;
-      }
-      return lonLat;
   }
   /**
    * Checks if two projections are the same, that is every coordinate in one
@@ -47418,20 +47317,28 @@
     console.log(parse);
     console.log(parse.searchterm);
     searchterm = parse.searchterm;
-    var xhttp = new XMLHttpRequest();
-    var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=' + searchterm;
-    xhttp.open("GET", api_url, false);
-    xhttp.send();
-    var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
-    var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
-    var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
-    console.log(search_x, search_y); // var lonLat = new OpenLayers.LonLat(random_x,random_y).transform(epsg4326, proj27700);
 
-    map.getView().setZoom(12);
-    map.getView().setCenter([search_x, search_y]); // var parsed_xhttp_response_test_url = JSON.parse(xhttp.responseText);
+    if (searchterm.length < 9) {
+      var xhttp = new XMLHttpRequest();
+      var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=' + searchterm;
+      xhttp.open("GET", api_url, true);
+      xhttp.send();
+      var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
+      var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
+      var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
+      console.log(search_x, search_y); // var lonLat = new OpenLayers.LonLat(random_x,random_y).transform(epsg4326, proj27700);
+
+      map.getView().setZoom(12);
+      map.getView().setCenter([search_x, search_y]);
+    } else {
+      var split = searchterm.split(", ");
+      map.getView().setZoom(12);
+      map.getView().setCenter([split[0], split[1]]);
+    } // var parsed_xhttp_response_test_url = JSON.parse(xhttp.responseText);
     // console.log(parsed_xhttp_response_test_url)
     // console.log(parsed_xhttp_response_test_url.features)
     // console.log(parsed_xhttp_response_test_url.features[0].geometry.coordinates)
+
 
     document.getElementById('searchterm').value = "";
   };
@@ -47563,11 +47470,13 @@
           switch (_context.prev = _context.next) {
             case 0:
               coordinate = evt.coordinate;
-              hdms = toStringHDMS(toLonLat(coordinate));
-              _context.next = 4;
+              console.log(coordinate); // var hdms = toStringHDMS(toLonLat(coordinate));
+
+              hdms = createStringXY(2)(coordinate);
+              _context.next = 5;
               return sleep(1);
 
-            case 4:
+            case 5:
               region = select.getFeatures().getArray().map(function (feature) {
                 return feature.get('EER13NM');
               });
@@ -47580,7 +47489,7 @@
               content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code><p>Region:</p><code>' + regiontext + '</code>';
               overlay.setPosition(coordinate);
 
-            case 9:
+            case 10:
             case "end":
               return _context.stop();
           }
