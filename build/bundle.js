@@ -47326,11 +47326,9 @@
       xhttp.send();
 
       xhttp.onreadystatechange = function () {
-        console.log(xhttp.responseText);
         var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
         var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
         var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
-        console.log(search_x, search_y);
         map.getView().setZoom(12);
         map.getView().setCenter([search_x, search_y]);
       };

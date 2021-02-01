@@ -771,13 +771,13 @@ locationSearch.onsubmit = function (event) {
     var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
     var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
     var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
-    map.getView().setZoom(12);
+    map.getView().setZoom(11);
     map.getView().setCenter([search_x, search_y]);  
   }
   
   } else {
     var split = searchterm.split(", ")
-    map.getView().setZoom(12);
+    map.getView().setZoom(11);
     map.getView().setCenter([split[0], split[1]]);  
   }
   
