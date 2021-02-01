@@ -764,28 +764,31 @@ locationSearch.onsubmit = function (event) {
   var xhttp = new XMLHttpRequest(); 
   var test_url = 'https://nominatim.openstreetmap.org/search?q=17+Strada+Pictor+Alexandru+Romano%2C+Bukarest&format=geojson'
   var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=' + searchterm;
+  console.log(api_url)
   xhttp.open("GET", api_url, true);
   xhttp.send(); 
-
-  var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
-  var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
-  var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
-  console.log(search_x, search_y)
-
-  // var lonLat = new OpenLayers.LonLat(random_x,random_y).transform(epsg4326, proj27700);
-  map.getView().setZoom(12);
-  map.getView().setCenter([search_x, search_y]);  
+  xhttp.onreadystatechange = function() {
+    var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
+    var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
+    var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
+    map.getView().setZoom(12);
+    map.getView().setCenter([search_x, search_y]);  
+  }
+  
   } else {
     var split = searchterm.split(", ")
     map.getView().setZoom(12);
     map.getView().setCenter([split[0], split[1]]);  
   }
+  
+  document.getElementById('searchterm').value = "";
+  closer_func()
+  // var lonLat = new OpenLayers.LonLat(random_x,random_y).transform(epsg4326, proj27700);
   // var parsed_xhttp_response_test_url = JSON.parse(xhttp.responseText);
   // console.log(parsed_xhttp_response_test_url)
   // console.log(parsed_xhttp_response_test_url.features)
   // console.log(parsed_xhttp_response_test_url.features[0].geometry.coordinates)
   
-  document.getElementById('searchterm').value = "";
 }
 
 
@@ -908,10 +911,14 @@ renderEdgesCheckbox.onchange = function () {
 var content = document.getElementById('popup-content');
 var closer = document.getElementById('popup-closer');
 
-closer.onclick = function () {
+function closer_func () {
   overlay.setPosition(undefined);
   closer.blur();
   return false;
+}
+
+closer.onclick = function () {
+  closer_func()
 };
 
 
