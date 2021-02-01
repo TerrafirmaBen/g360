@@ -47005,10 +47005,12 @@
   var regionLayerToggle = document.getElementById('region-layer-button');
   var bngLayerToggle = document.getElementById('bng-layer-button');
   var wktLayerToggle = document.getElementById('wkt-layer-button');
+  var ngrmLayerToggle = document.getElementById('ngrm-layer-button');
   var layer_toggle_pool = {
     'eer': regionLayerToggle,
     'bng': bngLayerToggle,
-    'wkt_example': wktLayerToggle
+    'wkt_example': wktLayerToggle,
+    'tf': ngrmLayerToggle
   };
 
   function activate_layer(layer_name) {
@@ -47329,12 +47331,12 @@
         var parsed_xhttp_response_api_url = JSON.parse(xhttp.responseText);
         var search_x = parsed_xhttp_response_api_url.x_coordinate[0][0];
         var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
-        map.getView().setZoom(12);
+        map.getView().setZoom(11);
         map.getView().setCenter([search_x, search_y]);
       };
     } else {
       var split = searchterm.split(", ");
-      map.getView().setZoom(12);
+      map.getView().setZoom(11);
       map.getView().setCenter([split[0], split[1]]);
     }
 

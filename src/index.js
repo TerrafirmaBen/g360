@@ -437,10 +437,12 @@ var inactiveLayers = ['eer', 'bng', 'wkt_example'];
 var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
 var wktLayerToggle = document.getElementById('wkt-layer-button')
+var ngrmLayerToggle = document.getElementById('ngrm-layer-button')
 
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle,
-                          'wkt_example': wktLayerToggle}
+                          'wkt_example': wktLayerToggle,
+                        'tf': ngrmLayerToggle}
 
 function activate_layer(layer_name,layer_position=activeLayers.length) {
         console.log("Active layers before:", activeLayers);
