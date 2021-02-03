@@ -13,7 +13,7 @@ import {get as getProjection, toLonLat} from 'ol/proj';
 import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
 import {createStringXY, toStringHDMS} from 'ol/coordinate';
-import {OverviewMap, FullScreen, Control, defaults as defaultControls, Attribution} from 'ol/control';
+import {OverviewMap, FullScreen, Control, ScaleLine, defaults as defaultControls, Attribution} from 'ol/control';
 import {Fill, Stroke, Circle} from 'ol/style';
 import {Vector as VectorLayer} from 'ol/layer';
 import {Vector as VectorSource} from 'ol/source';
@@ -415,8 +415,12 @@ var mousePositionControl = new MousePosition({
   undefinedHTML: '&nbsp;',
 });
 
+var scaleline = new ScaleLine({
+  target: document.getElementById("scaleline-id"),
+});
+
 var map = new Map({
-  controls: [new Attribution(), mousePositionControl],
+  controls: [new Attribution(), mousePositionControl, scaleline],
   layers: [layers['osm']],  // Start with just initial OSM basemap
   overlays: [overlay],
   target: 'map',
@@ -929,10 +933,10 @@ map.addInteraction(select);
 
 map.on('singleclick', async function (evt) {
   var coordinate = evt.coordinate;
-  console.log(coordinate)
   // var hdms = toStringHDMS(toLonLat(coordinate));
   var hdms = createStringXY(2)(coordinate)
   await sleep(1);
+  console.log()
 
   var region = select.getFeatures().getArray().map(function (feature) {
     return feature.get('EER13NM');
