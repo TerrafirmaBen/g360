@@ -47227,21 +47227,22 @@
       projection: 'EPSG:3857'
     })
   });
+  var ngrmwmssource = new TileWMS({
+    url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+    attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+    params: {
+      'FORMAT': 'image/png',
+      'VERSION': '1.3.0',
+      'LAYERS': 'terrafirma:tf_lr_haz',
+      'exceptions': 'application/vnd.ogc.se_inimage',
+      tiled: true,
+      tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+    },
+    serverType: 'geoserver',
+    projection: 'EPSG:27700'
+  });
   layers['tf'] = new TileLayer({
-    source: new TileWMS({
-      url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
-      attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
-      params: {
-        'FORMAT': 'image/png',
-        'VERSION': '1.3.0',
-        'LAYERS': 'terrafirma:tf_lr_haz',
-        'exceptions': 'application/vnd.ogc.se_inimage',
-        tiled: true,
-        tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
-      },
-      serverType: 'geoserver',
-      projection: 'EPSG:27700'
-    }),
+    source: ngrmwmssource,
     title: 'LR Haz NGRM ol tile set',
     minZoom: 9.5
   });
@@ -47440,7 +47441,8 @@
     target: document.getElementById("scaleline-id")
   });
   var map = new Map({
-    controls: [new Attribution(), mousePositionControl, scaleline],
+    controls: [new Attribution({// target: document.getElementById("attribution"),
+    }), mousePositionControl, scaleline],
     layers: [layers['osm']],
     // Start with just initial OSM basemap
     overlays: [overlay],
@@ -47924,9 +47926,10 @@
 
   var select = new Select();
   map.addInteraction(select);
+  var return_html = '';
   map.on('singleclick', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(evt) {
-      var coordinate, hdms, region, regiontext;
+      var coordinate, hdms, region, regiontext, viewResolution, mapproj, url;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -47948,10 +47951,41 @@
                 regiontext = region.join(', ');
               }
 
-              content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code><p>Region:</p><code>' + regiontext + '</code>';
+              viewResolution =
+              /** @type {number} */
+              map.getView().getResolution();
+              mapproj = document.getElementById('view-projection').value;
+              url = ngrmwmssource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
+                'INFO_FORMAT': 'text/html',
+                'FEATURE_COUNT': '6'
+              }); // var xhttp = new XMLHttpRequest(); 
+              // xhttp.open("GET", url, true);
+              // xhttp.send(); 
+              // xhttp.onreadystatechange = function(response) {
+              //   return response.text(); })
+              //   .then(function (html) {
+              //     console.log(html)
+              //     return_html = html;
+              //   });
+
+              if (url) {
+                fetch(url).then(function (response) {
+                  return response.text();
+                }).then(function (html) {
+                  console.log(html);
+                  return_html = html;
+                });
+              }
+
+              _context.next = 14;
+              return sleep(1);
+
+            case 14:
+              console.log("return_html", return_html);
+              content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code><p>Region:</p><code>' + regiontext + '</code>' + return_html;
               overlay.setPosition(coordinate);
 
-            case 10:
+            case 17:
             case "end":
               return _context.stop();
           }
