@@ -47911,7 +47911,7 @@
     });
   };
 
-  var content = document.getElementById('popup-content');
+  var popup_content = document.getElementById('popup-content');
   var closer = document.getElementById('popup-closer');
 
   function closer_func() {
@@ -47926,71 +47926,139 @@
 
   var select = new Select();
   map.addInteraction(select);
-  var return_html = '';
   map.on('singleclick', /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(evt) {
-      var coordinate, hdms, region, regiontext, viewResolution, mapproj, url;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(evt) {
+      var coordinate, hdms, getRegionText, getNGRMTable, _getNGRMTable, content_html, popup_html, NGRM_table;
+
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
+              _getNGRMTable = function _getNGRMTable3() {
+                _getNGRMTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                  var viewResolution, mapproj, html_return, url;
+                  return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          viewResolution =
+                          /** @type {number} */
+                          map.getView().getResolution();
+                          mapproj = document.getElementById('view-projection').value;
+                          html_return = ""; // const asyncExample = async () => {
+                          //   const result = await axios(users)
+                          //   return result
+                          // }
+
+                          html_return = ""; // var url = async() => {ngrmwmssource.getFeatureInfoUrl(
+                          //   evt.coordinate, viewResolution, mapproj,
+                          //   {
+                          //     'INFO_FORMAT': 'text/html',
+                          //     'FEATURE_COUNT': '6'
+                          //   });}
+
+                          url = ngrmwmssource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
+                            'INFO_FORMAT': 'text/html',
+                            'FEATURE_COUNT': '6'
+                          });
+                          _context.next = 7;
+                          return fetch(url).then(function (response) {
+                            return response.text();
+                          }).then(function (htmlres) {
+                            console.log(url);
+                            html_return = htmlres;
+                          });
+
+                        case 7:
+                          //  fetch(url)
+                          //     .then(function (response) { return response.text(); })
+                          //     .then(function (html) {
+                          //       console.log(url)
+                          //       html_return = html
+                          //     });
+                          console.log(html_return != ""); // console.log(html_return)
+
+                          return _context.abrupt("return", Promise.resolve(html_return));
+
+                        case 9:
+                        case "end":
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee);
+                }));
+                return _getNGRMTable.apply(this, arguments);
+              };
+
+              getNGRMTable = function _getNGRMTable2() {
+                return _getNGRMTable.apply(this, arguments);
+              };
+
+              getRegionText = function _getRegionText() {
+                var region = select.getFeatures().getArray().map(function (feature) {
+                  return feature.get('EER13NM');
+                });
+                var regiontext = 'Region: No electoral region selected';
+
+                if (region.length > 0) {
+                  regiontext = 'Region: ' + region.join(', ');
+                }
+
+                return regiontext;
+              };
+
               coordinate = evt.coordinate; // var hdms = toStringHDMS(toLonLat(coordinate));
 
               hdms = createStringXY(2)(coordinate);
-              _context.next = 4;
+              _context2.next = 7;
               return sleep(1);
 
-            case 4:
-              console.log();
-              region = select.getFeatures().getArray().map(function (feature) {
-                return feature.get('EER13NM');
-              });
-              regiontext = 'No electoral region selected';
+            case 7:
+              content_html = '';
+              console.log(activeLayers);
 
-              if (region.length > 0) {
-                regiontext = region.join(', ');
-              }
+              if (activeLayers.includes("eer")) {
+                content_html = content_html + getRegionText();
+              } // const messagePromise = new Promise((resolve, reject) => {
+              //   // Wait for 0.5s
+              //   setTimeout(() => {
+              //     // Resolve the promise
+              //     resolve('There will be dragons.')
+              //   }, 500)
+              // })
+              // // Invoke messagePromise and wait until it is resolved
+              // // Once it is resolved assign the resolved promise to a variable
+              // const messageResult = await messagePromise
+              // var content_html =  '<p>Region: ' + regiontext + '</p>' + 
+              //                 ngrm_return_html;
 
-              viewResolution =
-              /** @type {number} */
-              map.getView().getResolution();
-              mapproj = document.getElementById('view-projection').value;
-              url = ngrmwmssource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                'INFO_FORMAT': 'text/html',
-                'FEATURE_COUNT': '6'
-              }); // var xhttp = new XMLHttpRequest(); 
-              // xhttp.open("GET", url, true);
-              // xhttp.send(); 
-              // xhttp.onreadystatechange = function(response) {
-              //   return response.text(); })
-              //   .then(function (html) {
-              //     console.log(html)
-              //     return_html = html;
-              //   });
 
-              if (url) {
-                fetch(url).then(function (response) {
-                  return response.text();
-                }).then(function (html) {
-                  console.log(html);
-                  return_html = html;
-                });
-              }
-
-              _context.next = 14;
-              return sleep(1);
-
-            case 14:
-              console.log("return_html", return_html);
-              content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code><p>Region:</p><code>' + regiontext + '</code>' + return_html;
+              popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
+              popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-            case 17:
+              if (!activeLayers.includes("tf")) {
+                _context2.next = 20;
+                break;
+              }
+
+              _context2.next = 16;
+              return getNGRMTable();
+
+            case 16:
+              NGRM_table = _context2.sent;
+              closer_func();
+              popup_content.innerHTML = popup_html + NGRM_table; // content.innerHTML = content.innerHTML + NGRM_table;
+              // console.log(popup_content.innerHTML)
+
+              overlay.setPosition(coordinate);
+
+            case 20:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
         }
-      }, _callee);
+      }, _callee2);
     }));
 
     return function (_x) {

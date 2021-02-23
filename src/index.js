@@ -917,7 +917,7 @@ renderEdgesCheckbox.onchange = function () {
 };
 
 
-var content = document.getElementById('popup-content');
+var popup_content = document.getElementById('popup-content');
 var closer = document.getElementById('popup-closer');
 
 function closer_func () {
@@ -933,41 +933,115 @@ closer.onclick = function () {
 
 var select = new Select();
 map.addInteraction(select);
-var return_html = ''
+var ngrm_return_html = ''
 map.on('singleclick', async function (evt) {
   var coordinate = evt.coordinate;
   // var hdms = toStringHDMS(toLonLat(coordinate));
   var hdms = createStringXY(2)(coordinate)
   await sleep(1);
-  console.log()
 
-  var region = select.getFeatures().getArray().map(function (feature) {
-    return feature.get('EER13NM');
-  });
-  var regiontext = 'No electoral region selected';
-  if (region.length > 0) {
-    regiontext = region.join(', ');
-  }
-  var viewResolution = /** @type {number} */ (map.getView().getResolution());
-  var mapproj = document.getElementById('view-projection').value
-  var url = ngrmwmssource.getFeatureInfoUrl(
-    evt.coordinate, viewResolution, mapproj,
-    {'INFO_FORMAT': 'text/html',
-     'FEATURE_COUNT': '6'});
-  if (url) {
-    fetch(url)
-      .then(function (response) { return response.text(); })
-      .then(function (html) {
-        console.log(html)
-        return_html = html;
-      });
-  }
-  await sleep(1);
-  console.log("return_html", return_html)
-  content.innerHTML = '<p>You clicked here:</p><code>' + hdms +
-  '</code><p>Region:</p><code>' + regiontext + '</code>' + return_html;
 
+
+  // eer layer
+  function getRegionText () {
+    var region = select.getFeatures().getArray().map(function (feature) {
+      return feature.get('EER13NM');
+    });
+    var regiontext = 'Region: No electoral region selected';
+    if (region.length > 0) {
+      regiontext = 'Region: ' + region.join(', ');
+    }
+    return regiontext
+  }
+  
+
+  // ngrm layer
+  async function getNGRMTable() {
+    var viewResolution = /** @type {number} */ (map.getView().getResolution());
+    var mapproj = document.getElementById('view-projection').value
+    var html_return = "";
+
+    // const asyncExample = async () => {
+    //   const result = await axios(users)
+    
+    //   return result
+    // }
+    
+    var html_return = ""
+    // var url = async() => {ngrmwmssource.getFeatureInfoUrl(
+    //   evt.coordinate, viewResolution, mapproj,
+    //   {
+    //     'INFO_FORMAT': 'text/html',
+    //     'FEATURE_COUNT': '6'
+    //   });}
+
+      var url = ngrmwmssource.getFeatureInfoUrl(
+        evt.coordinate, viewResolution, mapproj,
+        {
+          'INFO_FORMAT': 'text/html',
+          'FEATURE_COUNT': '6'
+        })
+      
+        await fetch(url)
+        .then(function (response) { return response.text(); })
+        .then(function (htmlres) {
+          console.log(url)
+          html_return = htmlres
+        });
+    
+    //  fetch(url)
+    //     .then(function (response) { return response.text(); })
+    //     .then(function (html) {
+    //       console.log(url)
+    //       html_return = html
+    //     });
+      console.log(html_return != "")
+      // console.log(html_return)
+      return (Promise.resolve(html_return))
+    // }
+    // return html_return
+  }
+  
+
+  var content_html = ''
+
+  console.log(activeLayers)
+  if (activeLayers.includes("eer")) {
+    content_html = content_html + getRegionText();
+  }
+  
+  
+  // const messagePromise = new Promise((resolve, reject) => {
+  //   // Wait for 0.5s
+  //   setTimeout(() => {
+  //     // Resolve the promise
+  //     resolve('There will be dragons.')
+  //   }, 500)
+  // })
+
+  // // Invoke messagePromise and wait until it is resolved
+  // // Once it is resolved assign the resolved promise to a variable
+  // const messageResult = await messagePromise
+
+
+  
+  // var content_html =  '<p>Region: ' + regiontext + '</p>' + 
+  //                 ngrm_return_html;
+  var popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
+  popup_content.innerHTML = popup_html;
   overlay.setPosition(coordinate);
+
+  if (activeLayers.includes("tf")) {
+    // content_html = content_html + getNGRMTable();
+    
+    var NGRM_table = await getNGRMTable();
+    closer_func()
+    popup_content.innerHTML = popup_html + NGRM_table;
+    // content.innerHTML = content.innerHTML + NGRM_table;
+    // console.log(popup_content.innerHTML)
+    overlay.setPosition(coordinate);
+
+  }
 });
 
 document.getElementById('export-png').addEventListener('click', function () {
