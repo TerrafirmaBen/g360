@@ -39,6 +39,80 @@
     };
   }
 
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it;
+
+    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+
+        var F = function () {};
+
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+
+    var normalCompletion = true,
+        didErr = false,
+        err;
+    return {
+      s: function () {
+        it = o[Symbol.iterator]();
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
+  }
+
   /**
    * @module ol/Disposable
    */
@@ -26865,56 +26939,4 @@
       /**
        * @return {import("./ImageState.js").default} State.
        */
-      ImageBase.prototype.getState = function () {
-          return this.state;
-      };
-      /**
-       * Load not yet loaded URI.
-       * @abstract
-       */
-      ImageBase.prototype.load = function () {
-          abstract();
-      };
-      return ImageBase;
-  }(Target));
-
-  var __extends$_ = (undefined && undefined.__extends) || (function () {
-      var extendStatics = function (d, b) {
-          extendStatics = Object.setPrototypeOf ||
-              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-              function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-          return extendStatics(d, b);
-      };
-      return function (d, b) {
-          extendStatics(d, b);
-          function __() { this.constructor = d; }
-          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-      };
-  })();
-  /**
-   * A function that takes an {@link module:ol/Image~Image} for the image and a
-   * `{string}` for the src as arguments. It is supposed to make it so the
-   * underlying image {@link module:ol/Image~Image#getImage} is assigned the
-   * content specified by the src. If not specified, the default is
-   *
-   *     function(image, src) {
-   *       image.getImage().src = src;
-   *     }
-   *
-   * Providing a custom `imageLoadFunction` can be useful to load images with
-   * post requests or - in general - through XHR requests, where the src of the
-   * image element would be set to a data URI when the content is loaded.
-   *
-   * @typedef {function(ImageWrapper, string): void} LoadFunction
-   * @api
-   */
-  var ImageWrapper = /** @class */ (function (_super) {
-      __extends$_(ImageWrapper, _super);
-      /**
-       * @param {import("./extent.js").Extent} extent Extent.
-       * @param {number|undefined} resolution Resolution.
-       * @param {number} pixelRatio Pixel ratio.
-       * @param {string} src Image source URI.
-       * @param {?string} crossOrigin Cross origin.
-       * @param {LoadFunction} imageLoadFunction Image load function.
-       
+      ImageBase.prototype.getState = f

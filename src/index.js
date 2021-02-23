@@ -757,8 +757,6 @@ locationSearch.onsubmit = function (event) {
   const formData = new FormData(event.target);
   var json_string = JSON.stringify(Object.fromEntries(formData));
   var parse = JSON.parse(json_string)
-  console.log(parse)
-  console.log(parse.searchterm);
   searchterm = parse.searchterm;
   if (searchterm.length < 9) {
   var xhttp = new XMLHttpRequest(); 
@@ -896,10 +894,10 @@ map.on('singleclick', async function (evt) {
   var hdms = createStringXY(2)(coordinate)
   await sleep(1);
 
-
+  // Define functions for each layer here
 
   // eer layer
-  function getRegionText () {
+  async function getRegionText () {
     var region = select.getFeatures().getArray().map(function (feature) {
       return feature.get('EER13NM');
     });
@@ -907,7 +905,7 @@ map.on('singleclick', async function (evt) {
     if (region.length > 0) {
       regiontext = 'Region: ' + region.join(', ');
     }
-    return regiontext
+    return(Promise.resolve(regiontext))
   }
   
 
@@ -916,8 +914,6 @@ map.on('singleclick', async function (evt) {
     var viewResolution = /** @type {number} */ (map.getView().getResolution());
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
-    
-    var html_return = ""
     // Forces to wait for url to be received
       var url = ngrmwmssource.getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
@@ -925,30 +921,27 @@ map.on('singleclick', async function (evt) {
           'INFO_FORMAT': 'text/html',
           'FEATURE_COUNT': '6'
         })
-      
-        await fetch(url)
+      await fetch(url)
         .then(function (response) { return response.text(); })
         .then(function (htmlres) {
-          console.log(url)
           html_return = htmlres
         });
-    
-      console.log(html_return != "")
       // Returns promise that resolves to NGRM table
       return (Promise.resolve(html_return))
+  }
+
+  const layer_function_dict = {eer: function() {return getRegionText();},
+      tf: function () {return getNGRMTable();}
   }
   
 
   var content_html = ''
 
-  console.log(activeLayers)
-  if (activeLayers.includes("eer")) {
-    content_html = content_html + getRegionText();
+for (const layer_name of activeLayers.reverse()) {
+  if (Object.keys(layer_function_dict).includes(layer_name)) {
+    content_html = content_html + await layer_function_dict[layer_name]();
   }
-  if (activeLayers.includes("tf")) {
-    var NGRM_table = await getNGRMTable();
-    content_html = content_html + NGRM_table;
-  }
+}
   var popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
   popup_content.innerHTML = popup_html;
   overlay.setPosition(coordinate);

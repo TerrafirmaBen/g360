@@ -39,6 +39,80 @@
     };
   }
 
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it;
+
+    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+
+        var F = function () {};
+
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+
+    var normalCompletion = true,
+        didErr = false,
+        err;
+    return {
+      s: function () {
+        it = o[Symbol.iterator]();
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
+  }
+
   /**
    * @module ol/Disposable
    */
@@ -47762,8 +47836,6 @@
     var formData = new FormData(event.target);
     var json_string = JSON.stringify(Object.fromEntries(formData));
     var parse = JSON.parse(json_string);
-    console.log(parse);
-    console.log(parse.searchterm);
     searchterm = parse.searchterm;
 
     if (searchterm.length < 9) {
@@ -47887,50 +47959,46 @@
   var select = new Select();
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(evt) {
-      var coordinate, hdms, getRegionText, getNGRMTable, _getNGRMTable, content_html, NGRM_table, popup_html;
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(evt) {
+      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, layer_function_dict, content_html, _iterator, _step, layer_name, popup_html;
 
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
               _getNGRMTable = function _getNGRMTable3() {
-                _getNGRMTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                _getNGRMTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
                   var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee$(_context) {
+                  return regeneratorRuntime.wrap(function _callee2$(_context2) {
                     while (1) {
-                      switch (_context.prev = _context.next) {
+                      switch (_context2.prev = _context2.next) {
                         case 0:
                           viewResolution =
                           /** @type {number} */
                           map.getView().getResolution();
                           mapproj = document.getElementById('view-projection').value;
-                          html_return = "";
                           html_return = ""; // Forces to wait for url to be received
 
                           url = ngrmwmssource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
                             'INFO_FORMAT': 'text/html',
                             'FEATURE_COUNT': '6'
                           });
-                          _context.next = 7;
+                          _context2.next = 6;
                           return fetch(url).then(function (response) {
                             return response.text();
                           }).then(function (htmlres) {
-                            console.log(url);
                             html_return = htmlres;
                           });
 
+                        case 6:
+                          return _context2.abrupt("return", Promise.resolve(html_return));
+
                         case 7:
-                          console.log(html_return != ""); // Returns promise that resolves to NGRM table
-
-                          return _context.abrupt("return", Promise.resolve(html_return));
-
-                        case 9:
                         case "end":
-                          return _context.stop();
+                          return _context2.stop();
                       }
                     }
-                  }, _callee);
+                  }, _callee2);
                 }));
                 return _getNGRMTable.apply(this, arguments);
               };
@@ -47939,56 +48007,112 @@
                 return _getNGRMTable.apply(this, arguments);
               };
 
-              getRegionText = function _getRegionText() {
-                var region = select.getFeatures().getArray().map(function (feature) {
-                  return feature.get('EER13NM');
-                });
-                var regiontext = 'Region: No electoral region selected';
+              _getRegionText = function _getRegionText3() {
+                _getRegionText = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                  var region, regiontext;
+                  return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          region = select.getFeatures().getArray().map(function (feature) {
+                            return feature.get('EER13NM');
+                          });
+                          regiontext = 'Region: No electoral region selected';
 
-                if (region.length > 0) {
-                  regiontext = 'Region: ' + region.join(', ');
-                }
+                          if (region.length > 0) {
+                            regiontext = 'Region: ' + region.join(', ');
+                          }
 
-                return regiontext;
+                          return _context.abrupt("return", Promise.resolve(regiontext));
+
+                        case 4:
+                        case "end":
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee);
+                }));
+                return _getRegionText.apply(this, arguments);
+              };
+
+              getRegionText = function _getRegionText2() {
+                return _getRegionText.apply(this, arguments);
               };
 
               coordinate = evt.coordinate; // var hdms = toStringHDMS(toLonLat(coordinate));
 
               hdms = createStringXY(2)(coordinate);
-              _context2.next = 7;
+              _context3.next = 8;
               return sleep(1);
 
-            case 7:
+            case 8:
+              layer_function_dict = {
+                eer: function eer() {
+                  return getRegionText();
+                },
+                tf: function tf() {
+                  return getNGRMTable();
+                }
+              };
               content_html = '';
-              console.log(activeLayers);
+              _iterator = _createForOfIteratorHelper(activeLayers.reverse());
+              _context3.prev = 11;
 
-              if (activeLayers.includes("eer")) {
-                content_html = content_html + getRegionText();
-              }
+              _iterator.s();
 
-              if (!activeLayers.includes("tf")) {
-                _context2.next = 15;
+            case 13:
+              if ((_step = _iterator.n()).done) {
+                _context3.next = 23;
                 break;
               }
 
-              _context2.next = 13;
-              return getNGRMTable();
+              layer_name = _step.value;
 
-            case 13:
-              NGRM_table = _context2.sent;
-              content_html = content_html + NGRM_table;
+              if (!Object.keys(layer_function_dict).includes(layer_name)) {
+                _context3.next = 21;
+                break;
+              }
 
-            case 15:
+              _context3.t0 = content_html;
+              _context3.next = 19;
+              return layer_function_dict[layer_name]();
+
+            case 19:
+              _context3.t1 = _context3.sent;
+              content_html = _context3.t0 + _context3.t1;
+
+            case 21:
+              _context3.next = 13;
+              break;
+
+            case 23:
+              _context3.next = 28;
+              break;
+
+            case 25:
+              _context3.prev = 25;
+              _context3.t2 = _context3["catch"](11);
+
+              _iterator.e(_context3.t2);
+
+            case 28:
+              _context3.prev = 28;
+
+              _iterator.f();
+
+              return _context3.finish(28);
+
+            case 31:
               popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
               popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-            case 18:
+            case 34:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
         }
-      }, _callee2);
+      }, _callee3, null, [[11, 25, 28, 31]]);
     }));
 
     return function (_x) {
