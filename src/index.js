@@ -13,7 +13,7 @@ import {get as getProjection, toLonLat} from 'ol/proj';
 import {register} from 'ol/proj/proj4';
 import MousePosition from 'ol/control/MousePosition';
 import {createStringXY, toStringHDMS} from 'ol/coordinate';
-import {OverviewMap, FullScreen, Control, ScaleLine, defaults as defaultControls, Attribution} from 'ol/control';
+import {OverviewMap,  ScaleLine, Attribution} from 'ol/control';
 import {Fill, Stroke, Circle} from 'ol/style';
 import {Vector as VectorLayer} from 'ol/layer';
 import {Vector as VectorSource} from 'ol/source';
@@ -305,9 +305,6 @@ open_sidebar_btn.addEventListener("click", () => {
 
 
 function show_sidebar(orientation) {
-  // if (active_tab == "layer-select-tab") {
-  //     show_layer_select();
-  // };
 
   if (orientation == "landscape") {
     console.log(activeLayers.length, inactiveLayers.length)
@@ -498,8 +495,6 @@ function deactivate_layer(layer_name) {
         map.getLayers().removeAt(activeLayers.indexOf(layer_name));
         inactiveLayers.push(layer_name)
         activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
-        // console.log("Active layers:", activeLayers)
-        // console.log("Inactive layers:", inactiveLayers)
         layer_pool_el.append(layer_toggle_pool[layer_name])
         layer_toggle_pool[layer_name].removeChild(document.getElementById(layer_name+"_slider"))
         if (activeLayers.length == 1) {
@@ -753,10 +748,6 @@ var layer_pool_sortable = new Sortable(layer_pool_el, {
 
 var locationSearch = document.getElementById('location-search');
 var baseLayerSelect = document.getElementById('base-layer');
-// var overlayLayerSelect = document.getElementById('overlay-layer');
-// var renderOverlayCheckbox = document.getElementById('render-overlay');
-// var renderOverlay = false;
-// var opacitySlider = document.getElementById("opacitySliderElement");
 var viewProjSelect = document.getElementById('view-projection');
 var renderEdgesCheckbox = document.getElementById('render-edges');
 var renderEdges = false;
@@ -874,41 +865,6 @@ baseLayerSelect.onchange = function () {
 /**
  * Handle change event.
  */
-// overlayLayerSelect.onchange = function () {
-//   var layer = layers[overlayLayerSelect.value];
-//   if (layer && renderOverlay) {
-//     layer.setOpacity(opacityValue);
-//     updateRenderEdgesOnLayer(layer);
-//     map.getLayers().setAt(1, layer);
-//   }
-// };
-
-// renderOverlayCheckbox.onchange = function () {
-//   renderOverlay = renderOverlayCheckbox.checked;
-//   if (renderOverlay) {
-//     var layer = layers[overlayLayerSelect.value]
-//     map.getLayers().setAt(1, layer)
-//     layer.setOpacity(opacityValue);
-//   } else {
-//     map.getLayers().removeAt(1);
-//   }
-// };
-
-
-// opacityDisplay.innerHTML = "Opacity: 1"
-
-// Update the current slider value (each time you drag the slider handle)
-// opacitySlider.oninput = function() {
-//   opacityValue = this.value / 100;
-//   // opacityDisplay.innerHTML = "Opacity: " + opacityValue;
-//   if (renderOverlay) {
-//     layers[overlayLayerSelect.value].setOpacity(opacityValue);
-//   }
-// }
-
-/**
- * Handle change event.
- */
 renderEdgesCheckbox.onchange = function () {
   renderEdges = renderEdgesCheckbox.checked;
   map.getLayers().forEach(function (layer) {
@@ -960,22 +916,10 @@ map.on('singleclick', async function (evt) {
     var viewResolution = /** @type {number} */ (map.getView().getResolution());
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
-
-    // const asyncExample = async () => {
-    //   const result = await axios(users)
-    
-    //   return result
-    // }
     
     var html_return = ""
-    // var url = async() => {ngrmwmssource.getFeatureInfoUrl(
-    //   evt.coordinate, viewResolution, mapproj,
-    //   {
-    //     'INFO_FORMAT': 'text/html',
-    //     'FEATURE_COUNT': '6'
-    //   });}
-
-      var url = ngrmwmssource.getFeatureInfoUrl(
+    // Forces to wait for url to be received
+      var url = ngrmwmssource.getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -990,6 +934,7 @@ map.on('singleclick', async function (evt) {
         });
     
       console.log(html_return != "")
+      // Returns promise that resolves to NGRM table
       return (Promise.resolve(html_return))
   }
   
@@ -1000,15 +945,6 @@ map.on('singleclick', async function (evt) {
   if (activeLayers.includes("eer")) {
     content_html = content_html + getRegionText();
   }
-
-  // // Invoke messagePromise and wait until it is resolved
-  // // Once it is resolved assign the resolved promise to a variable
-  // const messageResult = await messagePromise
-
-
-  
-  // var content_html =  '<p>Region: ' + regiontext + '</p>' + 
-  //                 ngrm_return_html;
   if (activeLayers.includes("tf")) {
     var NGRM_table = await getNGRMTable();
     content_html = content_html + NGRM_table;

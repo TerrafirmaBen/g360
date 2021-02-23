@@ -47331,9 +47331,6 @@
   });
 
   function show_sidebar(orientation) {
-    // if (active_tab == "layer-select-tab") {
-    //     show_layer_select();
-    // };
     if (orientation == "landscape") {
       console.log(activeLayers.length, inactiveLayers.length); //document.querySelector("#tab-list").style.width = '20%';
 
@@ -47522,9 +47519,7 @@
     inactiveLayers.push(layer_name);
     activeLayers = activeLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
-    }); // console.log("Active layers:", activeLayers)
-    // console.log("Inactive layers:", inactiveLayers)
-
+    });
     layer_pool_el.append(layer_toggle_pool[layer_name]);
     layer_toggle_pool[layer_name].removeChild(document.getElementById(layer_name + "_slider"));
 
@@ -47757,11 +47752,7 @@
 
   });
   var locationSearch = document.getElementById('location-search');
-  var baseLayerSelect = document.getElementById('base-layer'); // var overlayLayerSelect = document.getElementById('overlay-layer');
-  // var renderOverlayCheckbox = document.getElementById('render-overlay');
-  // var renderOverlay = false;
-  // var opacitySlider = document.getElementById("opacitySliderElement");
-
+  var baseLayerSelect = document.getElementById('base-layer');
   var viewProjSelect = document.getElementById('view-projection');
   var renderEdgesCheckbox = document.getElementById('render-edges');
   var renderEdges = false;
@@ -47871,37 +47862,6 @@
   /**
    * Handle change event.
    */
-  // overlayLayerSelect.onchange = function () {
-  //   var layer = layers[overlayLayerSelect.value];
-  //   if (layer && renderOverlay) {
-  //     layer.setOpacity(opacityValue);
-  //     updateRenderEdgesOnLayer(layer);
-  //     map.getLayers().setAt(1, layer);
-  //   }
-  // };
-  // renderOverlayCheckbox.onchange = function () {
-  //   renderOverlay = renderOverlayCheckbox.checked;
-  //   if (renderOverlay) {
-  //     var layer = layers[overlayLayerSelect.value]
-  //     map.getLayers().setAt(1, layer)
-  //     layer.setOpacity(opacityValue);
-  //   } else {
-  //     map.getLayers().removeAt(1);
-  //   }
-  // };
-  // opacityDisplay.innerHTML = "Opacity: 1"
-  // Update the current slider value (each time you drag the slider handle)
-  // opacitySlider.oninput = function() {
-  //   opacityValue = this.value / 100;
-  //   // opacityDisplay.innerHTML = "Opacity: " + opacityValue;
-  //   if (renderOverlay) {
-  //     layers[overlayLayerSelect.value].setOpacity(opacityValue);
-  //   }
-  // }
-
-  /**
-   * Handle change event.
-   */
 
 
   renderEdgesCheckbox.onchange = function () {
@@ -47945,17 +47905,8 @@
                           /** @type {number} */
                           map.getView().getResolution();
                           mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // const asyncExample = async () => {
-                          //   const result = await axios(users)
-                          //   return result
-                          // }
-
-                          html_return = ""; // var url = async() => {ngrmwmssource.getFeatureInfoUrl(
-                          //   evt.coordinate, viewResolution, mapproj,
-                          //   {
-                          //     'INFO_FORMAT': 'text/html',
-                          //     'FEATURE_COUNT': '6'
-                          //   });}
+                          html_return = "";
+                          html_return = ""; // Forces to wait for url to be received
 
                           url = ngrmwmssource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
                             'INFO_FORMAT': 'text/html',
@@ -47970,7 +47921,8 @@
                           });
 
                         case 7:
-                          console.log(html_return != "");
+                          console.log(html_return != ""); // Returns promise that resolves to NGRM table
+
                           return _context.abrupt("return", Promise.resolve(html_return));
 
                         case 9:
@@ -48012,12 +47964,7 @@
 
               if (activeLayers.includes("eer")) {
                 content_html = content_html + getRegionText();
-              } // // Invoke messagePromise and wait until it is resolved
-              // // Once it is resolved assign the resolved promise to a variable
-              // const messageResult = await messagePromise
-              // var content_html =  '<p>Region: ' + regiontext + '</p>' + 
-              //                 ngrm_return_html;
-
+              }
 
               if (!activeLayers.includes("tf")) {
                 _context2.next = 15;
