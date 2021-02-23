@@ -47928,7 +47928,7 @@
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(evt) {
-      var coordinate, hdms, getRegionText, getNGRMTable, _getNGRMTable, content_html, popup_html, NGRM_table;
+      var coordinate, hdms, getRegionText, getNGRMTable, _getNGRMTable, content_html, NGRM_table, popup_html;
 
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
@@ -47970,14 +47970,7 @@
                           });
 
                         case 7:
-                          //  fetch(url)
-                          //     .then(function (response) { return response.text(); })
-                          //     .then(function (html) {
-                          //       console.log(url)
-                          //       html_return = html
-                          //     });
-                          console.log(html_return != ""); // console.log(html_return)
-
+                          console.log(html_return != "");
                           return _context.abrupt("return", Promise.resolve(html_return));
 
                         case 9:
@@ -48019,41 +48012,31 @@
 
               if (activeLayers.includes("eer")) {
                 content_html = content_html + getRegionText();
-              } // const messagePromise = new Promise((resolve, reject) => {
-              //   // Wait for 0.5s
-              //   setTimeout(() => {
-              //     // Resolve the promise
-              //     resolve('There will be dragons.')
-              //   }, 500)
-              // })
-              // // Invoke messagePromise and wait until it is resolved
+              } // // Invoke messagePromise and wait until it is resolved
               // // Once it is resolved assign the resolved promise to a variable
               // const messageResult = await messagePromise
               // var content_html =  '<p>Region: ' + regiontext + '</p>' + 
               //                 ngrm_return_html;
 
 
+              if (!activeLayers.includes("tf")) {
+                _context2.next = 15;
+                break;
+              }
+
+              _context2.next = 13;
+              return getNGRMTable();
+
+            case 13:
+              NGRM_table = _context2.sent;
+              content_html = content_html + NGRM_table;
+
+            case 15:
               popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
               popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-              if (!activeLayers.includes("tf")) {
-                _context2.next = 20;
-                break;
-              }
-
-              _context2.next = 16;
-              return getNGRMTable();
-
-            case 16:
-              NGRM_table = _context2.sent;
-              closer_func();
-              popup_content.innerHTML = popup_html + NGRM_table; // content.innerHTML = content.innerHTML + NGRM_table;
-              // console.log(popup_content.innerHTML)
-
-              overlay.setPosition(coordinate);
-
-            case 20:
+            case 18:
             case "end":
               return _context2.stop();
           }

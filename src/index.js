@@ -989,17 +989,8 @@ map.on('singleclick', async function (evt) {
           html_return = htmlres
         });
     
-    //  fetch(url)
-    //     .then(function (response) { return response.text(); })
-    //     .then(function (html) {
-    //       console.log(url)
-    //       html_return = html
-    //     });
       console.log(html_return != "")
-      // console.log(html_return)
       return (Promise.resolve(html_return))
-    // }
-    // return html_return
   }
   
 
@@ -1009,15 +1000,6 @@ map.on('singleclick', async function (evt) {
   if (activeLayers.includes("eer")) {
     content_html = content_html + getRegionText();
   }
-  
-  
-  // const messagePromise = new Promise((resolve, reject) => {
-  //   // Wait for 0.5s
-  //   setTimeout(() => {
-  //     // Resolve the promise
-  //     resolve('There will be dragons.')
-  //   }, 500)
-  // })
 
   // // Invoke messagePromise and wait until it is resolved
   // // Once it is resolved assign the resolved promise to a variable
@@ -1027,21 +1009,16 @@ map.on('singleclick', async function (evt) {
   
   // var content_html =  '<p>Region: ' + regiontext + '</p>' + 
   //                 ngrm_return_html;
+  if (activeLayers.includes("tf")) {
+    var NGRM_table = await getNGRMTable();
+    content_html = content_html + NGRM_table;
+  }
   var popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
   popup_content.innerHTML = popup_html;
   overlay.setPosition(coordinate);
 
-  if (activeLayers.includes("tf")) {
-    // content_html = content_html + getNGRMTable();
-    
-    var NGRM_table = await getNGRMTable();
-    closer_func()
-    popup_content.innerHTML = popup_html + NGRM_table;
-    // content.innerHTML = content.innerHTML + NGRM_table;
-    // console.log(popup_content.innerHTML)
-    overlay.setPosition(coordinate);
-
-  }
+  
+  
 });
 
 document.getElementById('export-png').addEventListener('click', function () {
