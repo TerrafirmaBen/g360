@@ -47960,7 +47960,7 @@
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(evt) {
-      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, layer_function_dict, content_html, _iterator, _step, layer_name, popup_html;
+      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, layer_function_dict, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
 
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
@@ -48055,12 +48055,14 @@
                 }
               };
               content_html = '';
-              _iterator = _createForOfIteratorHelper(activeLayers.reverse());
-              _context3.prev = 11;
+              content_dict = {};
+              activeLayers.reverse();
+              _iterator = _createForOfIteratorHelper(activeLayers);
+              _context3.prev = 13;
 
               _iterator.s();
 
-            case 13:
+            case 15:
               if ((_step = _iterator.n()).done) {
                 _context3.next = 23;
                 break;
@@ -48073,16 +48075,14 @@
                 break;
               }
 
-              _context3.t0 = content_html;
-              _context3.next = 19;
+              _context3.next = 20;
               return layer_function_dict[layer_name]();
 
-            case 19:
-              _context3.t1 = _context3.sent;
-              content_html = _context3.t0 + _context3.t1;
+            case 20:
+              content_dict[layer_name] = _context3.sent;
 
             case 21:
-              _context3.next = 13;
+              _context3.next = 15;
               break;
 
             case 23:
@@ -48091,9 +48091,9 @@
 
             case 25:
               _context3.prev = 25;
-              _context3.t2 = _context3["catch"](11);
+              _context3.t0 = _context3["catch"](13);
 
-              _iterator.e(_context3.t2);
+              _iterator.e(_context3.t0);
 
             case 28:
               _context3.prev = 28;
@@ -48103,16 +48103,36 @@
               return _context3.finish(28);
 
             case 31:
+              // await sleep(5);
+              // For ensuring layers are presented in correct order
+              _iterator2 = _createForOfIteratorHelper(activeLayers);
+
+              try {
+                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                  _layer_name = _step2.value;
+                  console.log(_layer_name);
+
+                  if (Object.keys(content_dict).includes(_layer_name)) {
+                    content_html = content_html + content_dict[_layer_name];
+                  }
+                }
+              } catch (err) {
+                _iterator2.e(err);
+              } finally {
+                _iterator2.f();
+              }
+
+              activeLayers.reverse();
               popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
               popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-            case 34:
+            case 37:
             case "end":
               return _context3.stop();
           }
         }
-      }, _callee3, null, [[11, 25, 28, 31]]);
+      }, _callee3, null, [[13, 25, 28, 31]]);
     }));
 
     return function (_x) {

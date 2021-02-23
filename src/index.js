@@ -936,12 +936,21 @@ map.on('singleclick', async function (evt) {
   
 
   var content_html = ''
-
-for (const layer_name of activeLayers.reverse()) {
+  var content_dict = {}
+activeLayers.reverse()
+for (const layer_name of activeLayers) {
   if (Object.keys(layer_function_dict).includes(layer_name)) {
-    content_html = content_html + await layer_function_dict[layer_name]();
+    content_dict[layer_name] = await layer_function_dict[layer_name]()
   }
 }
+// For ensuring layers are presented in correct order
+for (const layer_name of activeLayers) {
+  console.log(layer_name)
+  if (Object.keys(content_dict).includes(layer_name)) {
+    content_html = content_html + content_dict[layer_name];
+  }
+}
+activeLayers.reverse()
   var popup_html = '<p>Location: ' + hdms + '</p>' + content_html;
   popup_content.innerHTML = popup_html;
   overlay.setPosition(coordinate);
