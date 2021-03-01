@@ -481,8 +481,10 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         var node = document.createElement("div");                 // Create a div
         node.setAttribute("id",layer_name+"_slider")
         node.setAttribute("class", "slidecontainer");
+        node.style.paddingTop = "5px";
         var br = document.createElement("br");
         node.appendChild(br);
+        
         var slider = document.createElement("input");
         slider.setAttribute("type", "range");
         slider.setAttribute("class", "slider");

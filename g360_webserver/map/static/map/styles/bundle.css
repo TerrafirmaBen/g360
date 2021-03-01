@@ -21,7 +21,7 @@ body {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
     width: 70%; /* Full-width */
-    height: 25px; /* Specified height */
+    height: 15px; /* Specified height */
     background: #d3d3d3; /* Grey background */
     outline: none; /* Remove outline */
     opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
@@ -38,15 +38,15 @@ body {
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
     appearance: none;
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
+    width: 18px; /* Set a specific slider handle width */
+    height: 18px; /* Slider handle height */
     background: #4CAF50; /* Green background */
     cursor: pointer; /* Cursor on hover */
   }
 
   .slider::-moz-range-thumb {
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
+    width: 18px; /* Set a specific slider handle width */
+    height: 18px; /* Slider handle height */
     background: #4CAF50; /* Green background */
     cursor: pointer; /* Cursor on hover */
   }
@@ -63,8 +63,6 @@ body {
     min-width: 280px;
     max-width: 400px;
     max-height: 350px;
-    /* width: 300px; */
-    /* height: 300px; */
     overflow-x: auto;
     overflow-y: auto;
     cursor:default;
@@ -94,8 +92,8 @@ body {
   .ol-popup-closer {
     text-decoration: none;
     position: absolute;
-    top: 2px;
-    right: 8px;
+    top: 5px;
+    right: 15px;
   }
   .ol-popup-closer:after {
     content: "✖";
