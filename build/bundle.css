@@ -61,6 +61,12 @@ body {
     bottom: 12px;
     left: -50px;
     min-width: 280px;
+    max-width: 400px;
+    max-height: 350px;
+    /* width: 300px; */
+    /* height: 300px; */
+    overflow-x: auto;
+    overflow-y: auto;
     cursor:default;
   }
   .ol-popup:after, .ol-popup:before {

@@ -47980,13 +47980,54 @@
   var select = new Select();
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(evt) {
-      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, layer_function_dict, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(evt) {
+      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, getMiningPointTable, _getMiningPointTable, layer_function_dict, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
 
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
+              _getMiningPointTable = function _getMiningPointTable3() {
+                _getMiningPointTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+                  var viewResolution, mapproj, html_return, url;
+                  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                    while (1) {
+                      switch (_context3.prev = _context3.next) {
+                        case 0:
+                          viewResolution =
+                          /** @type {number} */
+                          map.getView().getResolution();
+                          mapproj = document.getElementById('view-projection').value;
+                          html_return = ""; // Forces to wait for url to be received
+
+                          url = miningpointsource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
+                            'INFO_FORMAT': 'text/html',
+                            'FEATURE_COUNT': '6'
+                          });
+                          _context3.next = 6;
+                          return fetch(url).then(function (response) {
+                            return response.text();
+                          }).then(function (htmlres) {
+                            html_return = htmlres;
+                          });
+
+                        case 6:
+                          return _context3.abrupt("return", Promise.resolve(html_return));
+
+                        case 7:
+                        case "end":
+                          return _context3.stop();
+                      }
+                    }
+                  }, _callee3);
+                }));
+                return _getMiningPointTable.apply(this, arguments);
+              };
+
+              getMiningPointTable = function _getMiningPointTable2() {
+                return _getMiningPointTable.apply(this, arguments);
+              };
+
               _getNGRMTable = function _getNGRMTable3() {
                 _getNGRMTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
                   var viewResolution, mapproj, html_return, url;
@@ -48063,67 +48104,70 @@
               coordinate = evt.coordinate; // var hdms = toStringHDMS(toLonLat(coordinate));
 
               hdms = createStringXY(2)(coordinate);
-              _context3.next = 8;
+              _context4.next = 10;
               return sleep(1);
 
-            case 8:
+            case 10:
               layer_function_dict = {
                 eer: function eer() {
                   return getRegionText();
                 },
                 tf: function tf() {
                   return getNGRMTable();
+                },
+                tf_miningpoint: function tf_miningpoint() {
+                  return getMiningPointTable();
                 }
               };
               content_html = '';
               content_dict = {};
               activeLayers.reverse();
               _iterator = _createForOfIteratorHelper(activeLayers);
-              _context3.prev = 13;
+              _context4.prev = 15;
 
               _iterator.s();
 
-            case 15:
+            case 17:
               if ((_step = _iterator.n()).done) {
-                _context3.next = 23;
+                _context4.next = 25;
                 break;
               }
 
               layer_name = _step.value;
 
               if (!Object.keys(layer_function_dict).includes(layer_name)) {
-                _context3.next = 21;
+                _context4.next = 23;
                 break;
               }
 
-              _context3.next = 20;
+              _context4.next = 22;
               return layer_function_dict[layer_name]();
 
-            case 20:
-              content_dict[layer_name] = _context3.sent;
-
-            case 21:
-              _context3.next = 15;
-              break;
+            case 22:
+              content_dict[layer_name] = _context4.sent;
 
             case 23:
-              _context3.next = 28;
+              _context4.next = 17;
               break;
 
             case 25:
-              _context3.prev = 25;
-              _context3.t0 = _context3["catch"](13);
+              _context4.next = 30;
+              break;
 
-              _iterator.e(_context3.t0);
+            case 27:
+              _context4.prev = 27;
+              _context4.t0 = _context4["catch"](15);
 
-            case 28:
-              _context3.prev = 28;
+              _iterator.e(_context4.t0);
+
+            case 30:
+              _context4.prev = 30;
 
               _iterator.f();
 
-              return _context3.finish(28);
+              return _context4.finish(30);
 
-            case 31:
+            case 33:
               // For ensuring layers are presented in correct order
               _iterator2 = _createForOfIteratorHelper(activeLayers);
 
@@ -48146,12 +48190,12 @@
               popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-            case 37:
+            case 39:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
         }
-      }, _callee3, null, [[13, 25, 28, 31]]);
+      }, _callee4, null, [[15, 27, 30, 33]]);
     }));
 
     return function (_x) {

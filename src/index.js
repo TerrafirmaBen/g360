@@ -954,8 +954,30 @@ map.on('singleclick', async function (evt) {
       return (Promise.resolve(html_return))
   }
 
-  const layer_function_dict = {eer: function() {return getRegionText();},
-      tf: function () {return getNGRMTable();}
+  async function getMiningPointTable() {
+    var viewResolution = /** @type {number} */ (map.getView().getResolution());
+    var mapproj = document.getElementById('view-projection').value
+    var html_return = "";
+    // Forces to wait for url to be received
+      var url = miningpointsource.getFeatureInfoUrl( 
+        evt.coordinate, viewResolution, mapproj,
+        {
+          'INFO_FORMAT': 'text/html',
+          'FEATURE_COUNT': '6'
+        })
+      await fetch(url)
+        .then(function (response) { return response.text(); })
+        .then(function (htmlres) {
+          html_return = htmlres
+        });
+      // Returns promise that resolves to NGRM table
+      return (Promise.resolve(html_return))
+  }
+
+  const layer_function_dict = {
+      eer: function() {return getRegionText();},
+      tf: function () {return getNGRMTable();},
+      tf_miningpoint: function () {return getMiningPointTable();},
   }
   
 
