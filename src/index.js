@@ -205,6 +205,28 @@ layers['tf'] = new TileLayer({
   minZoom: 9.5
 });
 
+
+let miningpointsource = new TileWMS({
+  url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+  attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+  params: {
+    'FORMAT': 'image/png',
+    'VERSION': '1.3.0',
+    'LAYERS': 'terrafirma:tf_miningpoint',
+    'exceptions': 'application/vnd.ogc.se_inimage',
+    tiled: true,
+    tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+  },
+  serverType: 'geoserver',
+  projection: 'EPSG:27700',
+});
+layers['tf_miningpoint'] = new TileLayer({
+  source: miningpointsource,
+  title: 'Mining point data',
+  minZoom: 6
+});
+
+
 var fillStyle = new Fill({
   color: [255, 0, 0, 0.1]
 });
@@ -442,11 +464,13 @@ var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
 var wktLayerToggle = document.getElementById('wkt-layer-button')
 var ngrmLayerToggle = document.getElementById('ngrm-layer-button')
+var miningpointLayerToggle = document.getElementById('miningpoint-layer-button')
 
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle,
                           'wkt_example': wktLayerToggle,
-                        'tf': ngrmLayerToggle}
+                        'tf': ngrmLayerToggle,
+                      'tf_miningpoint': miningpointLayerToggle}
 
 function activate_layer(layer_name,layer_position=activeLayers.length) {
         console.log("Active layers before:", activeLayers);
@@ -945,7 +969,6 @@ for (const layer_name of activeLayers) {
 }
 // For ensuring layers are presented in correct order
 for (const layer_name of activeLayers) {
-  console.log(layer_name)
   if (Object.keys(content_dict).includes(layer_name)) {
     content_html = content_html + content_dict[layer_name];
   }
