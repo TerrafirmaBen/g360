@@ -47358,6 +47358,25 @@
     title: 'Mining point coal data',
     minZoom: 6
   });
+  var miningpolysource = new TileWMS({
+    url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+    attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+    params: {
+      'FORMAT': 'image/png',
+      'VERSION': '1.3.0',
+      'LAYERS': 'terrafirma:tf_miningpoly',
+      'exceptions': 'application/vnd.ogc.se_inimage',
+      tiled: true,
+      tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+    },
+    serverType: 'geoserver',
+    projection: 'EPSG:27700'
+  });
+  layers['tf_miningpoly'] = new TileLayer({
+    source: miningpolysource,
+    title: 'Mining poly data',
+    minZoom: 6
+  });
   var fillStyle = new Fill({
     color: [255, 0, 0, 0.1]
   });
@@ -47565,20 +47584,22 @@
   var active_layers_el = document.getElementById("active-layers");
   var layer_pool_el = document.getElementById("layer-pool");
   var activeLayers = ['osm'];
-  var inactiveLayers = ['eer', 'bng', 'wkt_example'];
+  var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly'];
   var regionLayerToggle = document.getElementById('region-layer-button');
   var bngLayerToggle = document.getElementById('bng-layer-button');
   var wktLayerToggle = document.getElementById('wkt-layer-button');
   var ngrmLayerToggle = document.getElementById('ngrm-layer-button');
   var miningpointLayerToggle = document.getElementById('miningpoint-layer-button');
   var miningpointcoalLayerToggle = document.getElementById('miningpointcoal-layer-button');
+  var miningpolyLayerToggle = document.getElementById('miningpoly-layer-button');
   var layer_toggle_pool = {
     'eer': regionLayerToggle,
     'bng': bngLayerToggle,
     'wkt_example': wktLayerToggle,
     'tf': ngrmLayerToggle,
     'tf_miningpoint': miningpointLayerToggle,
-    'tf_miningpointcoal': miningpointcoalLayerToggle
+    'tf_miningpointcoal': miningpointcoalLayerToggle,
+    'tf_miningpoly': miningpolyLayerToggle
   };
 
   function activate_layer(layer_name) {
@@ -48002,13 +48023,54 @@
   var select = new Select();
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(evt) {
-      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, getMiningPointTable, _getMiningPointTable, getMiningPointCoalTable, _getMiningPointCoalTable, layer_function_dict, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(evt) {
+      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, getMiningPointTable, _getMiningPointTable, getMiningPointCoalTable, _getMiningPointCoalTable, getMiningPolyTable, _getMiningPolyTable, layer_function_dict, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
 
-      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      return regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
+              _getMiningPolyTable = function _getMiningPolyTable3() {
+                _getMiningPolyTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+                  var viewResolution, mapproj, html_return, url;
+                  return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                    while (1) {
+                      switch (_context5.prev = _context5.next) {
+                        case 0:
+                          viewResolution =
+                          /** @type {number} */
+                          map.getView().getResolution();
+                          mapproj = document.getElementById('view-projection').value;
+                          html_return = ""; // Forces to wait for url to be received
+
+                          url = miningpolysource.getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
+                            'INFO_FORMAT': 'text/html',
+                            'FEATURE_COUNT': '6'
+                          });
+                          _context5.next = 6;
+                          return fetch(url).then(function (response) {
+                            return response.text();
+                          }).then(function (htmlres) {
+                            html_return = htmlres;
+                          });
+
+                        case 6:
+                          return _context5.abrupt("return", Promise.resolve(html_return));
+
+                        case 7:
+                        case "end":
+                          return _context5.stop();
+                      }
+                    }
+                  }, _callee5);
+                }));
+                return _getMiningPolyTable.apply(this, arguments);
+              };
+
+              getMiningPolyTable = function _getMiningPolyTable2() {
+                return _getMiningPolyTable.apply(this, arguments);
+              };
+
               _getMiningPointCoalTable = function _getMiningPointCoalTa2() {
                 _getMiningPointCoalTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
                   var viewResolution, mapproj, html_return, url;
@@ -48167,10 +48229,10 @@
               coordinate = evt.coordinate; // var hdms = toStringHDMS(toLonLat(coordinate));
 
               hdms = createStringXY(2)(coordinate);
-              _context5.next = 12;
+              _context6.next = 14;
               return sleep(1);
 
-            case 12:
+            case 14:
               layer_function_dict = {
                 eer: function eer() {
                   return getRegionText();
@@ -48183,57 +48245,60 @@
                 },
                 tf_miningpointcoal: function tf_miningpointcoal() {
                   return getMiningPointCoalTable();
+                },
+                tf_miningpoly: function tf_miningpoly() {
+                  return getMiningPolyTable();
                 }
               };
               content_html = '';
               content_dict = {};
               activeLayers.reverse();
               _iterator = _createForOfIteratorHelper(activeLayers);
-              _context5.prev = 17;
+              _context6.prev = 19;
 
               _iterator.s();
 
-            case 19:
+            case 21:
               if ((_step = _iterator.n()).done) {
-                _context5.next = 27;
+                _context6.next = 29;
                 break;
               }
 
               layer_name = _step.value;
 
               if (!Object.keys(layer_function_dict).includes(layer_name)) {
-                _context5.next = 25;
+                _context6.next = 27;
                 break;
               }
 
-              _context5.next = 24;
+              _context6.next = 26;
               return layer_function_dict[layer_name]();
 
-            case 24:
-              content_dict[layer_name] = _context5.sent;
-
-            case 25:
-              _context5.next = 19;
-              break;
+            case 26:
+              content_dict[layer_name] = _context6.sent;
 
             case 27:
-              _context5.next = 32;
+              _context6.next = 21;
               break;
 
             case 29:
-              _context5.prev = 29;
-              _context5.t0 = _context5["catch"](17);
+              _context6.next = 34;
+              break;
 
-              _iterator.e(_context5.t0);
+            case 31:
+              _context6.prev = 31;
+              _context6.t0 = _context6["catch"](19);
 
-            case 32:
-              _context5.prev = 32;
+              _iterator.e(_context6.t0);
+
+            case 34:
+              _context6.prev = 34;
 
               _iterator.f();
 
-              return _context5.finish(32);
+              return _context6.finish(34);
 
-            case 35:
+            case 37:
               // For ensuring layers are presented in correct order
               _iterator2 = _createForOfIteratorHelper(activeLayers);
 
@@ -48256,12 +48321,12 @@
               popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-            case 41:
+            case 43:
             case "end":
-              return _context5.stop();
+              return _context6.stop();
           }
         }
-      }, _callee5, null, [[17, 29, 32, 35]]);
+      }, _callee6, null, [[19, 31, 34, 37]]);
     }));
 
     return function (_x) {

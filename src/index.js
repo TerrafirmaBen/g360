@@ -246,6 +246,26 @@ layers['tf_miningpointcoal'] = new TileLayer({
   minZoom: 6
 });
 
+let miningpolysource = new TileWMS({
+  url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+  attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+  params: {
+    'FORMAT': 'image/png',
+    'VERSION': '1.3.0',
+    'LAYERS': 'terrafirma:tf_miningpoly',
+    'exceptions': 'application/vnd.ogc.se_inimage',
+    tiled: true,
+    tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+  },
+  serverType: 'geoserver',
+  projection: 'EPSG:27700',
+});
+layers['tf_miningpoly'] = new TileLayer({
+  source: miningpolysource,
+  title: 'Mining poly data',
+  minZoom: 6
+});
+
 
 var fillStyle = new Fill({
   color: [255, 0, 0, 0.1]
@@ -478,7 +498,7 @@ var layer_pool_el = document.getElementById("layer-pool");
 
 
 var activeLayers = ['osm'];
-var inactiveLayers = ['eer', 'bng', 'wkt_example'];
+var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly'];
 
 var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
@@ -486,12 +506,14 @@ var wktLayerToggle = document.getElementById('wkt-layer-button')
 var ngrmLayerToggle = document.getElementById('ngrm-layer-button')
 var miningpointLayerToggle = document.getElementById('miningpoint-layer-button')
 var miningpointcoalLayerToggle = document.getElementById('miningpointcoal-layer-button')
+var miningpolyLayerToggle = document.getElementById('miningpoly-layer-button')
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle,
                           'wkt_example': wktLayerToggle,
                         'tf': ngrmLayerToggle,
                       'tf_miningpoint': miningpointLayerToggle,
                     'tf_miningpointcoal': miningpointcoalLayerToggle,
+                    'tf_miningpoly': miningpolyLayerToggle,
 }
 
 function activate_layer(layer_name,layer_position=activeLayers.length) {
@@ -1018,11 +1040,32 @@ map.on('singleclick', async function (evt) {
       return (Promise.resolve(html_return))
   }
 
+  async function getMiningPolyTable() {
+    var viewResolution = /** @type {number} */ (map.getView().getResolution());
+    var mapproj = document.getElementById('view-projection').value
+    var html_return = "";
+    // Forces to wait for url to be received
+      var url = miningpolysource.getFeatureInfoUrl( 
+        evt.coordinate, viewResolution, mapproj,
+        {
+          'INFO_FORMAT': 'text/html',
+          'FEATURE_COUNT': '6'
+        })
+      await fetch(url)
+        .then(function (response) { return response.text(); })
+        .then(function (htmlres) {
+          html_return = htmlres
+        });
+      // Returns promise that resolves to NGRM table
+      return (Promise.resolve(html_return))
+  }
+
   const layer_function_dict = {
       eer: function() {return getRegionText();},
       tf: function () {return getNGRMTable();},
       tf_miningpoint: function () {return getMiningPointTable();},
       tf_miningpointcoal: function () {return getMiningPointCoalTable();},
+      tf_miningpoly: function () {return getMiningPolyTable();},
   }
   
 
