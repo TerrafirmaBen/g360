@@ -266,7 +266,65 @@ layers['tf_miningpoly'] = new TileLayer({
   minZoom: 6
 });
 
+let miningpolycoalsource = new TileWMS({
+  url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+  attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+  params: {
+    'FORMAT': 'image/png',
+    'VERSION': '1.3.0',
+    'LAYERS': 'terrafirma:tf_miningpolycoal',
+    'exceptions': 'application/vnd.ogc.se_inimage',
+    tiled: true,
+    tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+  },
+  serverType: 'geoserver',
+  projection: 'EPSG:27700',
+});
+layers['tf_miningpolycoal'] = new TileLayer({
+  source: miningpolycoalsource,
+  title: 'Mining polygon coal data',
+  minZoom: 6
+});
 
+let mininglinesource = new TileWMS({
+  url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+  attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+  params: {
+    'FORMAT': 'image/png',
+    'VERSION': '1.3.0',
+    'LAYERS': 'terrafirma:tf_miningline',
+    'exceptions': 'application/vnd.ogc.se_inimage',
+    tiled: true,
+    tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+  },
+  serverType: 'geoserver',
+  projection: 'EPSG:27700',
+});
+layers['tf_miningline'] = new TileLayer({
+  source: mininglinesource,
+  title: 'Mining line data',
+  minZoom: 6
+});
+
+let mininglinecoalsource = new TileWMS({
+  url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
+  attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
+  params: {
+    'FORMAT': 'image/png',
+    'VERSION': '1.3.0',
+    'LAYERS': 'terrafirma:tf_mininglinecoal',
+    'exceptions': 'application/vnd.ogc.se_inimage',
+    tiled: true,
+    tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
+  },
+  serverType: 'geoserver',
+  projection: 'EPSG:27700',
+});
+layers['tf_mininglinecoal'] = new TileLayer({
+  source: mininglinecoalsource,
+  title: 'Mining line coal data',
+  minZoom: 6
+});
 var fillStyle = new Fill({
   color: [255, 0, 0, 0.1]
 });
@@ -498,8 +556,11 @@ var layer_pool_el = document.getElementById("layer-pool");
 
 
 var activeLayers = ['osm'];
-var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly'];
+var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal',
+                      'tf_miningline', 'tf_mininglinecoal'
+                    ];
 
+// List of layer toggles, corresponding to layer-buttons in HTML
 var regionLayerToggle = document.getElementById('region-layer-button')
 var bngLayerToggle = document.getElementById('bng-layer-button')
 var wktLayerToggle = document.getElementById('wkt-layer-button')
@@ -507,6 +568,11 @@ var ngrmLayerToggle = document.getElementById('ngrm-layer-button')
 var miningpointLayerToggle = document.getElementById('miningpoint-layer-button')
 var miningpointcoalLayerToggle = document.getElementById('miningpointcoal-layer-button')
 var miningpolyLayerToggle = document.getElementById('miningpoly-layer-button')
+var miningpolycoalLayerToggle = document.getElementById('miningpolycoal-layer-button')
+var mininglineLayerToggle = document.getElementById('miningline-layer-button')
+var mininglinecoalLayerToggle = document.getElementById('mininglinecoal-layer-button')
+
+// layer_toggle_pool dictionary connects layer ID to the layer button in HTML
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle,
                           'wkt_example': wktLayerToggle,
@@ -514,6 +580,9 @@ var layer_toggle_pool = {'eer': regionLayerToggle,
                       'tf_miningpoint': miningpointLayerToggle,
                     'tf_miningpointcoal': miningpointcoalLayerToggle,
                     'tf_miningpoly': miningpolyLayerToggle,
+                    'tf_miningpolycoal': miningpolycoalLayerToggle,
+                    'tf_miningline': mininglineLayerToggle,
+                    'tf_mininglinecoal': mininglinecoalLayerToggle,
 }
 
 function activate_layer(layer_name,layer_position=activeLayers.length) {
@@ -1060,12 +1129,75 @@ map.on('singleclick', async function (evt) {
       return (Promise.resolve(html_return))
   }
 
+  async function getMiningPolyCoalTable() {
+    var viewResolution = /** @type {number} */ (map.getView().getResolution());
+    var mapproj = document.getElementById('view-projection').value
+    var html_return = "";
+    // Forces to wait for url to be received
+      var url = miningpolycoalsource.getFeatureInfoUrl( 
+        evt.coordinate, viewResolution, mapproj,
+        {
+          'INFO_FORMAT': 'text/html',
+          'FEATURE_COUNT': '6'
+        })
+      await fetch(url)
+        .then(function (response) { return response.text(); })
+        .then(function (htmlres) {
+          html_return = htmlres
+        });
+      // Returns promise that resolves to NGRM table
+      return (Promise.resolve(html_return))
+  }
+
+  async function getMiningLineTable() {
+    var viewResolution = /** @type {number} */ (map.getView().getResolution());
+    var mapproj = document.getElementById('view-projection').value
+    var html_return = "";
+    // Forces to wait for url to be received
+      var url = mininglinesource.getFeatureInfoUrl( 
+        evt.coordinate, viewResolution, mapproj,
+        {
+          'INFO_FORMAT': 'text/html',
+          'FEATURE_COUNT': '6'
+        })
+      await fetch(url)
+        .then(function (response) { return response.text(); })
+        .then(function (htmlres) {
+          html_return = htmlres
+        });
+      // Returns promise that resolves to NGRM table
+      return (Promise.resolve(html_return))
+  }
+
+  async function getMiningLineCoalTable() {
+    var viewResolution = /** @type {number} */ (map.getView().getResolution());
+    var mapproj = document.getElementById('view-projection').value
+    var html_return = "";
+    // Forces to wait for url to be received
+      var url = mininglinecoalsource.getFeatureInfoUrl( 
+        evt.coordinate, viewResolution, mapproj,
+        {
+          'INFO_FORMAT': 'text/html',
+          'FEATURE_COUNT': '6'
+        })
+      await fetch(url)
+        .then(function (response) { return response.text(); })
+        .then(function (htmlres) {
+          html_return = htmlres
+        });
+      // Returns promise that resolves to NGRM table
+      return (Promise.resolve(html_return))
+  }
+
   const layer_function_dict = {
       eer: function() {return getRegionText();},
       tf: function () {return getNGRMTable();},
       tf_miningpoint: function () {return getMiningPointTable();},
       tf_miningpointcoal: function () {return getMiningPointCoalTable();},
       tf_miningpoly: function () {return getMiningPolyTable();},
+      tf_miningpolycoal: function () {return getMiningPolyCoalTable();},
+      tf_miningline: function() {return getMiningLineTable();},
+      tf_mininglinecoal: function() {return getMiningLineCoalTable();},
   }
   
 
