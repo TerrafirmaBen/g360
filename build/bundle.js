@@ -47470,6 +47470,7 @@
 
     if (activeLayers.length > 1) {
       document.querySelector("#active-layers-section").style.display = 'block';
+      clear_layers_btn.style.display = 'block';
     }
 
     if (inactiveLayers.length > 0) {
@@ -47478,6 +47479,22 @@
 
     document.querySelector("#settings").style.display = "none";
   }
+  var clear_layers_btn = document.querySelector('#clear-layers');
+  clear_layers_btn.addEventListener("click", function () {
+    var _iterator = _createForOfIteratorHelper(activeLayers.slice(1)),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var layer_name = _step.value;
+        deactivate_layer(layer_name);
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  });
   var settings_btn = document.querySelector("#settings-tab");
   settings_btn.addEventListener("click", function () {
     show_settings();
@@ -47542,11 +47559,12 @@
   var active_layers_el = document.getElementById("active-layers");
   var layer_pool_el = document.getElementById("layer-pool");
   var activeLayers = ['osm'];
-  var inactiveLayers = ['eer', 'bng', 'wkt_example'].concat(TF_LAYERS);
+  var inactiveLayers = ['eer', 'bng', 'wkt_example'].concat(TF_LAYERS); // Set up pool of layer toggle buttons from list of inactive layers
+
   var layer_toggle_pool = {};
   inactiveLayers.forEach(function (layer_name) {
     layer_toggle_pool[layer_name] = document.getElementById(layer_name + '_layer_button');
-  });
+  }); // Handles all aspects of activating a given layer
 
   function activate_layer(layer_name) {
     var layer_position = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : activeLayers.length;
@@ -47584,6 +47602,8 @@
     activeLayers.push(layer_name);
     active_layers_el.prepend(layer_toggle_pool[layer_name]);
     document.querySelector("#active-layers-section").style.display = 'block';
+    clear_layers_btn.style.display = 'block';
+    clear_layers_btn.firstElementChild.nextElementSibling.style.fontStyle = 'normal';
 
     if (inactiveLayers.length == 0) {
       document.querySelector("#layer-pool-section").style.display = 'none';
@@ -47591,14 +47611,12 @@
 
     console.log("Active layers:", activeLayers);
     console.log("Inactive layers:", inactiveLayers);
-    console.log("Trying to change list");
-    console.log(activeLayers.length);
-  }
+  } // Deactive layer layer_name
+
 
   function deactivate_layer(layer_name) {
     layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palevioletred";
     layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "italic";
-    console.log("Attempting to deactivate layer..");
     map.getLayers().removeAt(activeLayers.indexOf(layer_name));
     inactiveLayers.push(layer_name);
     activeLayers = activeLayers.filter(function (certain_layer_name) {
@@ -47609,6 +47627,7 @@
 
     if (activeLayers.length == 1) {
       document.querySelector("#active-layers-section").style.display = 'none';
+      clear_layers_btn.style.display = 'none';
     }
 
     document.querySelector("#layer-pool-section").style.display = 'block';
@@ -47970,7 +47989,7 @@
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(evt) {
-      var coordinate, hdms, getRegionText, _getRegionText, get_tf_table, _get_tf_table, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
+      var coordinate, hdms, getRegionText, _getRegionText, get_tf_table, _get_tf_table, content_html, content_dict, _iterator2, _step2, layer_name, _iterator3, _step3, _layer_name, popup_html;
 
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
@@ -48059,18 +48078,18 @@
               content_html = '';
               content_dict = {};
               activeLayers.reverse();
-              _iterator = _createForOfIteratorHelper(activeLayers);
+              _iterator2 = _createForOfIteratorHelper(activeLayers);
               _context3.prev = 12;
 
-              _iterator.s();
+              _iterator2.s();
 
             case 14:
-              if ((_step = _iterator.n()).done) {
+              if ((_step2 = _iterator2.n()).done) {
                 _context3.next = 28;
                 break;
               }
 
-              layer_name = _step.value;
+              layer_name = _step2.value;
 
               if (!TF_LAYERS.includes(layer_name)) {
                 _context3.next = 22;
@@ -48109,31 +48128,31 @@
               _context3.prev = 30;
               _context3.t0 = _context3["catch"](12);
 
-              _iterator.e(_context3.t0);
+              _iterator2.e(_context3.t0);
 
             case 33:
               _context3.prev = 33;
 
-              _iterator.f();
+              _iterator2.f();
 
               return _context3.finish(33);
 
             case 36:
               // For ensuring layers are presented in correct order
-              _iterator2 = _createForOfIteratorHelper(activeLayers);
+              _iterator3 = _createForOfIteratorHelper(activeLayers);
 
               try {
-                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                  _layer_name = _step2.value;
+                for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                  _layer_name = _step3.value;
 
                   if (Object.keys(content_dict).includes(_layer_name)) {
                     content_html = content_html + content_dict[_layer_name];
                   }
                 }
               } catch (err) {
-                _iterator2.e(err);
+                _iterator3.e(err);
               } finally {
-                _iterator2.f();
+                _iterator3.f();
               }
 
               activeLayers.reverse();

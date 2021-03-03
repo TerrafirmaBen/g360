@@ -72,9 +72,13 @@
           </div>
           <div class="tab" id="layer-button-list">
             
-            <div id="location-search">Location:<form id='location-search-form'>
-              <input id="searchterm" name="searchterm" type="text" placeholder="Enter location.."><input type="submit" style="display: none" /></form></div>
-            <div id="active-layers-section">
+            <div id="location-search">Location:
+              <form id='location-search-form'>
+              <input id="searchterm" name="searchterm" type="text" placeholder="Enter location.."><input type="submit" style="display: none" />
+              </form>
+            </div>
+            <div id="clear-layers"><br><div class="layer-button ol-control">Clear Layers</div><br></div>
+            <div id="active-layers-section"> 
             Active Layers
             <ul id="active-layers"></ul>
           </div>
@@ -126,14 +130,6 @@
                         <option value="states">United States (EPSG:3857)</option>
                       </select>
                     </div> -->
-                    <!-- <label>
-                      Render overlay map
-                      <input type="checkbox" id="render-overlay">
-                    </label>
-                    <div class="slidecontainer">
-                      <input type="range" min="0" max="100" value="100" class="slider" id="opacitySliderElement">
-                    </div> -->
-                    <!-- <div id="opacityDisplayValue"></div> -->
                     <div class="col-md-5">
                       <label>View projection:</label>
                       <br>

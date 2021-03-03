@@ -376,12 +376,21 @@ function show_layer_select() {
   document.querySelector("#layer-button-list").style.display = "inline-block";
   if (activeLayers.length > 1) {
     document.querySelector("#active-layers-section").style.display = 'block';
+    clear_layers_btn.style.display = 'block'
   }
   if (inactiveLayers.length > 0) {
     document.querySelector("#layer-pool-section").style.display = 'block';
   }
   document.querySelector("#settings").style.display = "none";
 };
+
+let clear_layers_btn = document.querySelector('#clear-layers');
+clear_layers_btn.addEventListener("click", () => {
+    for (var layer_name of activeLayers.slice(1,)) {
+      deactivate_layer(layer_name)
+      
+    }
+});
 
 
 let settings_btn = document.querySelector("#settings-tab");
@@ -457,13 +466,13 @@ var layer_pool_el = document.getElementById("layer-pool");
 var activeLayers = ['osm'];
 var inactiveLayers = ['eer', 'bng', 'wkt_example'].concat(TF_LAYERS)
 
-// Set up pool of layer toggle buttons
+// Set up pool of layer toggle buttons from list of inactive layers
 var layer_toggle_pool = {}
 inactiveLayers.forEach(layer_name => {
   layer_toggle_pool[layer_name] = document.getElementById(layer_name + '_layer_button')
 });
 
-
+// Handles all aspects of activating a given layer
 function activate_layer(layer_name,layer_position=activeLayers.length) {
         console.log("Active layers before:", activeLayers);
         layers[layer_name].setOpacity(1);
@@ -495,21 +504,21 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         activeLayers.push(layer_name)
         active_layers_el.prepend(layer_toggle_pool[layer_name]);
         document.querySelector("#active-layers-section").style.display = 'block';
+        clear_layers_btn.style.display = 'block';
+        clear_layers_btn.firstElementChild.nextElementSibling.style.fontStyle = 'normal';
         if (inactiveLayers.length == 0) {
           document.querySelector("#layer-pool-section").style.display = 'none';
         }
 
         console.log("Active layers:", activeLayers)
         console.log("Inactive layers:", inactiveLayers)
-        console.log("Trying to change list")
-        console.log(activeLayers.length)
 
 }
 
+// Deactive layer layer_name
 function deactivate_layer(layer_name) {
         layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palevioletred"
         layer_toggle_pool[layer_name].firstElementChild.style.fontStyle = "italic"
-        console.log("Attempting to deactivate layer..")
         map.getLayers().removeAt(activeLayers.indexOf(layer_name));
         inactiveLayers.push(layer_name)
         activeLayers = activeLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
@@ -517,6 +526,7 @@ function deactivate_layer(layer_name) {
         layer_toggle_pool[layer_name].removeChild(document.getElementById(layer_name+"_slider"))
         if (activeLayers.length == 1) {
           document.querySelector("#active-layers-section").style.display = 'none';
+          clear_layers_btn.style.display = 'none';
         }
         document.querySelector("#layer-pool-section").style.display = 'block';
 
@@ -914,7 +924,7 @@ map.on('singleclick', async function (evt) {
 
   // Define functions for each layer here
 
-  // eer layer
+  // Example async special get info function for region layer
   async function getRegionText () {
     var region = select.getFeatures().getArray().map(function (feature) {
       return feature.get('EER13NM');
@@ -926,6 +936,7 @@ map.on('singleclick', async function (evt) {
     return(Promise.resolve(regiontext))
   }
   
+  // Generic async function to get GeoServer table info
   async function get_tf_table(layer_name) {
     var viewResolution = /** @type {number} */ (map.getView().getResolution());
     var mapproj = document.getElementById('view-projection').value
@@ -1010,6 +1021,5 @@ document.getElementById('export-png').addEventListener('click', function () {
   });
   map.renderSync();
 });
-
 
 show_layer_select();  // Run at startup as default tab is select-layers

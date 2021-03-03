@@ -163,12 +163,19 @@ body {
     top: 80px;
   }
 
+  #clear-layers {
+    display: none;
+    font-style: normal;
+  }
+
   #active-layers-section {
     display: none;
+    padding-top: 10px;
   }
 
   #layer-pool-section {
     display: none;
+    padding-top: 10px;
   }
 
 
