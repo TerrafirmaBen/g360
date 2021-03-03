@@ -47989,261 +47989,15 @@
   var select = new Select();
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(evt) {
-      var coordinate, hdms, getRegionText, _getRegionText, getNGRMTable, _getNGRMTable, getMiningPointTable, _getMiningPointTable, getMiningPointCoalTable, _getMiningPointCoalTable, getMiningPolyTable, _getMiningPolyTable, getMiningPolyCoalTable, _getMiningPolyCoalTable, getMiningLineTable, _getMiningLineTable, getMiningLineCoalTable, _getMiningLineCoalTable, layer_function_dict, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(evt) {
+      var coordinate, hdms, getRegionText, _getRegionText, get_tf_table, _get_tf_table, content_html, content_dict, _iterator, _step, layer_name, _iterator2, _step2, _layer_name, popup_html;
 
-      return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context9.prev = _context9.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
-              _getMiningLineCoalTable = function _getMiningLineCoalTab2() {
-                _getMiningLineCoalTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
-                  var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee8$(_context8) {
-                    while (1) {
-                      switch (_context8.prev = _context8.next) {
-                        case 0:
-                          viewResolution =
-                          /** @type {number} */
-                          map.getView().getResolution();
-                          mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // Forces to wait for url to be received
-
-                          url = sources['tf_mininglinecoal'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                            'INFO_FORMAT': 'text/html',
-                            'FEATURE_COUNT': '6'
-                          });
-                          _context8.next = 6;
-                          return fetch(url).then(function (response) {
-                            return response.text();
-                          }).then(function (htmlres) {
-                            html_return = htmlres;
-                          });
-
-                        case 6:
-                          return _context8.abrupt("return", Promise.resolve(html_return));
-
-                        case 7:
-                        case "end":
-                          return _context8.stop();
-                      }
-                    }
-                  }, _callee8);
-                }));
-                return _getMiningLineCoalTable.apply(this, arguments);
-              };
-
-              getMiningLineCoalTable = function _getMiningLineCoalTab() {
-                return _getMiningLineCoalTable.apply(this, arguments);
-              };
-
-              _getMiningLineTable = function _getMiningLineTable3() {
-                _getMiningLineTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-                  var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee7$(_context7) {
-                    while (1) {
-                      switch (_context7.prev = _context7.next) {
-                        case 0:
-                          viewResolution =
-                          /** @type {number} */
-                          map.getView().getResolution();
-                          mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // Forces to wait for url to be received
-
-                          url = sources['tf_miningline'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                            'INFO_FORMAT': 'text/html',
-                            'FEATURE_COUNT': '6'
-                          });
-                          _context7.next = 6;
-                          return fetch(url).then(function (response) {
-                            return response.text();
-                          }).then(function (htmlres) {
-                            html_return = htmlres;
-                          });
-
-                        case 6:
-                          return _context7.abrupt("return", Promise.resolve(html_return));
-
-                        case 7:
-                        case "end":
-                          return _context7.stop();
-                      }
-                    }
-                  }, _callee7);
-                }));
-                return _getMiningLineTable.apply(this, arguments);
-              };
-
-              getMiningLineTable = function _getMiningLineTable2() {
-                return _getMiningLineTable.apply(this, arguments);
-              };
-
-              _getMiningPolyCoalTable = function _getMiningPolyCoalTab2() {
-                _getMiningPolyCoalTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-                  var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee6$(_context6) {
-                    while (1) {
-                      switch (_context6.prev = _context6.next) {
-                        case 0:
-                          viewResolution =
-                          /** @type {number} */
-                          map.getView().getResolution();
-                          mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // Forces to wait for url to be received
-
-                          url = sources['tf_miningpolycoal'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                            'INFO_FORMAT': 'text/html',
-                            'FEATURE_COUNT': '6'
-                          });
-                          _context6.next = 6;
-                          return fetch(url).then(function (response) {
-                            return response.text();
-                          }).then(function (htmlres) {
-                            html_return = htmlres;
-                          });
-
-                        case 6:
-                          return _context6.abrupt("return", Promise.resolve(html_return));
-
-                        case 7:
-                        case "end":
-                          return _context6.stop();
-                      }
-                    }
-                  }, _callee6);
-                }));
-                return _getMiningPolyCoalTable.apply(this, arguments);
-              };
-
-              getMiningPolyCoalTable = function _getMiningPolyCoalTab() {
-                return _getMiningPolyCoalTable.apply(this, arguments);
-              };
-
-              _getMiningPolyTable = function _getMiningPolyTable3() {
-                _getMiningPolyTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
-                  var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee5$(_context5) {
-                    while (1) {
-                      switch (_context5.prev = _context5.next) {
-                        case 0:
-                          viewResolution =
-                          /** @type {number} */
-                          map.getView().getResolution();
-                          mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // Forces to wait for url to be received
-
-                          url = sources['tf_miningpoly'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                            'INFO_FORMAT': 'text/html',
-                            'FEATURE_COUNT': '6'
-                          });
-                          _context5.next = 6;
-                          return fetch(url).then(function (response) {
-                            return response.text();
-                          }).then(function (htmlres) {
-                            html_return = htmlres;
-                          });
-
-                        case 6:
-                          return _context5.abrupt("return", Promise.resolve(html_return));
-
-                        case 7:
-                        case "end":
-                          return _context5.stop();
-                      }
-                    }
-                  }, _callee5);
-                }));
-                return _getMiningPolyTable.apply(this, arguments);
-              };
-
-              getMiningPolyTable = function _getMiningPolyTable2() {
-                return _getMiningPolyTable.apply(this, arguments);
-              };
-
-              _getMiningPointCoalTable = function _getMiningPointCoalTa2() {
-                _getMiningPointCoalTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-                  var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee4$(_context4) {
-                    while (1) {
-                      switch (_context4.prev = _context4.next) {
-                        case 0:
-                          viewResolution =
-                          /** @type {number} */
-                          map.getView().getResolution();
-                          mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // Forces to wait for url to be received
-
-                          url = sources['tf_miningpointcoal'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                            'INFO_FORMAT': 'text/html',
-                            'FEATURE_COUNT': '6'
-                          });
-                          _context4.next = 6;
-                          return fetch(url).then(function (response) {
-                            return response.text();
-                          }).then(function (htmlres) {
-                            html_return = htmlres;
-                          });
-
-                        case 6:
-                          return _context4.abrupt("return", Promise.resolve(html_return));
-
-                        case 7:
-                        case "end":
-                          return _context4.stop();
-                      }
-                    }
-                  }, _callee4);
-                }));
-                return _getMiningPointCoalTable.apply(this, arguments);
-              };
-
-              getMiningPointCoalTable = function _getMiningPointCoalTa() {
-                return _getMiningPointCoalTable.apply(this, arguments);
-              };
-
-              _getMiningPointTable = function _getMiningPointTable3() {
-                _getMiningPointTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-                  var viewResolution, mapproj, html_return, url;
-                  return regeneratorRuntime.wrap(function _callee3$(_context3) {
-                    while (1) {
-                      switch (_context3.prev = _context3.next) {
-                        case 0:
-                          viewResolution =
-                          /** @type {number} */
-                          map.getView().getResolution();
-                          mapproj = document.getElementById('view-projection').value;
-                          html_return = ""; // Forces to wait for url to be received
-
-                          url = sources['tf_miningpoint'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
-                            'INFO_FORMAT': 'text/html',
-                            'FEATURE_COUNT': '6'
-                          });
-                          _context3.next = 6;
-                          return fetch(url).then(function (response) {
-                            return response.text();
-                          }).then(function (htmlres) {
-                            html_return = htmlres;
-                          });
-
-                        case 6:
-                          return _context3.abrupt("return", Promise.resolve(html_return));
-
-                        case 7:
-                        case "end":
-                          return _context3.stop();
-                      }
-                    }
-                  }, _callee3);
-                }));
-                return _getMiningPointTable.apply(this, arguments);
-              };
-
-              getMiningPointTable = function _getMiningPointTable2() {
-                return _getMiningPointTable.apply(this, arguments);
-              };
-
-              _getNGRMTable = function _getNGRMTable3() {
-                _getNGRMTable = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+              _get_tf_table = function _get_tf_table3() {
+                _get_tf_table = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(layer_name) {
                   var viewResolution, mapproj, html_return, url;
                   return regeneratorRuntime.wrap(function _callee2$(_context2) {
                     while (1) {
@@ -48255,7 +48009,7 @@
                           mapproj = document.getElementById('view-projection').value;
                           html_return = ""; // Forces to wait for url to be received
 
-                          url = sources['tf_ngrm'].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
+                          url = sources[layer_name].getFeatureInfoUrl(evt.coordinate, viewResolution, mapproj, {
                             'INFO_FORMAT': 'text/html',
                             'FEATURE_COUNT': '6'
                           });
@@ -48276,11 +48030,11 @@
                     }
                   }, _callee2);
                 }));
-                return _getNGRMTable.apply(this, arguments);
+                return _get_tf_table.apply(this, arguments);
               };
 
-              getNGRMTable = function _getNGRMTable2() {
-                return _getNGRMTable.apply(this, arguments);
+              get_tf_table = function _get_tf_table2(_x2) {
+                return _get_tf_table.apply(this, arguments);
               };
 
               _getRegionText = function _getRegionText3() {
@@ -48318,85 +48072,73 @@
               coordinate = evt.coordinate; // var hdms = toStringHDMS(toLonLat(coordinate));
 
               hdms = createStringXY(2)(coordinate);
-              _context9.next = 20;
+              _context3.next = 8;
               return sleep(1);
 
-            case 20:
-              layer_function_dict = {
-                eer: function eer() {
-                  return getRegionText();
-                },
-                tf_ngrm: function tf_ngrm() {
-                  return getNGRMTable();
-                },
-                tf_miningpoint: function tf_miningpoint() {
-                  return getMiningPointTable();
-                },
-                tf_miningpointcoal: function tf_miningpointcoal() {
-                  return getMiningPointCoalTable();
-                },
-                tf_miningpoly: function tf_miningpoly() {
-                  return getMiningPolyTable();
-                },
-                tf_miningpolycoal: function tf_miningpolycoal() {
-                  return getMiningPolyCoalTable();
-                },
-                tf_miningline: function tf_miningline() {
-                  return getMiningLineTable();
-                },
-                tf_mininglinecoal: function tf_mininglinecoal() {
-                  return getMiningLineCoalTable();
-                }
-              };
+            case 8:
               content_html = '';
               content_dict = {};
               activeLayers.reverse();
               _iterator = _createForOfIteratorHelper(activeLayers);
-              _context9.prev = 25;
+              _context3.prev = 12;
 
               _iterator.s();
 
-            case 27:
+            case 14:
               if ((_step = _iterator.n()).done) {
-                _context9.next = 35;
+                _context3.next = 28;
                 break;
               }
 
               layer_name = _step.value;
 
-              if (!Object.keys(layer_function_dict).includes(layer_name)) {
-                _context9.next = 33;
+              if (!TF_LAYERS.includes(layer_name)) {
+                _context3.next = 22;
                 break;
               }
 
-              _context9.next = 32;
-              return layer_function_dict[layer_name]();
+              _context3.next = 19;
+              return get_tf_table(layer_name);
 
-            case 32:
-              content_dict[layer_name] = _context9.sent;
+            case 19:
+              content_dict[layer_name] = _context3.sent;
+              _context3.next = 26;
+              break;
+
+            case 22:
+              if (!(layer_name == 'eer')) {
+                _context3.next = 26;
+                break;
+              }
+
+              _context3.next = 25;
+              return getRegionText();
+
+            case 25:
+              content_dict[layer_name] = _context3.sent;
+
+            case 26:
+              _context3.next = 14;
+              break;
+
+            case 28:
+              _context3.next = 33;
+              break;
+
+            case 30:
+              _context3.prev = 30;
+              _context3.t0 = _context3["catch"](12);
+
+              _iterator.e(_context3.t0);
 
             case 33:
-              _context9.next = 27;
-              break;
-
-            case 35:
-              _context9.next = 40;
-              break;
-
-            case 37:
-              _context9.prev = 37;
-              _context9.t0 = _context9["catch"](25);
-
-              _iterator.e(_context9.t0);
-
-            case 40:
-              _context9.prev = 40;
+              _context3.prev = 33;
 
               _iterator.f();
 
-              return _context9.finish(40);
+              return _context3.finish(33);
 
-            case 43:
+            case 36:
               // For ensuring layers are presented in correct order
               _iterator2 = _createForOfIteratorHelper(activeLayers);
 
@@ -48419,12 +48161,12 @@
               popup_content.innerHTML = popup_html;
               overlay.setPosition(coordinate);
 
-            case 49:
+            case 42:
             case "end":
-              return _context9.stop();
+              return _context3.stop();
           }
         }
-      }, _callee9, null, [[25, 37, 40, 43]]);
+      }, _callee3, null, [[12, 30, 33, 36]]);
     }));
 
     return function (_x) {

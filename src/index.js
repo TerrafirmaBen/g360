@@ -946,14 +946,12 @@ map.on('singleclick', async function (evt) {
     return(Promise.resolve(regiontext))
   }
   
-
-  // ngrm layer
-  async function getNGRMTable() {
+  async function get_tf_table(layer_name) {
     var viewResolution = /** @type {number} */ (map.getView().getResolution());
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = sources['tf_ngrm'].getFeatureInfoUrl( 
+      var url = sources[layer_name].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -968,144 +966,14 @@ map.on('singleclick', async function (evt) {
       return (Promise.resolve(html_return))
   }
 
-  async function getMiningPointTable() {
-    var viewResolution = /** @type {number} */ (map.getView().getResolution());
-    var mapproj = document.getElementById('view-projection').value
-    var html_return = "";
-    // Forces to wait for url to be received
-      var url = sources['tf_miningpoint'].getFeatureInfoUrl( 
-        evt.coordinate, viewResolution, mapproj,
-        {
-          'INFO_FORMAT': 'text/html',
-          'FEATURE_COUNT': '6'
-        })
-      await fetch(url)
-        .then(function (response) { return response.text(); })
-        .then(function (htmlres) {
-          html_return = htmlres
-        });
-      // Returns promise that resolves to NGRM table
-      return (Promise.resolve(html_return))
-  }
-
-  async function getMiningPointCoalTable() {
-    var viewResolution = /** @type {number} */ (map.getView().getResolution());
-    var mapproj = document.getElementById('view-projection').value
-    var html_return = "";
-    // Forces to wait for url to be received
-      var url = sources['tf_miningpointcoal'].getFeatureInfoUrl( 
-        evt.coordinate, viewResolution, mapproj,
-        {
-          'INFO_FORMAT': 'text/html',
-          'FEATURE_COUNT': '6'
-        })
-      await fetch(url)
-        .then(function (response) { return response.text(); })
-        .then(function (htmlres) {
-          html_return = htmlres
-        });
-      // Returns promise that resolves to NGRM table
-      return (Promise.resolve(html_return))
-  }
-
-  async function getMiningPolyTable() {
-    var viewResolution = /** @type {number} */ (map.getView().getResolution());
-    var mapproj = document.getElementById('view-projection').value
-    var html_return = "";
-    // Forces to wait for url to be received
-      var url = sources['tf_miningpoly'].getFeatureInfoUrl( 
-        evt.coordinate, viewResolution, mapproj,
-        {
-          'INFO_FORMAT': 'text/html',
-          'FEATURE_COUNT': '6'
-        })
-      await fetch(url)
-        .then(function (response) { return response.text(); })
-        .then(function (htmlres) {
-          html_return = htmlres
-        });
-      // Returns promise that resolves to NGRM table
-      return (Promise.resolve(html_return))
-  }
-
-  async function getMiningPolyCoalTable() {
-    var viewResolution = /** @type {number} */ (map.getView().getResolution());
-    var mapproj = document.getElementById('view-projection').value
-    var html_return = "";
-    // Forces to wait for url to be received
-      var url = sources['tf_miningpolycoal'].getFeatureInfoUrl( 
-        evt.coordinate, viewResolution, mapproj,
-        {
-          'INFO_FORMAT': 'text/html',
-          'FEATURE_COUNT': '6'
-        })
-      await fetch(url)
-        .then(function (response) { return response.text(); })
-        .then(function (htmlres) {
-          html_return = htmlres
-        });
-      // Returns promise that resolves to NGRM table
-      return (Promise.resolve(html_return))
-  }
-
-  async function getMiningLineTable() {
-    var viewResolution = /** @type {number} */ (map.getView().getResolution());
-    var mapproj = document.getElementById('view-projection').value
-    var html_return = "";
-    // Forces to wait for url to be received
-      var url = sources['tf_miningline'].getFeatureInfoUrl( 
-        evt.coordinate, viewResolution, mapproj,
-        {
-          'INFO_FORMAT': 'text/html',
-          'FEATURE_COUNT': '6'
-        })
-      await fetch(url)
-        .then(function (response) { return response.text(); })
-        .then(function (htmlres) {
-          html_return = htmlres
-        });
-      // Returns promise that resolves to NGRM table
-      return (Promise.resolve(html_return))
-  }
-
-  async function getMiningLineCoalTable() {
-    var viewResolution = /** @type {number} */ (map.getView().getResolution());
-    var mapproj = document.getElementById('view-projection').value
-    var html_return = "";
-    // Forces to wait for url to be received
-      var url = sources['tf_mininglinecoal'].getFeatureInfoUrl( 
-        evt.coordinate, viewResolution, mapproj,
-        {
-          'INFO_FORMAT': 'text/html',
-          'FEATURE_COUNT': '6'
-        })
-      await fetch(url)
-        .then(function (response) { return response.text(); })
-        .then(function (htmlres) {
-          html_return = htmlres
-        });
-      // Returns promise that resolves to NGRM table
-      return (Promise.resolve(html_return))
-  }
-
-  const layer_function_dict = {
-      eer: function() {return getRegionText();},
-      tf_ngrm: function () {return getNGRMTable();},
-      tf_miningpoint: function () {return getMiningPointTable();},
-      tf_miningpointcoal: function () {return getMiningPointCoalTable();},
-      tf_miningpoly: function () {return getMiningPolyTable();},
-      tf_miningpolycoal: function () {return getMiningPolyCoalTable();},
-      tf_miningline: function() {return getMiningLineTable();},
-      tf_mininglinecoal: function() {return getMiningLineCoalTable();},
-  }
-  
-
-  var content_html = ''
-  var content_dict = {}
+var content_html = ''
+var content_dict = {}
 activeLayers.reverse()
 for (const layer_name of activeLayers) {
-  if (Object.keys(layer_function_dict).includes(layer_name)) {
-    content_dict[layer_name] = await layer_function_dict[layer_name]()
+  if ((TF_LAYERS).includes(layer_name)) {
+    content_dict[layer_name] = await get_tf_table(layer_name);
+  } else if (layer_name == 'eer') {
+    content_dict[layer_name] = await getRegionText();
   }
 }
 // For ensuring layers are presented in correct order
