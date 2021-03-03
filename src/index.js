@@ -185,13 +185,15 @@ layers['states'] = new TileLayer({
     projection: 'EPSG:3857',
   }),
 });
-let ngrmwmssource = new TileWMS({
+
+var sources = {}
+sources['tf_ngrm'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
     'FORMAT': 'image/png',
     'VERSION': '1.3.0',
-    'LAYERS': 'terrafirma:tf_lr_haz',
+    'LAYERS': 'terrafirma:tf_ngrm',
     'exceptions': 'application/vnd.ogc.se_inimage',
     tiled: true,
     tilesOrigin: -118397.00155160861 + "," + -15982.135610342928
@@ -199,14 +201,10 @@ let ngrmwmssource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
-layers['tf'] = new TileLayer({
-  source: ngrmwmssource,
-  title: 'LR Haz NGRM ol tile set',
-  minZoom: 9.5
-});
 
 
-let miningpointsource = new TileWMS({
+
+sources['tf_miningpoint'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
@@ -220,13 +218,7 @@ let miningpointsource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
-layers['tf_miningpoint'] = new TileLayer({
-  source: miningpointsource,
-  title: 'Mining point data',
-  minZoom: 6
-});
-
-let miningpointcoalsource = new TileWMS({
+sources['tf_miningpointcoal'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
@@ -240,13 +232,7 @@ let miningpointcoalsource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
-layers['tf_miningpointcoal'] = new TileLayer({
-  source: miningpointcoalsource,
-  title: 'Mining point coal data',
-  minZoom: 6
-});
-
-let miningpolysource = new TileWMS({
+sources['tf_miningpoly'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
@@ -260,13 +246,8 @@ let miningpolysource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
-layers['tf_miningpoly'] = new TileLayer({
-  source: miningpolysource,
-  title: 'Mining poly data',
-  minZoom: 6
-});
 
-let miningpolycoalsource = new TileWMS({
+sources['tf_miningpolycoal'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
@@ -280,13 +261,7 @@ let miningpolycoalsource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
-layers['tf_miningpolycoal'] = new TileLayer({
-  source: miningpolycoalsource,
-  title: 'Mining polygon coal data',
-  minZoom: 6
-});
-
-let mininglinesource = new TileWMS({
+sources['tf_miningline'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
@@ -300,13 +275,7 @@ let mininglinesource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
-layers['tf_miningline'] = new TileLayer({
-  source: mininglinesource,
-  title: 'Mining line data',
-  minZoom: 6
-});
-
-let mininglinecoalsource = new TileWMS({
+sources['tf_mininglinecoal'] = new TileWMS({
   url: 'http://ec2-3-8-5-157.eu-west-2.compute.amazonaws.com:8080/geoserver/terrafirma/wms?',
   attributions: 'Metadata © <a href="https://www.terrafirmaidc.co.uk/">Terrafirma IDC Ltd.</a> 2020. Polygons subject to Crown and GeoPlace LLP copyright and database rights 2020 Ordnance Survey 100026316',
   params: {
@@ -320,11 +289,53 @@ let mininglinecoalsource = new TileWMS({
   serverType: 'geoserver',
   projection: 'EPSG:27700',
 });
+layers['tf'] = new TileLayer({
+  source: sources['tf_ngrm'],
+  title: 'LR Haz NGRM ol tile set',
+  minZoom: 9.5
+});
+
+layers['tf_miningpoint'] = new TileLayer({
+  source: sources['tf_miningpoint'],
+  title: 'Mining point data',
+  minZoom: 6
+});
+
+
+layers['tf_miningpointcoal'] = new TileLayer({
+  source: sources['tf_miningpointcoal'],
+  title: 'Mining point coal data',
+  minZoom: 6
+});
+
+
+layers['tf_miningpoly'] = new TileLayer({
+  source: sources['tf_miningpoly'],
+  title: 'Mining poly data',
+  minZoom: 6
+});
+
+
+layers['tf_miningpolycoal'] = new TileLayer({
+  source: sources['tf_miningpolycoal'],
+  title: 'Mining polygon coal data',
+  minZoom: 6
+});
+
+
+layers['tf_miningline'] = new TileLayer({
+  source: sources['tf_miningline'],
+  title: 'Mining line data',
+  minZoom: 6
+});
+
+
 layers['tf_mininglinecoal'] = new TileLayer({
-  source: mininglinecoalsource,
+  source: sources['tf_mininglinecoal'],
   title: 'Mining line coal data',
   minZoom: 6
 });
+
 var fillStyle = new Fill({
   color: [255, 0, 0, 0.1]
 });
@@ -1054,7 +1065,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = ngrmwmssource.getFeatureInfoUrl( 
+      var url = sources['tf_ngrm'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -1074,7 +1085,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = miningpointsource.getFeatureInfoUrl( 
+      var url = sources['tf_miningpoint'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -1094,7 +1105,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = miningpointcoalsource.getFeatureInfoUrl( 
+      var url = sources['tf_miningpointcoal'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -1114,7 +1125,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = miningpolysource.getFeatureInfoUrl( 
+      var url = sources['tf_miningpoly'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -1134,7 +1145,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = miningpolycoalsource.getFeatureInfoUrl( 
+      var url = sources['tf_miningpolycoal'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -1154,7 +1165,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = mininglinesource.getFeatureInfoUrl( 
+      var url = sources['tf_miningline'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
@@ -1174,7 +1185,7 @@ map.on('singleclick', async function (evt) {
     var mapproj = document.getElementById('view-projection').value
     var html_return = "";
     // Forces to wait for url to be received
-      var url = mininglinecoalsource.getFeatureInfoUrl( 
+      var url = sources['tf_mininglinecoal'].getFeatureInfoUrl( 
         evt.coordinate, viewResolution, mapproj,
         {
           'INFO_FORMAT': 'text/html',
