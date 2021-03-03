@@ -204,60 +204,25 @@ function assign_tf_source(layer_name) {
   });
 }
 
+function assign_tf_layer(layer_name) {
+  layers[layer_name] = new TileLayer({
+    source: sources[layer_name],
+    title: layer_name + ' tile set',
+    minZoom: 6
+  })
+}
+
+// List of TF GeoServer layers to pull through to the app
 const TF_LAYERS = ['tf_ngrm', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline',
                   'tf_mininglinecoal'
                 ]
 
 TF_LAYERS.forEach(layer_name => {
   assign_tf_source(layer_name)
+  assign_tf_layer(layer_name)
 });
 
-layers['tf'] = new TileLayer({
-  source: sources['tf_ngrm'],
-  title: 'LR Haz NGRM ol tile set',
-  minZoom: 9.5
-});
-
-layers['tf_miningpoint'] = new TileLayer({
-  source: sources['tf_miningpoint'],
-  title: 'Mining point data',
-  minZoom: 6
-});
-
-
-layers['tf_miningpointcoal'] = new TileLayer({
-  source: sources['tf_miningpointcoal'],
-  title: 'Mining point coal data',
-  minZoom: 6
-});
-
-
-layers['tf_miningpoly'] = new TileLayer({
-  source: sources['tf_miningpoly'],
-  title: 'Mining poly data',
-  minZoom: 6
-});
-
-
-layers['tf_miningpolycoal'] = new TileLayer({
-  source: sources['tf_miningpolycoal'],
-  title: 'Mining polygon coal data',
-  minZoom: 6
-});
-
-
-layers['tf_miningline'] = new TileLayer({
-  source: sources['tf_miningline'],
-  title: 'Mining line data',
-  minZoom: 6
-});
-
-
-layers['tf_mininglinecoal'] = new TileLayer({
-  source: sources['tf_mininglinecoal'],
-  title: 'Mining line coal data',
-  minZoom: 6
-});
+// TODO: Set NGRM minZoom to 9.5
 
 var fillStyle = new Fill({
   color: [255, 0, 0, 0.1]
@@ -490,7 +455,7 @@ var layer_pool_el = document.getElementById("layer-pool");
 
 
 var activeLayers = ['osm'];
-var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal',
+var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf_ngrm', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal',
                       'tf_miningline', 'tf_mininglinecoal'
                     ];
 
@@ -510,7 +475,7 @@ var mininglinecoalLayerToggle = document.getElementById('mininglinecoal-layer-bu
 var layer_toggle_pool = {'eer': regionLayerToggle,
                           'bng': bngLayerToggle,
                           'wkt_example': wktLayerToggle,
-                        'tf': ngrmLayerToggle,
+                        'tf_ngrm': ngrmLayerToggle,
                       'tf_miningpoint': miningpointLayerToggle,
                     'tf_miningpointcoal': miningpointcoalLayerToggle,
                     'tf_miningpoly': miningpolyLayerToggle,
@@ -1125,7 +1090,7 @@ map.on('singleclick', async function (evt) {
 
   const layer_function_dict = {
       eer: function() {return getRegionText();},
-      tf: function () {return getNGRMTable();},
+      tf_ngrm: function () {return getNGRMTable();},
       tf_miningpoint: function () {return getMiningPointTable();},
       tf_miningpointcoal: function () {return getMiningPointCoalTable();},
       tf_miningpoly: function () {return getMiningPolyTable();},
