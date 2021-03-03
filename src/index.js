@@ -673,11 +673,10 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   // // Element dragging ended
   onEnd: function (/**Event*/ evt) {
   //   var itemEl = evt.item; // dragged HTMLElement
-  //   evt.to; // target list
-  //   evt.from; // previous list
-  //   evt.oldIndex; // element's old index within old parent
-  //   evt.newIndex; // element's new index within new parent
-    // console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
+  //   evt.to is target list
+  //   evt.from is previous list
+  //   evt.oldIndex is element's old index within old parent
+  //   evt.newIndex is element's new index within new parent
     if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
       swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
     }
@@ -705,11 +704,12 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   //   // same properties as onEnd
   // },
 
-  // // Element is removed from the list into another list
+  // Layer is moved from active layers into the layer pool
   onRemove: function (/**Event*/ evt) {
     if (evt.to != evt.from) {
-    console.log("deactivating", activeLayers[evt.oldIndex + 1])
-    deactivate_layer(activeLayers[evt.oldIndex + 1])
+    console.log("deactivating", activeLayers[layer_target(evt.oldIndex + 1)])
+    deactivate_layer(activeLayers[layer_target(evt.oldIndex + 1)])
+    console.log(activeLayers)
     }
     // same properties as onEnd
   },
@@ -753,7 +753,10 @@ var layer_pool_sortable = new Sortable(layer_pool_el, {
   animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
   onEnd: function (/**Event*/ evt) {
       console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-      swap_pool_layers(evt.oldIndex, evt.newIndex);
+      if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
+        // TODO: Fix layer swapping issues within the pool
+        swap_pool_layers(evt.oldIndex, evt.newIndex);
+      }
     },
   // // Element is removed from the list into another list
   onRemove: function (/**Event*/ evt) {
