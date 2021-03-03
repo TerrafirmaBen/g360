@@ -47542,31 +47542,11 @@
   var active_layers_el = document.getElementById("active-layers");
   var layer_pool_el = document.getElementById("layer-pool");
   var activeLayers = ['osm'];
-  var inactiveLayers = ['eer', 'bng', 'wkt_example', 'tf_ngrm', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline', 'tf_mininglinecoal']; // List of layer toggles, corresponding to layer-buttons in HTML
-
-  var regionLayerToggle = document.getElementById('region-layer-button');
-  var bngLayerToggle = document.getElementById('bng-layer-button');
-  var wktLayerToggle = document.getElementById('wkt-layer-button');
-  var ngrmLayerToggle = document.getElementById('ngrm-layer-button');
-  var miningpointLayerToggle = document.getElementById('miningpoint-layer-button');
-  var miningpointcoalLayerToggle = document.getElementById('miningpointcoal-layer-button');
-  var miningpolyLayerToggle = document.getElementById('miningpoly-layer-button');
-  var miningpolycoalLayerToggle = document.getElementById('miningpolycoal-layer-button');
-  var mininglineLayerToggle = document.getElementById('miningline-layer-button');
-  var mininglinecoalLayerToggle = document.getElementById('mininglinecoal-layer-button'); // layer_toggle_pool dictionary connects layer ID to the layer button in HTML
-
-  var layer_toggle_pool = {
-    'eer': regionLayerToggle,
-    'bng': bngLayerToggle,
-    'wkt_example': wktLayerToggle,
-    'tf_ngrm': ngrmLayerToggle,
-    'tf_miningpoint': miningpointLayerToggle,
-    'tf_miningpointcoal': miningpointcoalLayerToggle,
-    'tf_miningpoly': miningpolyLayerToggle,
-    'tf_miningpolycoal': miningpolycoalLayerToggle,
-    'tf_miningline': mininglineLayerToggle,
-    'tf_mininglinecoal': mininglinecoalLayerToggle
-  };
+  var inactiveLayers = ['eer', 'bng', 'wkt_example'].concat(TF_LAYERS);
+  var layer_toggle_pool = {};
+  inactiveLayers.forEach(function (layer_name) {
+    layer_toggle_pool[layer_name] = document.getElementById(layer_name + '_layer_button');
+  });
 
   function activate_layer(layer_name) {
     var layer_position = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : activeLayers.length;
