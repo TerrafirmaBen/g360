@@ -47329,7 +47329,9 @@
   } // List of TF GeoServer layers to pull through to the app
 
 
-  var TF_LAYERS = ['tf_ngrm', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline', 'tf_mininglinecoal'];
+  var TF_LAYERS = ['tf_ngrm', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline', 'tf_mininglinecoal']; // Array in order of layer precedence
+
+  var MINING_LAYERS = ['tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline', 'tf_mininglinecoal', 'tf_miningpoint', 'tf_miningpointcoal'];
   TF_LAYERS.forEach(function (layer_name) {
     assign_tf_source(layer_name);
     assign_tf_layer(layer_name);
@@ -47421,8 +47423,7 @@
 
   function show_sidebar(orientation) {
     if (orientation == "landscape") {
-      console.log(activeLayers.length, inactiveLayers.length); //document.querySelector("#tab-list").style.width = '20%';
-
+      //document.querySelector("#tab-list").style.width = '20%';
       document.querySelector("#sidebar").style.width = "25%";
       document.querySelector("#map").style.width = "75%";
       document.querySelector('#map').style.marginLeft = "25%";
@@ -47478,21 +47479,41 @@
     }
 
     document.querySelector("#settings").style.display = "none";
+    activate_mining_layers_btn.firstElementChild.nextElementSibling.style.fontStyle = 'normal';
   }
-  var clear_layers_btn = document.querySelector('#clear-layers');
-  clear_layers_btn.addEventListener("click", function () {
-    var _iterator = _createForOfIteratorHelper(activeLayers.slice(1)),
+  var activate_mining_layers_btn = document.querySelector('#activate-mining-layers');
+  activate_mining_layers_btn.addEventListener("click", function () {
+    var _iterator = _createForOfIteratorHelper(MINING_LAYERS),
         _step;
 
     try {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var layer_name = _step.value;
-        deactivate_layer(layer_name);
+
+        if (!activeLayers.includes(layer_name)) {
+          activate_layer(layer_name);
+        }
       }
     } catch (err) {
       _iterator.e(err);
     } finally {
       _iterator.f();
+    }
+  });
+  var clear_layers_btn = document.querySelector('#clear-layers');
+  clear_layers_btn.addEventListener("click", function () {
+    var _iterator2 = _createForOfIteratorHelper(activeLayers.slice(1)),
+        _step2;
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var layer_name = _step2.value;
+        deactivate_layer(layer_name);
+      }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
     }
   });
   var settings_btn = document.querySelector("#settings-tab");
@@ -47568,7 +47589,6 @@
 
   function activate_layer(layer_name) {
     var layer_position = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : activeLayers.length;
-    console.log("Active layers before:", activeLayers);
     layers[layer_name].setOpacity(1);
     updateRenderEdgesOnLayer(layers[layer_name]);
     layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen";
@@ -47597,7 +47617,6 @@
     inactiveLayers = inactiveLayers.filter(function (certain_layer_name) {
       return certain_layer_name !== layer_name;
     });
-    console.log("Setting layer at:", layer_position);
     map.getLayers().setAt(layer_position, layers[layer_name]);
     activeLayers.push(layer_name);
     active_layers_el.prepend(layer_toggle_pool[layer_name]);
@@ -47608,9 +47627,6 @@
     if (inactiveLayers.length == 0) {
       document.querySelector("#layer-pool-section").style.display = 'none';
     }
-
-    console.log("Active layers:", activeLayers);
-    console.log("Inactive layers:", inactiveLayers);
   } // Deactive layer layer_name
 
 
@@ -47631,21 +47647,17 @@
     }
 
     document.querySelector("#layer-pool-section").style.display = 'block';
-    console.log(inactiveLayers);
   }
 
   function assign_layer_toggle(layer_name) {
     layer_toggle_pool[layer_name].firstElementChild.onclick = function () {
       if (!activeLayers.includes(layer_name)) {
-        console.log("Trying to activate", layer_name);
         activate_layer(layer_name);
       } else {
-        console.log("Trying to deactivate", layer_name);
         deactivate_layer(layer_name);
       }
     };
   } // Assigns layer toggles to the buttons themselves
-  // TODO: Reassign from layer pool
 
 
   for (var layer_toggle_name in layer_toggle_pool) {
@@ -47685,14 +47697,11 @@
         map.getLayers().insertAt(layer_target_old_index, layers[layer_name_new_index]);
         map.getLayers().insertAt(layer_target_new_index, layers[layer_name_old_index]);
       }
-
-      console.log("Active layers after swap:", activeLayers);
     }
   }
 
   function swap_pool_layers(old_index, new_index) {
     inactiveLayers = arrayMove(inactiveLayers, old_index, new_index);
-    console.log("inactiveLayers", inactiveLayers);
   }
 
   var active_layers_sortable = new It(active_layers_el, {
@@ -47761,8 +47770,7 @@
       //   evt.newIndex is element's new index within new parent
       if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
         swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
-      } // console.log(evt.to, evt.from)
-      //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
+      } //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
       //   evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
       //   evt.clone; // the clone element
       //   evt.pullMode; // when item is in another sortable: `"clone"` if cloning, `true` if moving
@@ -47785,9 +47793,7 @@
     /**Event*/
     evt) {
       if (evt.to != evt.from) {
-        console.log("deactivating", activeLayers[layer_target(evt.oldIndex + 1)]);
         deactivate_layer(activeLayers[layer_target(evt.oldIndex + 1)]);
-        console.log(activeLayers);
       } // same properties as onEnd
 
     } // // Attempt to drag a filtered element
@@ -47829,10 +47835,7 @@
     onEnd: function onEnd(
     /**Event*/
     evt) {
-      console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
-
       if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
-        // TODO: Fix layer swapping issues within the pool
         swap_pool_layers(evt.oldIndex, evt.newIndex);
       }
     },
@@ -47840,10 +47843,7 @@
     onRemove: function onRemove(
     /**Event*/
     evt) {
-      console.log(evt.oldIndex);
-      console.log(inactiveLayers[evt.oldIndex]);
-      activate_layer(inactiveLayers[evt.oldIndex]);
-      console.log(evt.from, evt.to); // same properties as onEnd
+      activate_layer(inactiveLayers[evt.oldIndex]); // same properties as onEnd
     } // onChoose: function (/**Event*/ evt) {
     //   console.log("Selected an elt");
     //   console.log(evt.item)
@@ -47864,12 +47864,12 @@
     var formData = new FormData(event.target);
     var json_string = JSON.stringify(Object.fromEntries(formData));
     var parse = JSON.parse(json_string);
-    searchterm = parse.searchterm;
+    searchterm = parse.searchterm; // If searchterm.length < 9, suspect postcode
 
     if (searchterm.length < 9) {
       var xhttp = new XMLHttpRequest();
       var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=' + searchterm;
-      console.log(api_url);
+      console.log("Querying", api_url);
       xhttp.open("GET", api_url, true);
       xhttp.send();
 
@@ -47879,7 +47879,9 @@
         var search_y = parsed_xhttp_response_api_url.y_coordinate[0][0];
         map.getView().setZoom(11);
         map.getView().setCenter([search_x, search_y]);
-      };
+      }; // If searchterm longer, suspect LonLat
+      // TODO: Check this adapts for different view projections
+
     } else {
       var split = searchterm.split(", ");
       map.getView().setZoom(11);
@@ -47988,7 +47990,7 @@
   map.addInteraction(select);
   map.on('singleclick', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(evt) {
-      var coordinate, hdms, getRegionText, _getRegionText, get_tf_table, _get_tf_table, content_html, content_dict, _iterator2, _step2, layer_name, _iterator3, _step3, _layer_name, popup_html;
+      var coordinate, hdms, getRegionText, _getRegionText, get_tf_table, _get_tf_table, content_html, content_dict, _iterator3, _step3, layer_name, _iterator4, _step4, _layer_name, popup_html;
 
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
@@ -48077,18 +48079,18 @@
               content_html = '';
               content_dict = {};
               activeLayers.reverse();
-              _iterator2 = _createForOfIteratorHelper(activeLayers);
+              _iterator3 = _createForOfIteratorHelper(activeLayers);
               _context3.prev = 12;
 
-              _iterator2.s();
+              _iterator3.s();
 
             case 14:
-              if ((_step2 = _iterator2.n()).done) {
+              if ((_step3 = _iterator3.n()).done) {
                 _context3.next = 28;
                 break;
               }
 
-              layer_name = _step2.value;
+              layer_name = _step3.value;
 
               if (!TF_LAYERS.includes(layer_name)) {
                 _context3.next = 22;
@@ -48127,31 +48129,31 @@
               _context3.prev = 30;
               _context3.t0 = _context3["catch"](12);
 
-              _iterator2.e(_context3.t0);
+              _iterator3.e(_context3.t0);
 
             case 33:
               _context3.prev = 33;
 
-              _iterator2.f();
+              _iterator3.f();
 
               return _context3.finish(33);
 
             case 36:
               // For ensuring layers are presented in correct order
-              _iterator3 = _createForOfIteratorHelper(activeLayers);
+              _iterator4 = _createForOfIteratorHelper(activeLayers);
 
               try {
-                for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-                  _layer_name = _step3.value;
+                for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                  _layer_name = _step4.value;
 
                   if (Object.keys(content_dict).includes(_layer_name)) {
                     content_html = content_html + content_dict[_layer_name];
                   }
                 }
               } catch (err) {
-                _iterator3.e(err);
+                _iterator4.e(err);
               } finally {
-                _iterator3.f();
+                _iterator4.f();
               }
 
               activeLayers.reverse();

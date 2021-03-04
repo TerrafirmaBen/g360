@@ -216,6 +216,8 @@ function assign_tf_layer(layer_name) {
 const TF_LAYERS = ['tf_ngrm', 'tf_miningpoint', 'tf_miningpointcoal', 'tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline',
                   'tf_mininglinecoal'
                 ]
+// Array in order of layer precedence
+const MINING_LAYERS = ['tf_miningpoly', 'tf_miningpolycoal', 'tf_miningline', 'tf_mininglinecoal', 'tf_miningpoint', 'tf_miningpointcoal']
 
 TF_LAYERS.forEach(layer_name => {
   assign_tf_source(layer_name)
@@ -326,7 +328,6 @@ open_sidebar_btn.addEventListener("click", () => {
 function show_sidebar(orientation) {
 
   if (orientation == "landscape") {
-    console.log(activeLayers.length, inactiveLayers.length)
 
     //document.querySelector("#tab-list").style.width = '20%';
     document.querySelector("#sidebar").style.width = "25%";
@@ -376,13 +377,25 @@ function show_layer_select() {
   document.querySelector("#layer-button-list").style.display = "inline-block";
   if (activeLayers.length > 1) {
     document.querySelector("#active-layers-section").style.display = 'block';
-    clear_layers_btn.style.display = 'block'
+    clear_layers_btn.style.display = 'block';
+
   }
   if (inactiveLayers.length > 0) {
     document.querySelector("#layer-pool-section").style.display = 'block';
   }
   document.querySelector("#settings").style.display = "none";
+  activate_mining_layers_btn.firstElementChild.nextElementSibling.style.fontStyle = 'normal';
+
 };
+
+let activate_mining_layers_btn = document.querySelector('#activate-mining-layers');
+activate_mining_layers_btn.addEventListener("click", () => {
+  for (var layer_name of MINING_LAYERS) {
+    if (!activeLayers.includes(layer_name)) {
+      activate_layer(layer_name)
+    }
+  }
+});
 
 let clear_layers_btn = document.querySelector('#clear-layers');
 clear_layers_btn.addEventListener("click", () => {
@@ -474,7 +487,6 @@ inactiveLayers.forEach(layer_name => {
 
 // Handles all aspects of activating a given layer
 function activate_layer(layer_name,layer_position=activeLayers.length) {
-        console.log("Active layers before:", activeLayers);
         layers[layer_name].setOpacity(1);
         updateRenderEdgesOnLayer(layers[layer_name]);
         layer_toggle_pool[layer_name].firstElementChild.style.backgroundColor = "palegreen"
@@ -499,7 +511,6 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         node.appendChild(slider);
         layer_toggle_pool[layer_name].append(node);
         inactiveLayers = inactiveLayers.filter(function (certain_layer_name) { return certain_layer_name !== layer_name})
-        console.log("Setting layer at:", layer_position)
         map.getLayers().setAt(layer_position, layers[layer_name]);
         activeLayers.push(layer_name)
         active_layers_el.prepend(layer_toggle_pool[layer_name]);
@@ -509,9 +520,6 @@ function activate_layer(layer_name,layer_position=activeLayers.length) {
         if (inactiveLayers.length == 0) {
           document.querySelector("#layer-pool-section").style.display = 'none';
         }
-
-        console.log("Active layers:", activeLayers)
-        console.log("Inactive layers:", inactiveLayers)
 
 }
 
@@ -665,7 +673,6 @@ var active_layers_sortable = new Sortable(active_layers_el, {
     if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
       swap_active_layers(evt.oldIndex + 1, evt.newIndex + 1);
     }
-    // console.log(evt.to, evt.from)
 
 
   //   evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
@@ -767,11 +774,12 @@ locationSearch.onsubmit = function (event) {
   var json_string = JSON.stringify(Object.fromEntries(formData));
   var parse = JSON.parse(json_string)
   searchterm = parse.searchterm;
+  // If searchterm.length < 9, suspect postcode
   if (searchterm.length < 9) {
   var xhttp = new XMLHttpRequest(); 
   var test_url = 'https://nominatim.openstreetmap.org/search?q=17+Strada+Pictor+Alexandru+Romano%2C+Bukarest&format=geojson'
   var api_url = 'https://twm-development.herokuapp.com/get_address_by_postcode?session_id=999&postcode=' + searchterm;
-  console.log(api_url)
+  console.log("Querying",api_url)
   xhttp.open("GET", api_url, true);
   xhttp.send(); 
   xhttp.onreadystatechange = function() {
@@ -781,7 +789,8 @@ locationSearch.onsubmit = function (event) {
     map.getView().setZoom(11);
     map.getView().setCenter([search_x, search_y]);  
   }
-  
+  // If searchterm longer, suspect LonLat
+  // TODO: Check this adapts for different view projections
   } else {
     var split = searchterm.split(", ")
     map.getView().setZoom(11);

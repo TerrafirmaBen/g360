@@ -165,7 +165,10 @@ body {
 
   #clear-layers {
     display: none;
-    font-style: normal;
+  }
+
+  #activate-mining-layers {
+    /* display: none; */
   }
 
   #active-layers-section {
