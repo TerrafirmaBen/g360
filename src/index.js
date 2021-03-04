@@ -331,10 +331,14 @@ function show_sidebar(orientation) {
 
     //document.querySelector("#tab-list").style.width = '20%';
     document.querySelector("#sidebar").style.width = "25%";
-    document.querySelector("#map").style.width = "75%";
-    document.querySelector('#map').style.marginLeft = "25%";
+    document.querySelector("#sidebar").style.borderTopRightRadius = "30px";
+    document.querySelector("#sidebar").style.borderBottomRightRadius = "30px";
+    document.querySelector("#map").style.width = "80%";
+    document.querySelector('#map').style.marginLeft = "20%";
   } else if (orientation == "portrait") {
     document.querySelector("#sidebar").style.height = "25vh";
+    document.querySelector("#sidebar").style.borderTopRightRadius = "30px";
+    document.querySelector("#sidebar").style.borderBottomRightRadius = "30px";
     document.querySelector("#map").style.height = "75vh";
     //document.querySelector('#map').style.marginTop = "25vh";
   }
@@ -348,10 +352,14 @@ function hide_sidebar(orientation) {
 
   if (orientation == "landscape") {
     document.querySelector("#sidebar").style.width = "100px";
+    document.querySelector("#sidebar").style.borderTopRightRadius = "0px";
+    document.querySelector("#sidebar").style.borderBottomRightRadius = "0px";
     document.querySelector("#map").style.width = "100%"
     document.querySelector('#map').style.marginLeft = "0";
   } else if (orientation == "portrait") {
     document.querySelector("#sidebar").style.height = "100px";
+    document.querySelector("#sidebar").style.borderTopRightRadius = "0px";
+    document.querySelector("#sidebar").style.borderBottomRightRadius = "0px";
     document.querySelector("#map").style.height = "100vh"
     //document.querySelector('#map').style.marginTop = "0vh";
   }

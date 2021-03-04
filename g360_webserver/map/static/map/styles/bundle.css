@@ -161,14 +161,11 @@ body {
     display: inline-block;
     position: absolute;
     top: 80px;
+    
   }
 
   #clear-layers {
     display: none;
-  }
-
-  #activate-mining-layers {
-    /* display: none; */
   }
 
   #active-layers-section {
