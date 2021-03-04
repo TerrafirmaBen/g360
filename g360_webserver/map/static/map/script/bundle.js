@@ -47631,6 +47631,7 @@
     }
 
     document.querySelector("#layer-pool-section").style.display = 'block';
+    console.log(inactiveLayers);
   }
 
   function assign_layer_toggle(layer_name) {
@@ -47698,6 +47699,8 @@
     } else {
       inactiveLayers = [inactiveLayers[layer_a_id], inactiveLayers[layer_b_id]];
     }
+
+    console.log("inactiveLayers", inactiveLayers);
   }
 
   var active_layers_sortable = new It(active_layers_el, {
@@ -47785,14 +47788,14 @@
     // onSort: function (/**Event*/ evt) {
     //   // same properties as onEnd
     // },
-    // // Element is removed from the list into another list
+    // Layer is moved from active layers into the layer pool
     onRemove: function onRemove(
     /**Event*/
     evt) {
       if (evt.to != evt.from) {
-        console.log("Active", activeLayers, "old index", evt.oldIndex);
-        console.log("deactivating", activeLayers[evt.oldIndex + 1]);
+        console.log("deactivating", activeLayers[layer_target(evt.oldIndex + 1)]);
         deactivate_layer(activeLayers[layer_target(evt.oldIndex + 1)]);
+        console.log(activeLayers);
       } // same properties as onEnd
 
     } // // Attempt to drag a filtered element
@@ -47837,6 +47840,7 @@
       console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
 
       if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
+        // TODO: Fix layer swapping issues within the pool
         swap_pool_layers(evt.oldIndex, evt.newIndex);
       }
     },

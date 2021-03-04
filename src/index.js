@@ -535,11 +535,8 @@ function deactivate_layer(layer_name) {
 function assign_layer_toggle(layer_name) {
     layer_toggle_pool[layer_name].firstElementChild.onclick = function () {
       if (!activeLayers.includes(layer_name)) {
-        console.log("Trying to activate", layer_name)
         activate_layer(layer_name)
-
       } else {
-        console.log("Trying to deactivate", layer_name)
         deactivate_layer(layer_name)
       }
   }
@@ -547,7 +544,6 @@ function assign_layer_toggle(layer_name) {
 
 
 // Assigns layer toggles to the buttons themselves
-// TODO: Reassign from layer pool
 for (var layer_toggle_name in layer_toggle_pool) {
   layer_toggle_pool[layer_toggle_name].firstElementChild.style.backgroundColor = "palevioletred"
   assign_layer_toggle(layer_toggle_name)
@@ -585,22 +581,11 @@ function swap_active_layers(old_index, new_index) {  // Move layer at old_index 
 
   }
 
-  console.log("Active layers after swap:", activeLayers)
-
+}
 }
 
-
-}
-
-function swap_pool_layers(layer_a_id, layer_b_id) {
-  console.log("First layer selected:", inactiveLayers[layer_a_id]);
-  console.log("Second layer selected:", inactiveLayers[layer_b_id]);
-  if (layer_a_id < layer_b_id) {
-    inactiveLayers = [inactiveLayers[layer_b_id], inactiveLayers[layer_a_id]]
-  } else {
-    inactiveLayers = [inactiveLayers[layer_a_id], inactiveLayers[layer_b_id]]
-  }
-
+function swap_pool_layers(old_index, new_index) {
+  inactiveLayers = arrayMove(inactiveLayers, old_index, new_index)
 }
 
 
@@ -707,9 +692,7 @@ var active_layers_sortable = new Sortable(active_layers_el, {
   // Layer is moved from active layers into the layer pool
   onRemove: function (/**Event*/ evt) {
     if (evt.to != evt.from) {
-    console.log("deactivating", activeLayers[layer_target(evt.oldIndex + 1)])
     deactivate_layer(activeLayers[layer_target(evt.oldIndex + 1)])
-    console.log(activeLayers)
     }
     // same properties as onEnd
   },
@@ -752,18 +735,13 @@ var layer_pool_sortable = new Sortable(layer_pool_el, {
   group: "layer-list-group", // or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
   animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
   onEnd: function (/**Event*/ evt) {
-      console.log("Initial list index:", evt.oldIndex, "New list index:", evt.newIndex);
       if (evt.newIndex != evt.oldIndex && evt.to == evt.from) {
-        // TODO: Fix layer swapping issues within the pool
         swap_pool_layers(evt.oldIndex, evt.newIndex);
       }
     },
   // // Element is removed from the list into another list
   onRemove: function (/**Event*/ evt) {
-    console.log(evt.oldIndex)
-    console.log(inactiveLayers[evt.oldIndex])
     activate_layer(inactiveLayers[evt.oldIndex])
-    console.log(evt.from, evt.to)
     // same properties as onEnd
   },
   // onChoose: function (/**Event*/ evt) {
