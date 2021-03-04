@@ -44542,505 +44542,7 @@
       }
   }
 
-  /**
-   * @module ol/format/GeoJSON
-   */
   var __extends$1q = (undefined && undefined.__extends) || (function () {
-      var extendStatics = function (d, b) {
-          extendStatics = Object.setPrototypeOf ||
-              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-              function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-          return extendStatics(d, b);
-      };
-      return function (d, b) {
-          extendStatics(d, b);
-          function __() { this.constructor = d; }
-          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-      };
-  })();
-  /**
-   * @typedef {import("geojson").GeoJSON} GeoJSONObject
-   * @typedef {import("geojson").Feature} GeoJSONFeature
-   * @typedef {import("geojson").FeatureCollection} GeoJSONFeatureCollection
-   * @typedef {import("geojson").Geometry} GeoJSONGeometry
-   * @typedef {import("geojson").Point} GeoJSONPoint
-   * @typedef {import("geojson").LineString} GeoJSONLineString
-   * @typedef {import("geojson").Polygon} GeoJSONPolygon
-   * @typedef {import("geojson").MultiPoint} GeoJSONMultiPoint
-   * @typedef {import("geojson").MultiLineString} GeoJSONMultiLineString
-   * @typedef {import("geojson").MultiPolygon} GeoJSONMultiPolygon
-   * @typedef {import("geojson").GeometryCollection} GeoJSONGeometryCollection
-   */
-  /**
-   * @typedef {Object} Options
-   * @property {import("../proj.js").ProjectionLike} [dataProjection='EPSG:4326'] Default data projection.
-   * @property {import("../proj.js").ProjectionLike} [featureProjection] Projection for features read or
-   * written by the format.  Options passed to read or write methods will take precedence.
-   * @property {string} [geometryName] Geometry name to use when creating features.
-   * @property {boolean} [extractGeometryName=false] Certain GeoJSON providers include
-   * the geometry_name field in the feature GeoJSON. If set to `true` the GeoJSON reader
-   * will look for that field to set the geometry name. If both this field is set to `true`
-   * and a `geometryName` is provided, the `geometryName` will take precedence.
-   */
-  /**
-   * @classdesc
-   * Feature format for reading and writing data in the GeoJSON format.
-   *
-   * @api
-   */
-  var GeoJSON = /** @class */ (function (_super) {
-      __extends$1q(GeoJSON, _super);
-      /**
-       * @param {Options=} opt_options Options.
-       */
-      function GeoJSON(opt_options) {
-          var _this = this;
-          var options = opt_options ? opt_options : {};
-          _this = _super.call(this) || this;
-          /**
-           * @type {import("../proj/Projection.js").default}
-           */
-          _this.dataProjection = get$2(options.dataProjection ? options.dataProjection : 'EPSG:4326');
-          if (options.featureProjection) {
-              _this.defaultFeatureProjection = get$2(options.featureProjection);
-          }
-          /**
-           * Name of the geometry attribute for features.
-           * @type {string|undefined}
-           * @private
-           */
-          _this.geometryName_ = options.geometryName;
-          /**
-           * Look for the geometry name in the feature GeoJSON
-           * @type {boolean|undefined}
-           * @private
-           */
-          _this.extractGeometryName_ = options.extractGeometryName;
-          return _this;
-      }
-      /**
-       * @param {Object} object Object.
-       * @param {import("./Feature.js").ReadOptions=} opt_options Read options.
-       * @protected
-       * @return {import("../Feature.js").default} Feature.
-       */
-      GeoJSON.prototype.readFeatureFromObject = function (object, opt_options) {
-          /**
-           * @type {GeoJSONFeature}
-           */
-          var geoJSONFeature = null;
-          if (object['type'] === 'Feature') {
-              geoJSONFeature = /** @type {GeoJSONFeature} */ (object);
-          }
-          else {
-              geoJSONFeature = {
-                  'type': 'Feature',
-                  'geometry': /** @type {GeoJSONGeometry} */ (object),
-                  'properties': null,
-              };
-          }
-          var geometry = readGeometry(geoJSONFeature['geometry'], opt_options);
-          var feature = new Feature();
-          if (this.geometryName_) {
-              feature.setGeometryName(this.geometryName_);
-          }
-          else if (this.extractGeometryName_ &&
-              'geometry_name' in geoJSONFeature !== undefined) {
-              feature.setGeometryName(geoJSONFeature['geometry_name']);
-          }
-          feature.setGeometry(geometry);
-          if ('id' in geoJSONFeature) {
-              feature.setId(geoJSONFeature['id']);
-          }
-          if (geoJSONFeature['properties']) {
-              feature.setProperties(geoJSONFeature['properties'], true);
-          }
-          return feature;
-      };
-      /**
-       * @param {Object} object Object.
-       * @param {import("./Feature.js").ReadOptions=} opt_options Read options.
-       * @protected
-       * @return {Array<Feature>} Features.
-       */
-      GeoJSON.prototype.readFeaturesFromObject = function (object, opt_options) {
-          var geoJSONObject = /** @type {GeoJSONObject} */ (object);
-          /** @type {Array<import("../Feature.js").default>} */
-          var features = null;
-          if (geoJSONObject['type'] === 'FeatureCollection') {
-              var geoJSONFeatureCollection = /** @type {GeoJSONFeatureCollection} */ (object);
-              features = [];
-              var geoJSONFeatures = geoJSONFeatureCollection['features'];
-              for (var i = 0, ii = geoJSONFeatures.length; i < ii; ++i) {
-                  features.push(this.readFeatureFromObject(geoJSONFeatures[i], opt_options));
-              }
-          }
-          else {
-              features = [this.readFeatureFromObject(object, opt_options)];
-          }
-          return features;
-      };
-      /**
-       * @param {GeoJSONGeometry} object Object.
-       * @param {import("./Feature.js").ReadOptions=} opt_options Read options.
-       * @protected
-       * @return {import("../geom/Geometry.js").default} Geometry.
-       */
-      GeoJSON.prototype.readGeometryFromObject = function (object, opt_options) {
-          return readGeometry(object, opt_options);
-      };
-      /**
-       * @param {Object} object Object.
-       * @protected
-       * @return {import("../proj/Projection.js").default} Projection.
-       */
-      GeoJSON.prototype.readProjectionFromObject = function (object) {
-          var crs = object['crs'];
-          var projection;
-          if (crs) {
-              if (crs['type'] == 'name') {
-                  projection = get$2(crs['properties']['name']);
-              }
-              else if (crs['type'] === 'EPSG') {
-                  projection = get$2('EPSG:' + crs['properties']['code']);
-              }
-              else {
-                  assert(false, 36); // Unknown SRS type
-              }
-          }
-          else {
-              projection = this.dataProjection;
-          }
-          return /** @type {import("../proj/Projection.js").default} */ (projection);
-      };
-      /**
-       * Encode a feature as a GeoJSON Feature object.
-       *
-       * @param {import("../Feature.js").default} feature Feature.
-       * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-       * @return {GeoJSONFeature} Object.
-       * @api
-       */
-      GeoJSON.prototype.writeFeatureObject = function (feature, opt_options) {
-          opt_options = this.adaptOptions(opt_options);
-          /** @type {GeoJSONFeature} */
-          var object = {
-              'type': 'Feature',
-              geometry: null,
-              properties: null,
-          };
-          var id = feature.getId();
-          if (id !== undefined) {
-              object.id = id;
-          }
-          if (!feature.hasProperties()) {
-              return object;
-          }
-          var properties = feature.getProperties();
-          var geometry = feature.getGeometry();
-          if (geometry) {
-              object.geometry = writeGeometry(geometry, opt_options);
-              delete properties[feature.getGeometryName()];
-          }
-          if (!isEmpty$1(properties)) {
-              object.properties = properties;
-          }
-          return object;
-      };
-      /**
-       * Encode an array of features as a GeoJSON object.
-       *
-       * @param {Array<import("../Feature.js").default>} features Features.
-       * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-       * @return {GeoJSONFeatureCollection} GeoJSON Object.
-       * @api
-       */
-      GeoJSON.prototype.writeFeaturesObject = function (features, opt_options) {
-          opt_options = this.adaptOptions(opt_options);
-          var objects = [];
-          for (var i = 0, ii = features.length; i < ii; ++i) {
-              objects.push(this.writeFeatureObject(features[i], opt_options));
-          }
-          return {
-              type: 'FeatureCollection',
-              features: objects,
-          };
-      };
-      /**
-       * Encode a geometry as a GeoJSON object.
-       *
-       * @param {import("../geom/Geometry.js").default} geometry Geometry.
-       * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-       * @return {GeoJSONGeometry|GeoJSONGeometryCollection} Object.
-       * @api
-       */
-      GeoJSON.prototype.writeGeometryObject = function (geometry, opt_options) {
-          return writeGeometry(geometry, this.adaptOptions(opt_options));
-      };
-      return GeoJSON;
-  }(JSONFeature));
-  /**
-   * @param {GeoJSONGeometry|GeoJSONGeometryCollection} object Object.
-   * @param {import("./Feature.js").ReadOptions=} opt_options Read options.
-   * @return {import("../geom/Geometry.js").default} Geometry.
-   */
-  function readGeometry(object, opt_options) {
-      if (!object) {
-          return null;
-      }
-      /**
-       * @type {import("../geom/Geometry.js").default}
-       */
-      var geometry;
-      switch (object['type']) {
-          case GeometryType.POINT: {
-              geometry = readPointGeometry(/** @type {GeoJSONPoint} */ (object));
-              break;
-          }
-          case GeometryType.LINE_STRING: {
-              geometry = readLineStringGeometry(
-              /** @type {GeoJSONLineString} */ (object));
-              break;
-          }
-          case GeometryType.POLYGON: {
-              geometry = readPolygonGeometry(/** @type {GeoJSONPolygon} */ (object));
-              break;
-          }
-          case GeometryType.MULTI_POINT: {
-              geometry = readMultiPointGeometry(
-              /** @type {GeoJSONMultiPoint} */ (object));
-              break;
-          }
-          case GeometryType.MULTI_LINE_STRING: {
-              geometry = readMultiLineStringGeometry(
-              /** @type {GeoJSONMultiLineString} */ (object));
-              break;
-          }
-          case GeometryType.MULTI_POLYGON: {
-              geometry = readMultiPolygonGeometry(
-              /** @type {GeoJSONMultiPolygon} */ (object));
-              break;
-          }
-          case GeometryType.GEOMETRY_COLLECTION: {
-              geometry = readGeometryCollectionGeometry(
-              /** @type {GeoJSONGeometryCollection} */ (object));
-              break;
-          }
-          default: {
-              throw new Error('Unsupported GeoJSON type: ' + object.type);
-          }
-      }
-      return transformGeometryWithOptions(geometry, false, opt_options);
-  }
-  /**
-   * @param {GeoJSONGeometryCollection} object Object.
-   * @param {import("./Feature.js").ReadOptions=} opt_options Read options.
-   * @return {GeometryCollection} Geometry collection.
-   */
-  function readGeometryCollectionGeometry(object, opt_options) {
-      var geometries = object['geometries'].map(
-      /**
-       * @param {GeoJSONGeometry} geometry Geometry.
-       * @return {import("../geom/Geometry.js").default} geometry Geometry.
-       */
-      function (geometry) {
-          return readGeometry(geometry, opt_options);
-      });
-      return new GeometryCollection(geometries);
-  }
-  /**
-   * @param {GeoJSONPoint} object Object.
-   * @return {Point} Point.
-   */
-  function readPointGeometry(object) {
-      return new Point(object['coordinates']);
-  }
-  /**
-   * @param {GeoJSONLineString} object Object.
-   * @return {LineString} LineString.
-   */
-  function readLineStringGeometry(object) {
-      return new LineString(object['coordinates']);
-  }
-  /**
-   * @param {GeoJSONMultiLineString} object Object.
-   * @return {MultiLineString} MultiLineString.
-   */
-  function readMultiLineStringGeometry(object) {
-      return new MultiLineString(object['coordinates']);
-  }
-  /**
-   * @param {GeoJSONMultiPoint} object Object.
-   * @return {MultiPoint} MultiPoint.
-   */
-  function readMultiPointGeometry(object) {
-      return new MultiPoint(object['coordinates']);
-  }
-  /**
-   * @param {GeoJSONMultiPolygon} object Object.
-   * @return {MultiPolygon} MultiPolygon.
-   */
-  function readMultiPolygonGeometry(object) {
-      return new MultiPolygon(object['coordinates']);
-  }
-  /**
-   * @param {GeoJSONPolygon} object Object.
-   * @return {Polygon} Polygon.
-   */
-  function readPolygonGeometry(object) {
-      return new Polygon(object['coordinates']);
-  }
-  /**
-   * @param {import("../geom/Geometry.js").default} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writeGeometry(geometry, opt_options) {
-      geometry = transformGeometryWithOptions(geometry, true, opt_options);
-      var type = geometry.getType();
-      /** @type {GeoJSONGeometry} */
-      var geoJSON;
-      switch (type) {
-          case GeometryType.POINT: {
-              geoJSON = writePointGeometry(
-              /** @type {Point} */ (geometry));
-              break;
-          }
-          case GeometryType.LINE_STRING: {
-              geoJSON = writeLineStringGeometry(
-              /** @type {LineString} */ (geometry));
-              break;
-          }
-          case GeometryType.POLYGON: {
-              geoJSON = writePolygonGeometry(
-              /** @type {Polygon} */ (geometry), opt_options);
-              break;
-          }
-          case GeometryType.MULTI_POINT: {
-              geoJSON = writeMultiPointGeometry(
-              /** @type {MultiPoint} */ (geometry));
-              break;
-          }
-          case GeometryType.MULTI_LINE_STRING: {
-              geoJSON = writeMultiLineStringGeometry(
-              /** @type {MultiLineString} */ (geometry));
-              break;
-          }
-          case GeometryType.MULTI_POLYGON: {
-              geoJSON = writeMultiPolygonGeometry(
-              /** @type {MultiPolygon} */ (geometry), opt_options);
-              break;
-          }
-          case GeometryType.GEOMETRY_COLLECTION: {
-              geoJSON = writeGeometryCollectionGeometry(
-              /** @type {GeometryCollection} */ (geometry), opt_options);
-              break;
-          }
-          case GeometryType.CIRCLE: {
-              geoJSON = {
-                  type: 'GeometryCollection',
-                  geometries: [],
-              };
-              break;
-          }
-          default: {
-              throw new Error('Unsupported geometry type: ' + type);
-          }
-      }
-      return geoJSON;
-  }
-  /**
-   * @param {GeometryCollection} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometryCollection} GeoJSON geometry collection.
-   */
-  function writeGeometryCollectionGeometry(geometry, opt_options) {
-      var geometries = geometry.getGeometriesArray().map(function (geometry) {
-          var options = assign({}, opt_options);
-          delete options.featureProjection;
-          return writeGeometry(geometry, options);
-      });
-      return {
-          type: 'GeometryCollection',
-          geometries: geometries,
-      };
-  }
-  /**
-   * @param {LineString} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writeLineStringGeometry(geometry, opt_options) {
-      return {
-          type: 'LineString',
-          coordinates: geometry.getCoordinates(),
-      };
-  }
-  /**
-   * @param {MultiLineString} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writeMultiLineStringGeometry(geometry, opt_options) {
-      return {
-          type: 'MultiLineString',
-          coordinates: geometry.getCoordinates(),
-      };
-  }
-  /**
-   * @param {MultiPoint} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writeMultiPointGeometry(geometry, opt_options) {
-      return {
-          type: 'MultiPoint',
-          coordinates: geometry.getCoordinates(),
-      };
-  }
-  /**
-   * @param {MultiPolygon} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writeMultiPolygonGeometry(geometry, opt_options) {
-      var right;
-      if (opt_options) {
-          right = opt_options.rightHanded;
-      }
-      return {
-          type: 'MultiPolygon',
-          coordinates: geometry.getCoordinates(right),
-      };
-  }
-  /**
-   * @param {Point} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writePointGeometry(geometry, opt_options) {
-      return {
-          type: 'Point',
-          coordinates: geometry.getCoordinates(),
-      };
-  }
-  /**
-   * @param {Polygon} geometry Geometry.
-   * @param {import("./Feature.js").WriteOptions=} opt_options Write options.
-   * @return {GeoJSONGeometry} GeoJSON geometry.
-   */
-  function writePolygonGeometry(geometry, opt_options) {
-      var right;
-      if (opt_options) {
-          right = opt_options.rightHanded;
-      }
-      return {
-          type: 'Polygon',
-          coordinates: geometry.getCoordinates(right),
-      };
-  }
-
-  var __extends$1r = (undefined && undefined.__extends) || (function () {
       var extendStatics = function (d, b) {
           extendStatics = Object.setPrototypeOf ||
               ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -45062,7 +44564,7 @@
    * @abstract
    */
   var TextFeature = /** @class */ (function (_super) {
-      __extends$1r(TextFeature, _super);
+      __extends$1q(TextFeature, _super);
       function TextFeature() {
           return _super.call(this) || this;
       }
@@ -45231,7 +44733,7 @@
       }
   }
 
-  var __extends$1s = (undefined && undefined.__extends) || (function () {
+  var __extends$1r = (undefined && undefined.__extends) || (function () {
       var extendStatics = function (d, b) {
           extendStatics = Object.setPrototypeOf ||
               ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -45285,7 +44787,7 @@
    * @api
    */
   var TopoJSON = /** @class */ (function (_super) {
-      __extends$1s(TopoJSON, _super);
+      __extends$1r(TopoJSON, _super);
       /**
        * @param {Options=} opt_options Options.
        */
@@ -45366,12 +44868,12 @@
    * @type {Object<string, function(TopoJSONGeometry, Array, ...Array=): import("../geom/Geometry.js").default>}
    */
   var GEOMETRY_READERS = {
-      'Point': readPointGeometry$1,
-      'LineString': readLineStringGeometry$1,
-      'Polygon': readPolygonGeometry$1,
-      'MultiPoint': readMultiPointGeometry$1,
-      'MultiLineString': readMultiLineStringGeometry$1,
-      'MultiPolygon': readMultiPolygonGeometry$1,
+      'Point': readPointGeometry,
+      'LineString': readLineStringGeometry,
+      'Polygon': readPolygonGeometry,
+      'MultiPoint': readMultiPointGeometry,
+      'MultiLineString': readMultiLineStringGeometry,
+      'MultiPolygon': readMultiPolygonGeometry,
   };
   /**
    * Concatenate arcs into a coordinate array.
@@ -45415,7 +44917,7 @@
    * @param {Array<number>} translate Translation for each dimension.
    * @return {Point} Geometry.
    */
-  function readPointGeometry$1(object, scale, translate) {
+  function readPointGeometry(object, scale, translate) {
       var coordinates = object['coordinates'];
       if (scale && translate) {
           transformVertex(coordinates, scale, translate);
@@ -45430,7 +44932,7 @@
    * @param {Array<number>} translate Translation for each dimension.
    * @return {MultiPoint} Geometry.
    */
-  function readMultiPointGeometry$1(object, scale, translate) {
+  function readMultiPointGeometry(object, scale, translate) {
       var coordinates = object['coordinates'];
       if (scale && translate) {
           for (var i = 0, ii = coordinates.length; i < ii; ++i) {
@@ -45446,7 +44948,7 @@
    * @param {Array<Array<import("../coordinate.js").Coordinate>>} arcs Array of arcs.
    * @return {LineString} Geometry.
    */
-  function readLineStringGeometry$1(object, arcs) {
+  function readLineStringGeometry(object, arcs) {
       var coordinates = concatenateArcs(object['arcs'], arcs);
       return new LineString(coordinates);
   }
@@ -45457,7 +44959,7 @@
    * @param {Array<Array<import("../coordinate.js").Coordinate>>} arcs Array of arcs.
    * @return {MultiLineString} Geometry.
    */
-  function readMultiLineStringGeometry$1(object, arcs) {
+  function readMultiLineStringGeometry(object, arcs) {
       var coordinates = [];
       for (var i = 0, ii = object['arcs'].length; i < ii; ++i) {
           coordinates[i] = concatenateArcs(object['arcs'][i], arcs);
@@ -45471,7 +44973,7 @@
    * @param {Array<Array<import("../coordinate.js").Coordinate>>} arcs Array of arcs.
    * @return {Polygon} Geometry.
    */
-  function readPolygonGeometry$1(object, arcs) {
+  function readPolygonGeometry(object, arcs) {
       var coordinates = [];
       for (var i = 0, ii = object['arcs'].length; i < ii; ++i) {
           coordinates[i] = concatenateArcs(object['arcs'][i], arcs);
@@ -45485,7 +44987,7 @@
    * @param {Array<Array<import("../coordinate.js").Coordinate>>} arcs Array of arcs.
    * @return {MultiPolygon} Geometry.
    */
-  function readMultiPolygonGeometry$1(object, arcs) {
+  function readMultiPolygonGeometry(object, arcs) {
       var coordinates = [];
       for (var i = 0, ii = object['arcs'].length; i < ii; ++i) {
           // for each polygon
@@ -45606,7 +45108,7 @@
       vertex[1] = vertex[1] * scale[1] + translate[1];
   }
 
-  var __extends$1t = (undefined && undefined.__extends) || (function () {
+  var __extends$1s = (undefined && undefined.__extends) || (function () {
       var extendStatics = function (d, b) {
           extendStatics = Object.setPrototypeOf ||
               ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -46181,7 +45683,7 @@
    * @api
    */
   var WKT = /** @class */ (function (_super) {
-      __extends$1t(WKT, _super);
+      __extends$1s(WKT, _super);
       /**
        * @param {Options=} opt_options Options.
        */
@@ -47199,27 +46701,9 @@
   };
 
   proj4.defs('EPSG:27700', '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' + '+x_0=400000 +y_0=-100000 +ellps=airy ' + '+towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 ' + '+units=m +no_defs');
-  proj4.defs('EPSG:23032', '+proj=utm +zone=32 +ellps=intl ' + '+towgs84=-87,-98,-121,0,0,0,0 +units=m +no_defs');
-  proj4.defs('EPSG:5479', '+proj=lcc +lat_1=-76.66666666666667 +lat_2=' + '-79.33333333333333 +lat_0=-78 +lon_0=163 +x_0=7000000 +y_0=5000000 ' + '+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
-  proj4.defs('EPSG:21781', '+proj=somerc +lat_0=46.95240555555556 ' + '+lon_0=7.439583333333333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel ' + '+towgs84=674.4,15.1,405.3,0,0,0,0 +units=m +no_defs');
-  proj4.defs('EPSG:3413', '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 ' + '+x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
-  proj4.defs('EPSG:2163', '+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 ' + '+a=6370997 +b=6370997 +units=m +no_defs');
-  proj4.defs('ESRI:54009', '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 ' + '+units=m +no_defs');
   register(proj4);
   var proj27700 = get$2('EPSG:27700');
   proj27700.setExtent([0, 0, 700000, 1300000]);
-  var proj23032 = get$2('EPSG:23032');
-  proj23032.setExtent([-1206118.71, 4021309.92, 1295389.0, 8051813.28]);
-  var proj5479 = get$2('EPSG:5479');
-  proj5479.setExtent([6825737.53, 4189159.8, 9633741.96, 5782472.71]);
-  var proj21781 = get$2('EPSG:21781');
-  proj21781.setExtent([485071.54, 75346.36, 828515.78, 299941.84]);
-  var proj3413 = get$2('EPSG:3413');
-  proj3413.setExtent([-4194304, -4194304, 4194304, 4194304]);
-  var proj2163 = get$2('EPSG:2163');
-  proj2163.setExtent([-8040784.5135, -2577524.921, 3668901.4484, 4785105.1096]);
-  var proj54009 = get$2('ESRI:54009');
-  proj54009.setExtent([-18e6, -9e6, 18e6, 9e6]);
   var layers = {};
   layers['osm'] = new TileLayer({
     source: new OSM()
@@ -47235,34 +46719,7 @@
       projection: 'EPSG:4326'
     })
   });
-  layers['wms21781'] = new TileLayer({
-    source: new TileWMS({
-      attributions: '© <a href="http://www.geo.admin.ch/internet/geoportal/' + 'en/home.html">Pixelmap 1:1000000 / geo.admin.ch</a>',
-      crossOrigin: 'anonymous',
-      params: {
-        'LAYERS': 'ch.swisstopo.pixelkarte-farbe-pk1000.noscale',
-        'FORMAT': 'image/jpeg'
-      },
-      url: 'https://wms.geo.admin.ch/',
-      projection: 'EPSG:21781'
-    })
-  });
   var parser = new WMTSCapabilities();
-  layers['wmts3413'] = new TileLayer();
-  var urlA = 'https://map1.vis.earthdata.nasa.gov/wmts-arctic/' + 'wmts.cgi?SERVICE=WMTS&request=GetCapabilities';
-  fetch(urlA).then(function (response) {
-    return response.text();
-  }).then(function (text) {
-    var result = parser.read(text);
-    var options = optionsFromCapabilities(result, {
-      layer: 'OSM_Land_Mask',
-      matrixSet: 'EPSG3413_250m'
-    });
-    options.crossOrigin = '';
-    options.projection = 'EPSG:3413';
-    options.wrapX = false;
-    layers['wmts3413'].setSource(new WMTS(options));
-  });
   layers['bng'] = new TileLayer();
   var urlB = 'https://tiles.arcgis.com/tiles/qHLhLQrcvEnxjtPr/arcgis/rest/services/OS_Open_Raster/MapServer/WMTS';
   fetch(urlB).then(function (response) {
@@ -47285,22 +46742,6 @@
     resolutions[i$1] = startResolution / Math.pow(2, i$1);
   }
 
-  layers['states'] = new TileLayer({
-    source: new TileWMS({
-      url: 'https://ahocevar.com/geoserver/wms',
-      crossOrigin: '',
-      params: {
-        'LAYERS': 'topp:states'
-      },
-      serverType: 'geoserver',
-      tileGrid: new TileGrid({
-        extent: [-13884991, 2870341, -7455066, 6338219],
-        resolutions: resolutions,
-        tileSize: [512, 256]
-      }),
-      projection: 'EPSG:3857'
-    })
-  });
   var sources = {};
 
   function assign_tf_source(layer_name) {
@@ -47377,13 +46818,6 @@
       width: 1
     }),
     text: new Text()
-  });
-  layers['countries'] = new VectorLayer({
-    imageRatio: 2,
-    source: new VectorSource({
-      format: new GeoJSON(),
-      url: 'https://openlayers.org/en/v4.6.5/examples/data/geojson/countries.geojson'
-    })
   });
   var wkt$1 = "Polygon ((385219.76934220944531262 275120.31611970614176244, " + "510206.33200901799136773 374468.60952152829850093, " + "611691.14784958900418133 249482.04685471975244582, " + "385219.76934220944531262 275120.31611970614176244))";
   var feature = new WKT().readFeature(wkt$1, {
