@@ -161,7 +161,6 @@ body {
     display: inline-block;
     position: absolute;
     top: 80px;
-    
   }
 
   #clear-layers {
@@ -225,6 +224,10 @@ body {
     position: absolute;
     background-color: grey;
     z-index:2;
+  }
+
+  #base-map-selection, #view-projection-selection {
+    padding-bottom: 10px;
   }
 
   #export-png {

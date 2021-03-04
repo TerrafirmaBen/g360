@@ -226,6 +226,10 @@ body {
     z-index:2;
   }
 
+  #base-map-selection, #view-projection-selection {
+    padding-bottom: 10px;
+  }
+
   #export-png {
     font-weight: bold;
   }
